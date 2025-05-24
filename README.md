@@ -1,4 +1,8 @@
-# React + Vite
+# metastra
+
+A social media app with a lot of features built using React + Vite.
+
+---
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
