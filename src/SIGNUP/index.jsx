@@ -81,7 +81,7 @@ const SignUp = () => {
                             <p className="text-sm">Date of birth</p>
                             <CircleHelp  className="w-5 h-5 text-white fill-gray-700"/>
                         </div>
-                        <div className="grid grid-cols-3 px-7 md:px-4">
+                        <div className="grid grid-cols-3 px-7 place-items-center md:px-4">
                             <div className="day">
                                 <select className="w-20 h-8 md:w-32 md:h-9 outline-none rounded-md border border-gray-300">
                                     <option value="">Day</option>
