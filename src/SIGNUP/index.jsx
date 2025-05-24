@@ -55,7 +55,7 @@ const SignUp = () => {
                     <h2 className="text-2xl font-medium md:text-3xl ">Create a new account</h2>
                     <p className="text-sm md:text-base">It's fast and free</p>
                 </div>
-                <form className="mt-6 space-y-4">
+                <form className="mt-6 space-y-10 md:space-y-4">
                     <div className="grid w-full grid-cols-2 gap-3 px-2 ">
                         {(step === 1 || !isMobile) && (
                             <>
@@ -81,7 +81,7 @@ const SignUp = () => {
                             <p className="text-sm">Date of birth</p>
                             <CircleHelp  className="w-5 h-5 text-white fill-gray-700"/>
                         </div>
-                        <div className="grid grid-cols-3 px-4">
+                        <div className="grid grid-cols-3 px-7 md:px-4">
                             <div className="day">
                                 <select className="w-20 h-8 md:w-32 md:h-9 outline-none rounded-md border border-gray-300">
                                     <option value="">Day</option>
@@ -117,12 +117,12 @@ const SignUp = () => {
                     </div>
                     )}
                     {(step === 3 || !isMobile) && (
-                        <div className="gender px-4">
+                        <div className="gender px-4 ">
                         <div className="flex items-center gap-1">
                             <span className="text-sm">Gender</span>
                             <CircleHelp className="w-5 h-5 text-white fill-gray-700" />
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3">
+                        <div className="grid grid-cols-2 md:grid-cols-3 place-items-center md:px-0">
                             <button className="flex justify-between items-center mt-1 px-2 rounded-md w-32 h-9 border border-gray-300">
                                 <span>Female</span>
                                 <input type="radio" name="" id="" />
@@ -172,7 +172,7 @@ const SignUp = () => {
 
                     {isMobile && (
                         <div className={`flex justify-center items-center text-white font-normal ${step === 4 ? 'hidden' : 'flex'}`}>
-                            <button onClick={handleSteps} className="w-48 h-8 rounded-md bg-blue-700">
+                            <button onClick={handleSteps} className="w-48 h-10 rounded-md bg-blue-700">
                                 Next
                             </button>
                         </div>
