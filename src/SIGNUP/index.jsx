@@ -4,6 +4,17 @@ import React, { useEffect, useState } from "react";
 
 const SignUp = () => {
     const [isMobile, setIsMobile] = useState(false);
+    const [formData, setFormData] = useState({
+        firstname: '',
+        surname: '',
+        day: '',
+        month: '',
+        year: '',
+        gender: 'Female',
+        email: '',
+        password: ''
+
+    })
     const [step, setStep] = useState(1);
     const totalSteps = 4;
     const days = [
@@ -13,10 +24,13 @@ const SignUp = () => {
         27, 28, 29, 30, 31
     ]
     const months = [
-        'Jan', 'Feb', 'Mar', 'Apr', 'May', 
+        'Jan', 'Feb', 'Mar', 'Apr', 'May',
         'Jun', 'Jul', 'Aug', 'Sep', 'Oct',
         'Nov', 'Dec'
-    ]
+    ];
+    
+    const genders = isMobile ? ['Female', 'Male',] : ['Female', 'Male', 'Other'];
+
 
 
     const currentYear = new Date().getFullYear();
@@ -24,9 +38,7 @@ const SignUp = () => {
 
     const handleSteps = (e) => {
         e.preventDefault();
-
-        if (step < totalSteps) setStep(step + 1);
-        console.log(step)
+        if (step < totalSteps) setStep(step + 1);  
     }
 
     const handlepPrevStep = () => {
@@ -45,6 +57,16 @@ const SignUp = () => {
 
     }, [])
 
+
+    const handleFormData = (e) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name] : value
+        }))
+    }
+
+
     return (
         <div className="w-full min-h-screen bg-gray-200 flex md:rounded-md flex-col gap-5 md:justify-center items-center">
             <div className="brand-name text-2xl text-green-500 font-medium md:text-3xl md:font-bold">
@@ -55,19 +77,24 @@ const SignUp = () => {
                     <h2 className="text-2xl font-medium md:text-3xl ">Create a new account</h2>
                     <p className="text-sm md:text-base">It's fast and free</p>
                 </div>
-                <form className="mt-6 space-y-10 md:space-y-4">
+                <form className="mt-6 space-y-7 md:space-y-4">
                     <div className="grid w-full grid-cols-2 gap-3 px-2 ">
                         {(step === 1 || !isMobile) && (
                             <>
-                                
                                 <input
-                                className="w-full h-8 md:w-48 md:h-9 outline-none px-2 border rounded-md border-gray-400"
-                                type="text"
-                                placeholder="First name"
+                                    className="w-full h-12 md:w-48 md:h-9 outline-none px-2 border rounded-md border-gray-400"
+                                    type="text"
+                                    name="firstname"
+                                    onChange={handleFormData}
+                                    value={formData.firstname}
+                                    placeholder="First name"
                                 />
                                  <input
-                                    className="outline-none border rounded-md px-2 border-gray-400"
+                                    className="outline-none h-12 md:h-9 border rounded-md px-2 border-gray-400"
                                     type="text"
+                                    name="surname"
+                                    onChange={handleFormData}
+                                    value={formData.surname}
                                     placeholder="Surname"
                                 /> 
                             </>
@@ -83,19 +110,28 @@ const SignUp = () => {
                         </div>
                         <div className="grid grid-cols-3 px-7 place-items-center md:px-4">
                             <div className="day">
-                                <select className="w-20 h-8 md:w-32 md:h-9 outline-none rounded-md border border-gray-300">
+                                    <select
+                                        onChange={handleFormData}
+                                        name="day"
+                                        value={formData.day}
+                                        className="w-20 h-8 md:w-32 md:h-9 outline-none rounded-md border border-gray-300">
                                     <option value="">Day</option>
                                     {days.map((day, index) => (
                                         <option key={index} value={day}>{day}</option>
+                                        
                                     ))}
 
                                 </select>
                             </div>
                             <div className="month">
-                                <select className="w-20 h-8 md:w-32 md:h-9  outline-none border rounded-md border-gray-300">
+                                    <select
+                                        onChange={handleFormData}
+                                        name="month"
+                                        value={formData.month}
+                                        className="w-20 h-8 md:w-32 md:h-9  outline-none border rounded-md border-gray-300">
                                     <option value=''>Month</option>
                                     {months.map((month, index) => (
-                                        <option key={index} value=''>
+                                        <option key={index} value={month}>
                                             {month}
                                         </option>
                                     ))}
@@ -103,10 +139,14 @@ const SignUp = () => {
                                 </select>
                             </div>
                             <div className="year">
-                                <select className="w-20 h-8 md:w-32 md:h-9 outline-none border rounded-md border-gray-300">
+                                    <select
+                                        onChange={handleFormData}
+                                        name="year"
+                                        value={formData.year}
+                                        className="w-20 h-8 md:w-32 md:h-9 outline-none border rounded-md border-gray-300">
                                         <option value=''>Year</option>
                                         {years.map((year, index) => (
-                                            <option key={index} value=''>
+                                            <option key={index} value={year}>
                                                 {year}
                                             </option>
                                         ))}
@@ -122,19 +162,22 @@ const SignUp = () => {
                             <span className="text-sm">Gender</span>
                             <CircleHelp className="w-5 h-5 text-white fill-gray-700" />
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 place-items-center md:px-0">
-                            <button className="flex justify-between items-center mt-1 px-2 rounded-md w-32 h-9 border border-gray-300">
-                                <span>Female</span>
-                                <input type="radio" name="" id="" />
-                            </button>
-                            <button className="flex justify-between items-center mt-1 px-2 rounded-md w-32 h-9 border border-gray-300">
-                                <span>Male</span>
-                                <input type="radio" name="" id="" />
-                            </button>
-                            <button className="hidden md:flex justify-between items-center mt-1 px-2 rounded-md w-32 h-9 border border-gray-300">
-                                <span>Custom</span>
-                                <input type="radio" name="" id="" />
-                            </button>
+                        <div className="grid grid-cols-2 md:grid-cols-3 py-2 place-items-center md:px-0">
+                                {genders.map((gender, index) => (
+                                    <label
+                                        key={index}
+                                        className="flex justify-between rounded-md md:cursor-pointer w-32 h-9 p-2 border border-gray-300 items-center">
+                                        <span>{gender}</span>
+                                        <input
+                                            type="radio"
+                                            name="gender"
+                                            onChange={handleFormData}
+                                            value={gender}
+                                            checked={formData.gender === gender}
+                                        />
+
+                                    </label>
+                            ))}
                         </div>
                     </div>
                     )}
@@ -164,7 +207,7 @@ const SignUp = () => {
                     </div>
                     )}
                     <div className={`btn w-full md:flex justify-center ${isMobile && step === 4 ? 'flex' : 'hidden'}`}>
-                        <button className="bg-green-500 text-white text-xl font-medium w-48 rounded-md h-10">
+                        <button className="bg-green-500 shadow-2xl text-white text-xl font-medium w-48 rounded-md h-10">
                             Sign Up
                         </button>
 
@@ -172,7 +215,7 @@ const SignUp = () => {
 
                     {isMobile && (
                         <div className={`flex justify-center items-center text-white font-normal ${step === 4 ? 'hidden' : 'flex'}`}>
-                            <button onClick={handleSteps} className="w-48 h-10 rounded-md bg-blue-700">
+                            <button onClick={handleSteps} className="w-11/12 shadow h-12 rounded-xl bg-blue-700">
                                 Next
                             </button>
                         </div>
