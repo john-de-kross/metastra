@@ -1,9 +1,18 @@
-import { ArrowLeftIcon, CircleHelp } from "lucide-react";
+import { ArrowLeftIcon, CircleAlert, CircleHelp } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import constraints from "./Constraints";
+import validate from "validate.js"
 
 
 const SignUp = () => {
     const [isMobile, setIsMobile] = useState(false);
+    const [err, setErr] = useState({
+        firstname: '',
+        surname: '',
+        day: '',
+        month: '',
+        year: '',
+    })
     const [formData, setFormData] = useState({
         firstname: '',
         surname: '',
@@ -38,6 +47,15 @@ const SignUp = () => {
 
     const handleSteps = (e) => {
         e.preventDefault();
+
+        const validateConstraints = validate(formData, constraints);
+
+        if (validateConstraints) {
+            setErr(validateConstraints);
+            return;
+        }
+         
+
         if (step < totalSteps) setStep(step + 1);  
     }
 
@@ -66,13 +84,26 @@ const SignUp = () => {
         }))
     }
 
+    const handleBlur = (e) => {
+        const {name, value} = e.target
+        const validateConstraints = validate({ [name]: value }, { [name]: constraints[name] });
+        
+        setErr((prev) => ({
+            ...prev,
+            [name]: validateConstraints ? validateConstraints[name] : ''
+        }))
+
+
+
+    }
+
 
     return (
         <div className="w-full min-h-screen bg-gray-200 flex md:rounded-md flex-col gap-5 md:justify-center items-center">
             <div className="brand-name text-2xl text-green-500 font-medium md:text-3xl md:font-bold">
                 <h1>Metastra</h1>
             </div>
-            <div className="sign-up-container w-full h-full md:w-auto md:h-[90vh] md:bg-white">
+            <div className="sign-up-container w-full h-full md:w-auto md:h-[95vh] md:bg-white">
                 <div className="sign-up-content flex flex-col items-center md:border-b md:border-gray-400">
                     <h2 className="text-2xl font-medium md:text-3xl ">Create a new account</h2>
                     <p className="text-sm md:text-base">It's fast and free</p>
@@ -82,21 +113,32 @@ const SignUp = () => {
                         {(step === 1 || !isMobile) && (
                             <>
                                 <input
-                                    className="w-full h-12 md:w-48 md:h-9 outline-none px-2 border rounded-md border-gray-400"
+                                    className=
+                                    {`w-full h-12 md:w-48 md:h-9 outline-none px-2 border rounded-md border-gray-400 ${err.firstname ? 'border-red-500' : 'border-gray-400'}`}
                                     type="text"
                                     name="firstname"
                                     onChange={handleFormData}
                                     value={formData.firstname}
                                     placeholder="First name"
+                                    onBlur={handleBlur}
                                 />
+                                {err.firstname && (
+                                    <CircleAlert className={`absolute flex m-4 right-40 md:mr-[40%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.firstname.length  && !err.firstname > 0 ? 'hidden' : ''}`}/>
+                                )}
                                  <input
-                                    className="outline-none h-12 md:h-9 border rounded-md px-2 border-gray-400"
+                                    className=
+                                    {`outline-none h-12 md:h-9 border rounded-md px-2 border-gray-400 ${err.surname  ? 'border-red-500' : 'border-gray-400 '}`}
                                     type="text"
                                     name="surname"
                                     onChange={handleFormData}
                                     value={formData.surname}
+                                    onBlur={handleBlur}
                                     placeholder="Surname"
                                 /> 
+                                {err.surname && (
+                                    <CircleAlert className={`absolute flex m-4 right-[1%] md:mr-[50%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.surname.length > 0 && !err.surname ? 'hidden' : ''}`}/>
+                                )}
+                                <p className="col-span-2 text-sm md:text-base md:hidden font-medium text-red-500">{err.firstname && err.firstname[0] || err.surname && err.surname[0]}</p>
                             </>
                         )}
                          
