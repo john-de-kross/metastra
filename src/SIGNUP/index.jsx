@@ -123,7 +123,7 @@ const SignUp = () => {
                                     onBlur={handleBlur}
                                 />
                                 {err.firstname && (
-                                    <CircleAlert className={`absolute flex m-4 right-40 md:mr-[40%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.firstname.length  && !err.firstname > 0 ? 'hidden' : ''}`}/>
+                                    <CircleAlert className={`absolute flex m-4 right-42 md:mr-[40%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.firstname.length  && !err.firstname > 0 ? 'hidden' : ''}`}/>
                                 )}
                                  <input
                                     className=

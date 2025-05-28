@@ -7,7 +7,7 @@ const constraints = {
         },
         format: {
             pattern: '[A-Za-z]+$',
-            message: 'This name contains certain characters that aren\'t permitted. Enter only letters'
+            message: 'contains certain characters that aren\'t permitted. Enter only letters'
         }
 
     },
