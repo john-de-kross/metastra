@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import constraints from "./Constraints";
 import validate from "validate.js"
 
-
 const SignUp = () => {
     const [isMobile, setIsMobile] = useState(false);
     const [err, setErr] = useState({
@@ -97,6 +96,25 @@ const SignUp = () => {
 
     }
 
+    //Live validation
+    useEffect(() => {
+
+        const validationFields = ['firstname', 'surname', 'day', 'month', 'year'];
+
+        validationFields.forEach((field) => {
+            const err = validate({ [field]: formData[field] }, { [field]: constraints[field] });
+
+            setErr((prev) => ({
+                ...prev,
+                [field]: err ? err[field] : ''
+            }));
+ 
+        });
+
+    }, [formData.firstname, formData.surname])
+
+
+
 
     return (
         <div className="w-full min-h-screen bg-gray-200 flex md:rounded-md flex-col gap-5 md:justify-center items-center">
@@ -123,7 +141,7 @@ const SignUp = () => {
                                     onBlur={handleBlur}
                                 />
                                 {err.firstname && (
-                                    <CircleAlert className={`absolute flex m-4 right-42 md:mr-[40%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.firstname.length  && !err.firstname > 0 ? 'hidden' : ''}`}/>
+                                    <CircleAlert className={`absolute flex m-4 right-44 md:mr-[40%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.firstname.length > 0  && !err.firstname  ? 'hidden' : ''}`}/>
                                 )}
                                  <input
                                     className=
@@ -136,7 +154,7 @@ const SignUp = () => {
                                     placeholder="Surname"
                                 /> 
                                 {err.surname && (
-                                    <CircleAlert className={`absolute flex m-4 right-[1%] md:mr-[50%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.surname.length > 0 && !err.surname ? 'hidden' : ''}`}/>
+                                    <CircleAlert className={`absolute flex m-4 right-[1%] md:mr-[35%] md:mt-3 stroke-red-500 h-4 w-4 ${formData.surname.length > 0 && !err.surname ? 'hidden' : ''}`}/>
                                 )}
                                 <p className="col-span-2 text-sm md:text-base md:hidden font-medium text-red-500">{err.firstname && err.firstname[0] || err.surname && err.surname[0]}</p>
                             </>
