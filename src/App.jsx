@@ -1,15 +1,10 @@
-
-import './App.css'
-import SignUp from './SIGNUP/index'
-
+import React from 'react';
+import { RouterProvider } from 'react-router-dom';
+import router from "./routes"
 
 
 function App() {
-
-  return (
-    <SignUp />
-   
-  )
+  return <RouterProvider router={router} />;
 }
 
-export default App
+export default App;
