@@ -42,7 +42,7 @@ const Navbar = () => {
       <nav className="w-full bg-white shadow-sm fixed top-0 z-50 hidden lg:block">
         <div className=" mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14">
-            {/* Left - Logo, Search */}
+            {/* Left - Logo, Search bar*/}
             <div className="flex items-center space-x-3">
               <Link
                 to="/"
