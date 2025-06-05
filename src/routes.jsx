@@ -6,6 +6,7 @@ import ProtectedRoutes from "./components/protectedRoutes";
 import Profile from "./pages/profile";
 import Home from "./pages/home";
 import OTPPage from "./pages/otp"
+import MobileMenu from "./pages/mobileMenu"
 
 const router = createBrowserRouter([
   { path: "/", element: <Login /> },
@@ -14,7 +15,9 @@ const router = createBrowserRouter([
     element: <ProtectedRoutes />,
     children: [
       { path: "/home", element: <Home /> },
-      { path: "/profile", element: <Profile /> },{ path: "/verify", element: <OTPPage /> },
+      { path: "/profile", element: <Profile /> },
+      { path: "/verify", element: <OTPPage /> },
+      { path: "/menu", element:<MobileMenu/>}
     ],
   },
 ]);
