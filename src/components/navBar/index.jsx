@@ -106,7 +106,7 @@ const Navbar = () => {
                 <Menu openMenu={openMenu} setOpenMenu={setOpenMenu}/>
               </div>
               <button
-                to="/messenger"
+               
                 className="p-2 rounded-full bg-gray-100 relative"
               >
                 <ChatIcon className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
@@ -150,9 +150,9 @@ const Navbar = () => {
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <GrSearch />
             </button>
-            <button className="p-2 hover:bg-gray-100 rounded-full">
+            <Link to='/menu' className="p-2 hover:bg-gray-100 rounded-full">
               <GiHamburgerMenu />
-            </button>
+            </Link>
           </div>
         </div>
         <div className="flex justify-around items-center h-14">
@@ -173,6 +173,7 @@ const Navbar = () => {
               </span>
             )}
           </Link>
+          
           <Link to="/menu" className="p-2">
             <BiMessageRoundedDetail  className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
