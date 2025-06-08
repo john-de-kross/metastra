@@ -1,20 +1,24 @@
 import { CircleAlert, CircleHelp } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import validate from "validate.js";
-import constraints from "./Constraints"
-import { Link } from "react-router-dom";
+import constraints from "./Constraints";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const SignUp = () => {
-  const [isMobile, setIsMobile] = useState(false);
+  const navigate = useNavigate();
+  const [step, setStep] = useState(1);
   const [err, setErr] = useState({
-    firstname: "",
-    surname: "",
-    day: "",
-    month: "",
-    year: "",
-    gender: "",
-    email: "",
-    password: "",
+    firstname: [],
+    surname: [],
+    day: [],
+    month: [],
+    year: [],
+    gender: [],
+    phone: [],
+    email: [],
+    password: [],
+    server: [],
   });
   const [formData, setFormData] = useState({
     firstname: "",
@@ -23,9 +27,11 @@ const SignUp = () => {
     month: "",
     year: "",
     gender: "Female",
+    phone: "",
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
 
   const days = Array.from({ length: 31 }, (_, i) => i + 1);
   const months = [
@@ -49,19 +55,13 @@ const SignUp = () => {
   const genders = ["Female", "Male", "Custom"];
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
-  }, []);
-
-  useEffect(() => {
     const validationFields = [
       "firstname",
       "surname",
       "day",
       "month",
       "year",
+      "phone",
       "email",
       "password",
     ];
@@ -72,7 +72,7 @@ const SignUp = () => {
       );
       setErr((prev) => ({
         ...prev,
-        [field]: validation ? validation[field] : "",
+        [field]: validation ? validation[field] : [],
       }));
     });
   }, [formData]);
@@ -90,210 +90,272 @@ const SignUp = () => {
     );
     setErr((prev) => ({
       ...prev,
-      [name]: validation ? validation[name] : "",
+      [name]: validation ? validation[name] : [],
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setErr({ ...err, server: [] });
+
+    // Validate all fields
     const validateConstraints = validate(formData, constraints);
     if (validateConstraints) {
-      setErr((prev) => ({ ...prev, ...validateConstraints }));
+      setErr(validateConstraints);
+
       return;
     }
-    console.log("Form submitted:", formData);
+
+    // Format dob as YYYY-MM-DD
+    const monthIndex = months.indexOf(formData.month) + 1;
+    const dob = `${formData.year}-${monthIndex
+      .toString()
+      .padStart(2, "0")}-${formData.day.toString().padStart(2, "0")}`;
+
+    const payload = {
+      firstname: formData.firstname,
+      surname: formData.surname,
+      gender: formData.gender,
+      dob,
+      phone: formData.phone,
+      email: formData.email,
+      password: formData.password,
+    };
+
+    try {
+      const response = await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/register",
+        payload
+      );
+      setLoading(true);
+      console.log("User registered:", response.data);
+      setErr({ server: ["Registration successful!"] }); // Success message
+      navigate("/home");
+    } catch (error) {
+      if (error.response?.data?.errors) {
+        const mappedErrors = {};
+        error.response.data.errors.forEach(({ field, message }) => {
+          mappedErrors[field] = [message];
+        });
+        setErr({ ...mappedErrors, server: [] });
+      } else if (error.response?.data?.error) {
+        setErr({ server: [error.response.data.error] });
+      } else {
+        setErr({ server: ["An unexpected error occurred"] });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  return (
-    <div className="w-full md:min-h-screen bg-gray-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Logo and Description Section */}
-        <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left px-4 md:px-0">
-          <h1 className="text-3xl font-bold text-[#0866FF] mb-3">Metastra</h1>
-          <p className="text-sm md:text-xl text-gray-700">
-            Connect with friends and the world around you on Metastra.
-          </p>
-        </div>
+  const renderInput = (name, placeholder, type = "text") => (
+    <div className="relative">
+      <input
+        name={name}
+        type={type}
+        value={formData[name]}
+        onChange={handleFormData}
+        onBlur={handleBlur}
+        placeholder={placeholder}
+        className={`w-full h-10 px-3 border border-[#DADDE1] rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
+          err[name]?.length ? "border-red-500" : "border-[#DADDE1]"
+        }`}
+      />
+      {err[name]?.length > 0 && (
+        <p className="text-xs text-red-500 mt-1">{err[name][0]}</p>
+      )}
+    </div>
+  );
 
+  return (
+    <div className="w-full min-h-screen bg-[#F0F2F5] flex items-center justify-center p-4">
+      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Logo and Tagline Section */}
+        <div className="hidden md:flex flex-col justify-center items-start text-left px-4">
+          <div>
+            <h1 className="text-4xl font-bold text-[#0866FF] mb-4">Metastra</h1>
+            <p className="text-2xl text-[#606770]">
+              Connect with friends and the world around you on Metastra.
+            </p>
+          </div>
+        </div>
         {/* Form Section */}
-        <div className="w-full max-w-md bg-white md:shadow-lg md:rounded-lg p-4 md:p-6">
-          <form className="space-y-3" onSubmit={handleSubmit}>
-            {/* Name Inputs */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="relative">
-                <input
-                  className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
-                    err.firstname ? "border-red-500" : "border-gray-300"
-                  }`}
-                  type="text"
-                  name="firstname"
-                  onChange={handleFormData}
-                  onBlur={handleBlur}
-                  value={formData.firstname}
-                  placeholder="First name"
-                />
-                {err.firstname && (
-                  <CircleAlert className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500" />
-                )}
-                {err.firstname && (
+        <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
+          <h1 className="text-2xl font-bold text-center text-[#0866FF] mb-4 md:hidden">
+            Metastra
+          </h1>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {err.server?.length > 0 && (
+              <p
+                className={`text-xs mt-1 ${
+                  err.server[0].includes("success")
+                    ? "text-green-500"
+                    : "text-red-500"
+                }`}
+              >
+                {err.server[0]}
+              </p>
+            )}
+            {step === 1 && (
+              <div className="grid grid-cols-2 gap-3">
+                {renderInput("firstname", "First name")}
+                {renderInput("surname", "Surname")}
+              </div>
+            )}
+            {step === 2 && (
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <label className="text-xs text-[#606770]">
+                    Date of birth
+                  </label>
+                  <CircleHelp
+                    className="h-3 w-3 text-[#606770] cursor-pointer"
+                    title="Why do I need to provide my birthday?"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  <select
+                    name="day"
+                    value={formData.day}
+                    onChange={handleFormData}
+                    className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
+                      err.day?.length ? "border-red-500" : "border-[#DADDE1]"
+                    }`}
+                  >
+                    <option value="">Day</option>
+                    {days.map((d) => (
+                      <option key={d}>{d}</option>
+                    ))}
+                  </select>
+                  <select
+                    name="month"
+                    value={formData.month}
+                    onChange={handleFormData}
+                    className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
+                      err.month?.length ? "border-red-500" : "border-[#DADDE1]"
+                    }`}
+                  >
+                    <option value="">Month</option>
+                    {months.map((m) => (
+                      <option key={m}>{m}</option>
+                    ))}
+                  </select>
+                  <select
+                    name="year"
+                    value={formData.year}
+                    onChange={handleFormData}
+                    className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
+                      err.year?.length ? "border-red-500" : "border-[#DADDE1]"
+                    }`}
+                  >
+                    <option value="">Year</option>
+                    {years.map((y) => (
+                      <option key={y}>{y}</option>
+                    ))}
+                  </select>
+                </div>
+                {(err.day?.length > 0 ||
+                  err.month?.length > 0 ||
+                  err.year?.length > 0) && (
                   <p className="text-xs text-red-500 mt-1">
-                    {err.firstname[0]}
+                    {err.day?.[0] ||
+                      err.month?.[0] ||
+                      err.year?.[0] ||
+                      "Invalid date of birth"}
                   </p>
                 )}
               </div>
-              <div className="relative">
-                <input
-                  className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
-                    err.surname ? "border-red-500" : "border-gray-300"
-                  }`}
-                  type="text"
-                  name="surname"
-                  onChange={handleFormData}
-                  onBlur={handleBlur}
-                  value={formData.surname}
-                  placeholder="Surname"
-                />
-                {err.surname && (
-                  <CircleAlert className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500" />
-                )}
-                {err.surname && (
-                  <p className="text-xs text-red-500 mt-1">{err.surname[0]}</p>
+            )}
+            {step === 3 && (
+              <div>
+                <div className="flex items-center gap-1 mb-1">
+                  <label className="text-xs text-[#606770]">Gender</label>
+                  <CircleHelp
+                    className="h-3 w-3 text-[#606770] cursor-pointer"
+                    title="You can select one gender option."
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-2">
+                  {genders.map((g) => (
+                    <label
+                      key={g}
+                      className={`flex items-center justify-between px-3 py-2 border rounded-md text-sm ${
+                        err.gender?.length
+                          ? "border-red-500"
+                          : "border-[#DADDE1]"
+                      }`}
+                    >
+                      <span className="text-[#606770]">{g}</span>
+                      <input
+                        type="radio"
+                        name="gender"
+                        value={g}
+                        checked={formData.gender === g}
+                        onChange={handleFormData}
+                        className="h-4 w-4 text-[#0866FF] focus:ring-[#0866FF]"
+                      />
+                    </label>
+                  ))}
+                </div>
+                {err.gender?.length > 0 && (
+                  <p className="text-xs text-red-500 mt-1">{err.gender[0]}</p>
                 )}
               </div>
+            )}
+            {step === 4 && (
+              <>
+                {renderInput("phone", "Phone number")}
+                {renderInput("email", "Email")}
+              </>
+            )}
+            {step === 5 && renderInput("password", "New password", "password")}
+            <div className="text-xs text-[#606770] mt-2">
+              By clicking Sign Up, you agree to our{" "}
+              <a href="#" className="text-[#0866FF] hover:underline">
+                Terms
+              </a>
+              ,{" "}
+              <a href="#" className="text-[#0866FF] hover:underline">
+                Privacy Policy
+              </a>
+              , and{" "}
+              <a href="#" className="text-[#0866FF] hover:underline">
+                Cookies Policy
+              </a>
+              .
             </div>
-
-            {/* Date of Birth */}
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                <label className="text-xs text-gray-700">Date of birth</label>
-                <CircleHelp className="h-3 w-3 text-gray-500" />
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                <select
-                  name="day"
-                  value={formData.day}
-                  onChange={handleFormData}
-                  className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
-                    err.day ? "border-red-500" : "border-gray-300"
-                  }`}
+            <div className="flex justify-between">
+              {step > 1 && (
+                <button
+                  type="button"
+                  onClick={() => setStep(step - 1)}
+                  className="px-4 py-2 bg-[#E4E6EB] text-[#606770] rounded-md hover:bg-[#D8DADE]"
                 >
-                  <option value="">Day</option>
-                  {days.map((day) => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="month"
-                  value={formData.month}
-                  onChange={handleFormData}
-                  className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
-                    err.month ? "border-red-500" : "border-gray-300"
-                  }`}
+                  Back
+                </button>
+              )}
+              {step < 5 ? (
+                <button
+                  type="button"
+                  onClick={() => setStep(step + 1)}
+                  className="px-4 py-2 bg-[#0866FF] text-white rounded-md hover:bg-[#0054CC]"
                 >
-                  <option value="">Month</option>
-                  {months.map((month) => (
-                    <option key={month} value={month}>
-                      {month}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  name="year"
-                  value={formData.year}
-                  onChange={handleFormData}
-                  className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
-                    err.year ? "border-red-500" : "border-gray-300"
+                  Next
+                </button>
+              ) : (
+                <button
+                  type="submit"
+                  className={`w-[50%] py-2 bg-[#0866FF] text-white rounded-md hover:bg-[#0054CC] ${
+                    loading ? "opacity-50 cursor-not-allowed" : ""
                   }`}
+                  disabled={loading}
                 >
-                  <option value="">Year</option>
-                  {years.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {(err.day || err.month || err.year) && (
-                <p className="text-xs text-red-500 mt-1">
-                  {err.day?.[0] || err.month?.[0] || err.year?.[0]}
-                </p>
+                  {loading ? "signing up" : "Sign Up"}
+                </button>
               )}
             </div>
-
-            {/* Gender */}
-            <div>
-              <div className="flex items-center gap-1 mb-1">
-                <label className="text-xs text-gray-700">Gender</label>
-                <CircleHelp className="h-3 w-3 text-gray-500" />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {genders.map((gender) => (
-                  <label
-                    key={gender}
-                    className="flex items-center justify-between w-full h-10 px-3 border border-gray-300 rounded-md text-sm hover:border-[#0866FF]"
-                  >
-                    <span className="text-gray-700">{gender}</span>
-                    <input
-                      type="radio"
-                      name="gender"
-                      value={gender}
-                      checked={formData.gender === gender}
-                      onChange={handleFormData}
-                      className="h-4 w-4 text-[#0866FF] focus:ring-[#0866FF]"
-                    />
-                  </label>
-                ))}
-              </div>
-            </div>
-
-            {/* Email and Password */}
-            <div className="space-y-3">
-              <input
-                className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF]"
-                type="text"
-                name="email"
-                value={formData.email}
-                onChange={handleFormData}
-                placeholder="Mobile number or email address"
-              />
-              <input
-                className="w-full h-10 px-3 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF]"
-                type="password"
-                name="password"
-                value={formData.password}
-                onChange={handleFormData}
-                placeholder="New password"
-              />
-              <p className="text-xs text-gray-600 leading-tight">
-                By signing up, you agree to our{" "}
-                <a href="#" className="text-[#0866FF] hover:underline">
-                  Terms
-                </a>
-                ,{" "}
-                <a href="#" className="text-[#0866FF] hover:underline">
-                  Privacy Policy
-                </a>{" "}
-                and{" "}
-                <a href="#" className="text-[#0866FF] hover:underline">
-                  Cookies Policy
-                </a>
-                .
-              </p>
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-2">
-              <button
-                type="submit"
-                className="w-full h-10 bg-[#0866FF] text-white font-semibold rounded-md text-sm hover:bg-[#0054cc] transition-colors"
-              >
-                Sign Up
-              </button>
-            </div>
           </form>
-          <p className="text-lg text-center text-gray-600 mt-4">
+          <p className="text-sm text-center text-[#606770] mt-4">
             Already have an account?{" "}
             <Link to="/" className="text-[#0866FF] hover:underline">
               Log in
