@@ -33,14 +33,14 @@ const SignUp = () => {
   });
   const [loading, setLoading] = useState(false);
 
-  const days = Array.from({ length: 31 }, (_, i) => i + 1);
+  const days = Array.from({ length: 31 }, (_, i) => i + +1);
   const months = [
     "Jan",
     "Feb",
     "Mar",
     "Apr",
     "May",
-    "Jun",
+    "June",
     "Jul",
     "Aug",
     "Sep",
@@ -72,7 +72,7 @@ const SignUp = () => {
       );
       setErr((prev) => ({
         ...prev,
-        [field]: validation ? validation[field] : [],
+        [field]: validation ? validation[field] || [] : [],
       }));
     });
   }, [formData]);
@@ -90,19 +90,21 @@ const SignUp = () => {
     );
     setErr((prev) => ({
       ...prev,
-      [name]: validation ? validation[name] : [],
+      [name]: validation ? validation[name] || [] : [],
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErr({ ...err, server: [] });
+    setLoading(true);
 
     // Validate all fields
     const validateConstraints = validate(formData, constraints);
     if (validateConstraints) {
+      console.log("Validation errors:", validateConstraints);
       setErr(validateConstraints);
-
+      setLoading(false);
       return;
     }
 
@@ -122,29 +124,73 @@ const SignUp = () => {
       password: formData.password,
     };
 
+    console.log("Sending payload:", payload);
+
     try {
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/register",
-        payload
+        payload,
+        { timeout: 60000 }
       );
-      setLoading(true);
       console.log("User registered:", response.data);
-      setErr({ server: ["Registration successful!"] }); // Success message
+      setErr({ server: ["Registration successful!"] });
       navigate("/home");
     } catch (error) {
-      if (error.response?.data?.errors) {
-        const mappedErrors = {};
-        error.response.data.errors.forEach(({ field, message }) => {
-          mappedErrors[field] = [message];
+      console.log("Full error:", error);
+      console.log("Server response:", error.response?.data);
+      if (error.code === "ECONNABORTED") {
+        setErr({
+          server: [
+            "Server took too long to respond. Please try again or check server status.",
+          ],
         });
+      } else if (error.response?.data?.errors) {
+        const mappedErrors = {};
+        if (Array.isArray(error.response.data.errors)) {
+          error.response.data.errors.forEach(({ field, message }) => {
+            const clientField =
+              field === "firstName"
+                ? "firstname"
+                : field === "lastName"
+                ? "surname"
+                : field === "dateOfBirth"
+                ? "dob"
+                : field;
+            mappedErrors[clientField] = [message];
+          });
+        } else {
+          Object.keys(error.response.data.errors).forEach((field) => {
+            const clientField =
+              field === "firstName"
+                ? "firstname"
+                : field === "lastName"
+                ? "surname"
+                : field === "dateOfBirth"
+                ? "dob"
+                : field;
+            mappedErrors[clientField] = [error.response.data.errors[field]];
+          });
+        }
         setErr({ ...mappedErrors, server: [] });
       } else if (error.response?.data?.error) {
         setErr({ server: [error.response.data.error] });
       } else {
-        setErr({ server: ["An unexpected error occurred"] });
+        setErr({
+          server: [
+            "Failed to connect to the server. Please check your network or try again later.",
+          ],
+        });
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Prevent form submission on Enter key
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && step < 5) {
+      e.preventDefault();
+      setStep(step + 1); // Move to next step on Enter
     }
   };
 
@@ -184,10 +230,14 @@ const SignUp = () => {
           <h1 className="text-2xl font-bold text-center text-[#0866FF] mb-4 md:hidden">
             Metastra
           </h1>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form
+            onSubmit={handleSubmit}
+            onKeyDown={handleKeyDown}
+            className="space-y-4"
+          >
             {err.server?.length > 0 && (
               <p
-                className={`text-xs mt-1 ${
+                className={`text-xs mt-2 ${
                   err.server[0].includes("success")
                     ? "text-green-500"
                     : "text-red-500"
@@ -219,12 +269,16 @@ const SignUp = () => {
                     value={formData.day}
                     onChange={handleFormData}
                     className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
-                      err.day?.length ? "border-red-500" : "border-[#DADDE1]"
+                      err.day?.length || err.dob?.length
+                        ? "border-red-500"
+                        : "border-[#DADDE1]"
                     }`}
                   >
                     <option value="">Day</option>
                     {days.map((d) => (
-                      <option key={d}>{d}</option>
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -232,12 +286,16 @@ const SignUp = () => {
                     value={formData.month}
                     onChange={handleFormData}
                     className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
-                      err.month?.length ? "border-red-500" : "border-[#DADDE1]"
+                      err.month?.length || err.dob?.length
+                        ? "border-red-500"
+                        : "border-[#DADDE1]"
                     }`}
                   >
                     <option value="">Month</option>
                     {months.map((m) => (
-                      <option key={m}>{m}</option>
+                      <option key={m} value={m}>
+                        {m}
+                      </option>
                     ))}
                   </select>
                   <select
@@ -245,22 +303,28 @@ const SignUp = () => {
                     value={formData.year}
                     onChange={handleFormData}
                     className={`w-full h-10 px-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#0866FF] ${
-                      err.year?.length ? "border-red-500" : "border-[#DADDE1]"
+                      err.year?.length || err.dob?.length
+                        ? "border-red-500"
+                        : "border-[#DADDE1]"
                     }`}
                   >
                     <option value="">Year</option>
                     {years.map((y) => (
-                      <option key={y}>{y}</option>
+                      <option key={y} value={y}>
+                        {y}
+                      </option>
                     ))}
                   </select>
                 </div>
                 {(err.day?.length > 0 ||
                   err.month?.length > 0 ||
-                  err.year?.length > 0) && (
+                  err.year?.length > 0 ||
+                  err.dob?.length > 0) && (
                   <p className="text-xs text-red-500 mt-1">
                     {err.day?.[0] ||
                       err.month?.[0] ||
                       err.year?.[0] ||
+                      err.dob?.[0] ||
                       "Invalid date of birth"}
                   </p>
                 )}
@@ -328,7 +392,10 @@ const SignUp = () => {
               {step > 1 && (
                 <button
                   type="button"
-                  onClick={() => setStep(step - 1)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setStep(step - 1);
+                  }}
                   className="px-4 py-2 bg-[#E4E6EB] text-[#606770] rounded-md hover:bg-[#D8DADE]"
                 >
                   Back
@@ -337,7 +404,10 @@ const SignUp = () => {
               {step < 5 ? (
                 <button
                   type="button"
-                  onClick={() => setStep(step + 1)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setStep(step + 1);
+                  }}
                   className="px-4 py-2 bg-[#0866FF] text-white rounded-md hover:bg-[#0054CC]"
                 >
                   Next
@@ -350,7 +420,7 @@ const SignUp = () => {
                   }`}
                   disabled={loading}
                 >
-                  {loading ? "signing up" : "Sign Up"}
+                  {loading ? "Signing Up..." : "Sign Up"}
                 </button>
               )}
             </div>
