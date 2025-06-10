@@ -1,0 +1,36 @@
+import React, { createContext, useContext, useState } from "react";
+
+// Create the context
+const UserContext = createContext({});
+
+// Create the provider
+export const UserProvider = ({ children }) => {
+  const [formData, setFormData] = useState({
+    firstname: "",
+    surname: "",
+    day: "",
+    month: "",
+    year: "",
+    gender: "Female",
+    phone: "",
+    email: "",
+    password: "",
+  });
+
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const [user, setUser] = useState(null);
+
+  const value = { formData, setFormData, user, setUser, isAuthenticated, setIsAuthenticated };
+
+  return (
+    <UserContext.Provider value={value}>
+      {children}
+    </UserContext.Provider>
+  );
+};
+
+
+export const useUserContext = () => {
+  return useContext(UserContext);
+};

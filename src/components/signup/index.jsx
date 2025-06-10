@@ -4,6 +4,7 @@ import validate from "validate.js";
 import constraints from "./Constraints";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useUserContext } from "../../context/userContext";
 
 const SignUp = () => {
   const navigate = useNavigate();
@@ -20,17 +21,9 @@ const SignUp = () => {
     password: [],
     server: [],
   });
-  const [formData, setFormData] = useState({
-    firstname: "",
-    surname: "",
-    day: "",
-    month: "",
-    year: "",
-    gender: "Female",
-    phone: "",
-    email: "",
-    password: "",
-  });
+
+  const { formData, setFormData, isAuthenticated, setIsAuthenticated } =
+    useUserContext();
   const [loading, setLoading] = useState(false);
 
   const days = Array.from({ length: 31 }, (_, i) => i + +1);
@@ -54,6 +47,10 @@ const SignUp = () => {
   );
   const genders = ["Female", "Male", "Custom"];
 
+  useEffect(() => {
+    console.log("is auth?:", isAuthenticated);
+  }, []);
+  
   useEffect(() => {
     const validationFields = [
       "firstname",
@@ -80,6 +77,7 @@ const SignUp = () => {
   const handleFormData = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    console.log(formData);
   };
 
   const handleBlur = (e) => {
@@ -134,16 +132,19 @@ const SignUp = () => {
       );
       console.log("User registered:", response.data);
       setErr({ server: ["Registration successful!"] });
-      navigate("/home");
+      setIsAuthenticated(true);
+      navigate("/verify");
     } catch (error) {
       console.log("Full error:", error);
-      console.log("Server response:", error.response?.data);
+
       if (error.code === "ECONNABORTED") {
         setErr({
           server: [
             "Server took too long to respond. Please try again or check server status.",
           ],
         });
+      } else if (error.response?.data?.message) {
+        setErr({ server: [error.response.data.message] });
       } else if (error.response?.data?.errors) {
         const mappedErrors = {};
         if (Array.isArray(error.response.data.errors)) {
