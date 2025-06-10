@@ -1,15 +1,22 @@
 import React, { useState } from "react";
+import { useUserContext } from "../../context/userContext";
+import { Navigate } from "react-router-dom";
 
 const OTPPage = () => {
+  const {formData} = useUserContext()
   const [otp, setOtp] = useState("");
-  const [phoneNumber] = useState("+234 812 345 6789");
+  const [phoneNumber] = useState(formData.phone); 
 
   const handleChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 6) {
       setOtp(value);
     }
-  };
+  }; 
+
+  if (!formData?.email && !formData?.phone) {
+    return <Navigate to="/" />; 
+  }
 
   const handleSubmit = (e) => {
     e.preventDefault();
