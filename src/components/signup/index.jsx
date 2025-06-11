@@ -50,7 +50,7 @@ const SignUp = () => {
   useEffect(() => {
     console.log("is auth?:", isAuthenticated);
   }, []);
-  
+
   useEffect(() => {
     const validationFields = [
       "firstname",
@@ -215,7 +215,7 @@ const SignUp = () => {
   );
 
   return (
-    <div className="w-full min-h-screen bg-[#F0F2F5] flex items-center justify-center p-4">
+    <div className="w-full h-screen bg-[#F0F2F5] flex items-center justify-center p-4">
       <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Logo and Tagline Section */}
         <div className="hidden md:flex flex-col justify-center items-start text-left px-4">

@@ -65,7 +65,7 @@ const Login = () => {
   };
 
   return (
-    <div className="w-full md:min-h-screen bg-gray-100 flex items-center justify-center py-16 px-4">
+    <div className="w-full h-screen bg-gray-100 flex items-center justify-center py-16 px-4">
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Logo and Description Section */}
         <div className="flex flex-col justify-center items-center md:items-start text-center md:text-left px-4 md:px-0">
@@ -136,21 +136,14 @@ const Login = () => {
                 Forgotten password?
               </a>
               <hr className="border-gray-300" />
-              <a
-                href="#"
+              <Link
+                to="/signup"
                 className="px-6 py-2  w-40 h-10 bg-[#42b72a] text-white font-semibold rounded-md text-sm hover:bg-[#36a420] transition-colors"
               >
                 Create new account
-              </a>
+              </Link>
             </div>
           </form>
-
-          <p className="text-lg text-center text-gray-600 mt-4">
-            dont have an account?{" "}
-            <Link to="/signup" className="text-[#0866FF] hover:underline">
-              Sign Up
-            </Link>
-          </p>
         </div>
       </div>
     </div>
