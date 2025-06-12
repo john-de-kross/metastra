@@ -16,20 +16,28 @@ export const UserProvider = ({ children }) => {
     email: "",
     password: "",
   });
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [user, setUser] = useState(null);
 
-  const value = { formData, setFormData, user, setUser, isAuthenticated, setIsAuthenticated };
+  const value = {
+    formData,
+    setFormData,
+    user,
+    setUser,
+    isAuthenticated,
+    setIsAuthenticated,
+    loginData,
+    setLoginData,
+  };
 
-  return (
-    <UserContext.Provider value={value}>
-      {children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
-
 
 export const useUserContext = () => {
   return useContext(UserContext);

@@ -4,38 +4,53 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const OTPPage = () => {
-  const { formData } = useUserContext();
+  const { formData, loginData, setIsAuthenticated } = useUserContext();
   const [otp, setOtp] = useState("");
-  const [email] = useState(formData.email);
+  // const [email] = useState(formData.email);
+  const email = formData?.email || loginData?.email;
   const [seconds, setSeconds] = useState(60);
   const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
 
+  // Timer countdown
   useEffect(() => {
-    if (seconds === 0) return; // Stop when timer hits 0
-
+    if (seconds === 0) return;
     const interval = setInterval(() => {
       setSeconds((prev) => prev - 1);
     }, 1000);
-
     return () => clearInterval(interval);
   }, [seconds]);
 
+  // Access control logic
+  useEffect(() => {
+    const cameFromSignup = formData?.email || formData?.phone;
+    const cameFromLogin = loginData?.email && loginData?.password;
+
+    if (!cameFromSignup && !cameFromLogin) {
+      navigate("/");
+    }
+  }, [formData, loginData, navigate]);
+
   const sendOtp = async () => {
     try {
+      const email = formData?.email || loginData?.email;
+      if (!email) {
+        console.error("No email found to send OTP.");
+        return;
+      }
+
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/otp",
-        { email: formData.email }
+        { email }
       );
+
       console.log("OTP sent successfully:", response.data);
     } catch (error) {
       console.error("Error sending OTP:", error);
     }
   };
 
-  if (!formData?.email && !formData?.phone) {
-    return <Navigate to="/" />;
-  }
+  // Handle OTP input
   const handleChange = (e) => {
     const value = e.target.value.replace(/\D/g, "");
     if (value.length <= 6) {
@@ -43,24 +58,28 @@ const OTPPage = () => {
     }
   };
 
+  // Verify OTP
   const handleOtpVerify = async () => {
     try {
+      console.log("email:", email);
+      console.log("here");
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/verify",
-        { email: formData.email, inputOtp: otp }
+        { email, inputOtp: otp }
       );
       const token = response.data.token;
       localStorage.setItem("userToken", token);
-
+      console.log("response:", response);
       console.log("OTP verified successfully:", response.data.message);
       console.log("token:", token);
+      setIsAuthenticated(true);
       navigate("/home");
     } catch (error) {
-      console.error("Error verifying OTP:", error.response?.data);
       console.error("Error verifying OTP:", error.response?.data?.message);
     }
   };
 
+  // Form submit
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("OTP Submitted:", otp);
@@ -68,9 +87,9 @@ const OTPPage = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2    overflow-hidden">
-        {/* Left Section (Only on Desktop) */}
-        <div className="hidden md:flex flex-col justify-center px-10 py-8 ">
+      <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 overflow-hidden">
+        {/* Left Side */}
+        <div className="hidden md:flex flex-col justify-center px-10 py-8">
           <h1 className="text-4xl font-bold text-[#0866FF] mb-4">Metastra</h1>
           <p className="text-lg text-gray-700 leading-relaxed">
             Connect with friends and the world around you on{" "}
@@ -78,7 +97,7 @@ const OTPPage = () => {
           </p>
         </div>
 
-        {/* Right Section (Form) */}
+        {/* OTP Form */}
         <div className="p-6 sm:p-10 flex flex-col justify-center w-full rounded-lg bg-white shadow-md">
           <h2 className="text-2xl font-bold text-[#0866FF] text-center mb-4">
             Metastra
@@ -120,18 +139,18 @@ const OTPPage = () => {
               onClick={() => {
                 sendOtp();
                 setOtpSent(true);
-                setSeconds(60); // Reset the timer when sending a new OTP
+                setSeconds(60);
               }}
-              disabled={otpSent == true}
+              disabled={otpSent}
             >
               Send Code
             </button>
 
             <button
-              className={`  rounded-lg font-semibold ${
+              className={`rounded-lg font-semibold ${
                 seconds === 0
                   ? "text-[#0756e6] cursor-pointer"
-                  : " text-gray-500 cursor-not-allowed"
+                  : "text-gray-500 cursor-not-allowed"
               }`}
               onClick={() => {
                 sendOtp();

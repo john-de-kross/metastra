@@ -1,19 +1,18 @@
 import { CircleAlert } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import validate from "validate.js";
-import constraints from "../signup/Constraints";
-import { Link } from "react-router-dom";
-import SignUp from "../signup";
+import constraints from "./constraints";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { useUserContext } from "../../context/userContext";
 
 const Login = () => {
   const [isMobile, setIsMobile] = useState(false);
+  const { setIsAuthenticated, isAuthenticated, loginData, setLoginData } =
+    useUserContext();
+  const navigate = useNavigate();
   const [err, setErr] = useState({
-    email: "",
-    password: "",
-  });
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+    text: "",
   });
 
   useEffect(() => {
@@ -24,10 +23,14 @@ const Login = () => {
   }, []);
 
   useEffect(() => {
+    console.log(loginData);
+  }, [loginData]);
+
+  useEffect(() => {
     const validationFields = ["email", "password"];
     validationFields.forEach((field) => {
       const validation = validate(
-        { [field]: formData[field] },
+        { [field]: loginData[field] },
         { [field]: constraints[field] }
       );
       setErr((prev) => ({
@@ -35,11 +38,11 @@ const Login = () => {
         [field]: validation ? validation[field] : "",
       }));
     });
-  }, [formData]);
+  }, [loginData]);
 
-  const handleFormData = (e) => {
+  const handleloginData = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setLoginData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleBlur = (e) => {
@@ -54,14 +57,55 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    console.log("is auth?:", isAuthenticated);
+  }, []);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const validateConstraints = validate(formData, constraints);
-    if (validateConstraints) {
-      setErr((prev) => ({ ...prev, ...validateConstraints }));
+
+    const validationErrors = validate(loginData, constraints);
+    if (validationErrors) {
+      setErr((prev) => ({ ...prev, ...validationErrors }));
       return;
     }
-    console.log("Form submitted:", formData);
+
+    try {
+      const response = await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/login",
+        loginData
+      );
+      console.log("Response:", response);
+      const token = response.data.token;
+      localStorage.setItem("userToken", token);
+      console.log("Login successful:", response.data);
+      setIsAuthenticated(true);
+      navigate("/home");
+    } catch (error) {
+      if (error.response) {
+        const status = error.response.status;
+        if (status === 401) {
+          navigate("/verify");
+        } else if (status === 400 || status === 404) {
+          setErr((prev) => ({ ...prev, text: "Incorrect email or password." }));
+        } else if (status === 500) {
+          setErr((prev) => ({
+            ...prev,
+            text: "Server error. Please try again later.",
+          }));
+        } else {
+          setErr((prev) => ({
+            ...prev,
+            text: "Something went wrong. Please try again.",
+          }));
+        }
+      } else {
+        setErr((prev) => ({
+          ...prev,
+          text: "Network error. Please check your connection.",
+        }));
+      }
+    }
   };
 
   return (
@@ -79,6 +123,9 @@ const Login = () => {
         <div className="w-full max-w-md bg-white md:shadow-lg md:rounded-lg p-4 md:p-6">
           <form className="space-y-3" onSubmit={handleSubmit}>
             {/* Email Input */}
+            {err.text && (
+              <p className="text-xs text-red-500 mb-2">{err.text}</p>
+            )}
             <div className="relative">
               <input
                 className={`w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] ${
@@ -86,17 +133,17 @@ const Login = () => {
                 }`}
                 type="text"
                 name="email"
-                onChange={handleFormData}
+                onChange={handleloginData}
                 onBlur={handleBlur}
-                value={formData.email}
+                value={loginData.email}
                 placeholder="Email address or phone number"
               />
-              {err.email && (
+              {/* {err.email && (
                 <CircleAlert className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500" />
               )}
               {err.email && (
                 <p className="text-xs text-red-500 mt-1">{err.email[0]}</p>
-              )}
+              )} */}
             </div>
 
             {/* Password Input */}
@@ -107,23 +154,24 @@ const Login = () => {
                 }`}
                 type="password"
                 name="password"
-                onChange={handleFormData}
+                onChange={handleloginData}
                 onBlur={handleBlur}
-                value={formData.password}
+                value={loginData.password}
                 placeholder="Password"
               />
-              {err.password && (
+              {/* {err.password && (
                 <CircleAlert className="absolute right-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-red-500" />
               )}
               {err.password && (
                 <p className="text-xs text-red-500 mt-1">{err.password[0]}</p>
-              )}
+              )} */}
             </div>
 
             {/* Log In Button */}
             <div className="pt-2">
               <button
                 type="submit"
+                // onClick={handleSubmit}
                 className="w-full h-10 bg-[#0866FF] text-white font-semibold rounded-md text-sm hover:bg-[#0054cc] transition-colors"
               >
                 Log In
@@ -149,5 +197,4 @@ const Login = () => {
     </div>
   );
 };
-
 export default Login;
