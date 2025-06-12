@@ -130,6 +130,7 @@ const SignUp = () => {
         payload,
         { timeout: 60000 }
       );
+      console.log("Response:", response);
       console.log("User registered:", response.data);
       setErr({ server: ["Registration successful!"] });
       setIsAuthenticated(true);
