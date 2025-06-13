@@ -216,22 +216,22 @@ const SignUp = () => {
   );
 
   return (
-    <div className="w-full h-screen bg-[#F0F2F5] flex items-center justify-center p-4">
-      <div className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div className="w-full h-screen bg-[#F0F2F5] flex items-center justify-center px-4 py-8">
+      <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-6">
         {/* Logo and Tagline Section */}
-        <div className="hidden md:flex flex-col justify-center items-start text-left px-4">
+        <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left px-2">
           <div>
             <h1 className="text-4xl font-bold text-[#0866FF] mb-4">Metastra</h1>
-            <p className="text-2xl text-[#606770]">
+            <p className="text-lg md:text-2xl text-[#606770]">
               Connect with friends and the world around you on Metastra.
             </p>
           </div>
         </div>
         {/* Form Section */}
         <div className="w-full max-w-md bg-white shadow-md rounded-lg p-6">
-          <h1 className="text-2xl font-bold text-center text-[#0866FF] mb-4 md:hidden">
+          {/* <h1 className="text-2xl font-bold text-center text-[#0866FF] mb-4 md:hidden">
             Metastra
-          </h1>
+          </h1> */}
           <form
             onSubmit={handleSubmit}
             onKeyDown={handleKeyDown}
