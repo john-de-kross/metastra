@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useUserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Loader from "../../components/loadingIndicator";
 
 const OTPPage = () => {
   const { formData, loginData, setIsAuthenticated } = useUserContext();
@@ -11,6 +12,7 @@ const OTPPage = () => {
   const [seconds, setSeconds] = useState(60);
   const [otpSent, setOtpSent] = useState(false);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // Timer countdown
   useEffect(() => {
@@ -61,8 +63,10 @@ const OTPPage = () => {
   // Verify OTP
   const handleOtpVerify = async () => {
     try {
+      setLoading(true);
       console.log("email:", email);
       console.log("here");
+
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/verify",
         { email, inputOtp: otp }
@@ -76,6 +80,8 @@ const OTPPage = () => {
       navigate("/home");
     } catch (error) {
       console.error("Error verifying OTP:", error.response?.data?.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -129,7 +135,7 @@ const OTPPage = () => {
                   : "bg-gray-300 cursor-not-allowed"
               }`}
             >
-              Verify
+              {loading ? <Loader className="w-2 h-2 animate-spin" /> : "Verify"}
             </button>
           </form>
 
