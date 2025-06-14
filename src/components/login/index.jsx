@@ -177,9 +177,9 @@ const Login = () => {
 
             {/* Forgotten Password and Create Account Links */}
             <div className="text-center space-y-3">
-              <a href="#" className="text-xs text-[#0866FF] hover:underline">
+              <Link to="/enteremail" className="text-xs text-[#0866FF] hover:underline">
                 Forgotten password?
-              </a>
+              </Link>
               <hr className="border-gray-300" />
               <Link
                 to="/signup"
