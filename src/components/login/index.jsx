@@ -111,7 +111,7 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gray-100 flex items-center justify-center px-4 py-8">
+    <div className="h-screen w-full  bg-gray-100 flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-6">
         {/* Logo and Description Section */}
         <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left px-2">
@@ -177,9 +177,9 @@ const Login = () => {
 
             {/* Forgotten Password and Create Account Links */}
             <div className="text-center space-y-3">
-              <a href="#" className="text-xs text-[#0866FF] hover:underline">
+              <Link to="/enteremail" className="text-xs text-[#0866FF] hover:underline">
                 Forgotten password?
-              </a>
+              </Link>
               <hr className="border-gray-300" />
               <Link
                 to="/signup"

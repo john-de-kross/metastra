@@ -216,7 +216,7 @@ const SignUp = () => {
   );
 
   return (
-    <div className="w-full h-screen bg-[#F0F2F5] flex items-center justify-center px-4 py-8">
+    <div className="w-full h-full overflow-hidden bg-[#F0F2F5] flex items-center justify-center px-4 py-8">
       <div className="w-full max-w-4xl flex flex-col md:flex-row items-center justify-center gap-6">
         {/* Logo and Tagline Section */}
         <div className="w-full md:w-1/2 flex flex-col justify-center items-center md:items-start text-center md:text-left px-2">

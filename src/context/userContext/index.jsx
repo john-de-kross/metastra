@@ -22,7 +22,7 @@ export const UserProvider = ({ children }) => {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-
+  const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
 
   const value = {
@@ -34,6 +34,8 @@ export const UserProvider = ({ children }) => {
     setIsAuthenticated,
     loginData,
     setLoginData,
+    mail,
+    setMail,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
