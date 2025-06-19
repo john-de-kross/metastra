@@ -4,10 +4,10 @@ import { useUserContext } from "../../context/userContext";
 import { Link } from "react-router-dom";
 import Loader from "../loadingIndicator";
 import { useNavigate } from "react-router-dom";
+import toastAlert from "../ALERT";
 
 const EmailedPassword = () => {
   const { mail, setMail } = useUserContext();
-  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -22,16 +22,22 @@ const EmailedPassword = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/users/otp",
+        "https://metastra-server.onrender.com/api/v1/otp",
         { email: mail }
       );
       console.log("response:", response.data);
-
-      if (response.data.status === "success") {
-        navigate("/passwordverify");
+      navigate("/passwordverify");
+      
+    } catch (error) {
+      console.log(error)
+      if (error.status === 500) {
+        toastAlert.error('Something went wrong. Check your internet connection or try again later')
+      } else if (error.response) {
+        toastAlert.error(error.response.data.message || 'Something went wrong on the server. Try again later!')
+      } else {
+        toastAlert.error('Unexpected error occured. Please try again.')
       }
-    } catch (err) {
-      console.log(error);
+
     } finally {
       setLoading(false);
     }
@@ -70,7 +76,6 @@ const EmailedPassword = () => {
           </form>
 
           {/* Error */}
-          {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
           <button
             type="submit"
             onClick={handleEmail}

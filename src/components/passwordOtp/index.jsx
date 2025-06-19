@@ -5,15 +5,17 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import Loader from "../loadingIndicator";
 
+
 const PasswordOtp = () => {
   //   const [viewInput, setViewInput] = useState(false);
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [seconds, setSeconds] = useState(60);
   const navigate = useNavigate();
-  const { mail, setMail } = useUserContext();
+  const { mail } = useUserContext();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
 
   useEffect(() => {
     if (seconds === 0) return;
@@ -32,15 +34,13 @@ const PasswordOtp = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/users/otp",
+        "https://metastra-server.onrender.com/api/v1/otp",
         { email: mail }
       );
       console.log("response:", response.data);
-
-      if (response.data.status === "success") {
-        navigate("/passwordverify");
-      }
-    } catch (err) {
+      navigate("/passwordverify");
+ 
+    } catch (error) {
       console.log(error);
     } finally {
       setLoading(false);
