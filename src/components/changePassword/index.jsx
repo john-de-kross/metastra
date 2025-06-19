@@ -1,71 +1,45 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
+import toastAlert from "../ALERT";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
-  const { mail, setMail } = useUserContext();
-  const [newDetails, setNewDetails] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
+  const { mail } = useUserContext();
+  const navigate = useNavigate();
+  const [passwordDetails, setPasswordDetails] = useState({
+    newPassword: "",
+    confirmPassword: ""
   });
+  
 
-  useEffect(() => {
-    console.log(newDetails);
-  }, [newDetails]);
-
-  useEffect(() => {
-    setNewDetails((prev) => ({ ...prev, email: mail }));
-  }, [newDetails]);
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setError("");
-    setSuccess("");
-
-    if (newPassword.length < 8) {
-      setError("Password must be at least 8 characters long");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    // Simulate password change API call
-    setSuccess("Password changed successfully!");
-    setNewPassword("");
-    setConfirmPassword("");
+  const handleNewPassword = (e) => {
+    setPasswordDetails({ ...passwordDetails, newPassword: e.target.value });
   };
 
   const handleConfirmPassword = (e) => {
-    setNewDetails((prev) => ({
-      ...prev,
-      confirmPassword: e.target.value,
-    }));
-  };
+    setPasswordDetails({ ...passwordDetails, confirmPassword: e.target.value });
 
-  const handlePassword = (e) => {
-    setNewDetails((prev) => ({
-      ...prev,
-      password: e.target.value,
-    }));
-  };
+  }
 
-  const handlePasswordChange = async () => {
+  const handlePasswordChange = async (e) => {
+    e.preventDefault();
     try {
+      console.log(mail)
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/users/change-password",
-        newDetails
+        "https://metastra-server.onrender.com/api/v1/users/change-password", {
+          email: mail,
+          newPassword: passwordDetails.newPassword,
+          confirmPassword: passwordDetails.confirmPassword
+        }
       );
+      
+      toastAlert.success(response.data.message);
+      navigate('/')
 
-      console.log(response.data);
     } catch (err) {
-      console.log(err);
+      return toastAlert.error(err.response.data.message);
+      
     }
   };
 
@@ -84,15 +58,15 @@ const ChangePassword = () => {
             <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
               Change Password
             </h2>
-            <form onSubmit={handleSubmit}>
+            <form >
               <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-semibold mb-2">
                   New Password
                 </label>
                 <input
                   type="password"
-                  value={newDetails.password}
-                  onChange={handlePassword}
+                  value={passwordDetails.newPassword}
+                  onChange={handleNewPassword}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Enter new password"
                   required
@@ -104,22 +78,15 @@ const ChangePassword = () => {
                 </label>
                 <input
                   type="password"
-                  value={newDetails.confirmPassword}
+                  value={passwordDetails.confirmPassword}
                   onChange={handleConfirmPassword}
                   className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                   placeholder="Confirm new password"
                   required
                 />
               </div>
-              {error && (
-                <p className="text-red-500 text-sm text-center mb-4">{error}</p>
-              )}
-              {success && (
-                <p className="text-green-500 text-sm text-center mb-4">
-                  {success}
-                </p>
-              )}
               <button
+                onClick={handlePasswordChange}
                 type="submit"
                 className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
