@@ -9,14 +9,7 @@ import toastAlert from "../ALERT";
 
 const Login = () => {
   const navigate = useNavigate();
-  useEffect(() => {
-    const token = localStorage.getItem('userToken');
-    if (token) {
-      navigate('/home');
-    }
-  }, [])
- 
-  const { setIsAuthenticated, isAuthenticated, loginData, setLoginData } =
+  const {loginData, setLoginData } =
     useUserContext();
   const [loading, setLoading] = useState(false);
 
@@ -36,24 +29,17 @@ const Login = () => {
   };
 
 
-  useEffect(() => {
-    console.log("is auth?:", isAuthenticated);
-  }, []);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/users/login",
-        loginData
+        "https://metastra-server.onrender.com/api/v1/login",
+        loginData,
+        {withCredentials: true}
       );
-
       console.log("Response:", response);
-      const token = response.data.token;
-      localStorage.setItem("userToken", token);
       toastAlert.success(response.data.message)
-      setIsAuthenticated(true);
       navigate("/home");
     } catch (error) {
       if (error.response) {

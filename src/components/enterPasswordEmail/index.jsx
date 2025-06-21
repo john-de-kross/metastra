@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
-import { Link } from "react-router-dom";
 import Loader from "../loadingIndicator";
 import { useNavigate } from "react-router-dom";
 import toastAlert from "../ALERT";
