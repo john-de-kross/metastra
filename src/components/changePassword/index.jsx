@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
+import { useNavigate } from "react-router-dom";
 
 const ChangePassword = () => {
   const [newPassword, setNewPassword] = useState("");
@@ -14,13 +15,15 @@ const ChangePassword = () => {
     confirmPassword: "",
   });
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     console.log(newDetails);
   }, [newDetails]);
 
-  useEffect(() => {
-    setNewDetails((prev) => ({ ...prev, email: mail }));
-  }, [newDetails]);
+  // useEffect(() => {
+  //   setNewDetails((prev) => ({ ...prev, email: mail }));
+  // }, [newDetails]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -58,10 +61,18 @@ const ChangePassword = () => {
 
   const handlePasswordChange = async () => {
     try {
+      setNewDetails((prev) => ({ ...prev, email: mail }));
+
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/change-password",
-        newDetails
+        {
+          newPassword: newDetails.password,
+          confirmPassword: newDetails.confirmPassword,
+          email: mail,
+        }
       );
+
+      navigate("/");
 
       console.log(response.data);
     } catch (err) {
@@ -120,10 +131,11 @@ const ChangePassword = () => {
                 </p>
               )}
               <button
+                onClick={handlePasswordChange}
                 type="submit"
                 className="w-full py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                Change Password
+                Confirm
               </button>
             </form>
           </div>
