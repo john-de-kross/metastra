@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from "react";
 import { useEffect } from "react";
 import NetworkError from "../../components/ERRORPAGE/network";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+
 
 // Create the context
 const UserContext = createContext({});
@@ -29,7 +29,7 @@ export const UserProvider = ({ children }) => {
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const navigate = useNavigate();
+ 
 
   const value = {
     formData,
@@ -59,7 +59,7 @@ export const UserProvider = ({ children }) => {
         if (err.message === 'Network Error') {
           //Build a page to handle network error and render it here, Louis
           console.log("Network Error")
-          navigate('/network-error');
+          // navigate('/network-error');
           
           
         } else if (err.response && err.response.status === 401) {
