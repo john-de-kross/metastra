@@ -10,9 +10,17 @@ import OTPPage from "./pages/otp";
 import MobileMenu from "./pages/mobileMenu";
 import EmailedPassword from "./components/enterPasswordEmail";
 import PasswordOtp from "./components/passwordOtp";
+import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
 
 const router = createBrowserRouter([
-  { path: "/", element: <Login /> },
+  {
+    path: '/',
+    element: (
+      <RedirctRouteAuth>
+        <Login />  
+      </RedirctRouteAuth>
+    ),
+  },
 
   { path: "/signup", element: <SignUp /> },
 

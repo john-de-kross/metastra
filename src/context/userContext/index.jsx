@@ -49,7 +49,6 @@ export const UserProvider = ({ children }) => {
       })
       .then((res) => {
         setIsAuthenticated(true);
-        setIsLoading(false);
         setUser(res.data.user);
       })
       .catch((err) => {
