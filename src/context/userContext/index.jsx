@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState } from "react";
 import { useEffect } from "react";
+import NetworkError from "../../components/ERRORPAGE/network";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 // Create the context
 const UserContext = createContext({});
@@ -27,6 +29,7 @@ export const UserProvider = ({ children }) => {
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const value = {
     formData,
@@ -52,8 +55,23 @@ export const UserProvider = ({ children }) => {
         setUser(res.data.user);
       })
       .catch((err) => {
-        setIsAuthenticated(false);
-        console.log(err);
+        console.log(err)
+        if (err.message === 'Network Error') {
+          //Build a page to handle network error and render it here, Louis
+          console.log("Network Error")
+          navigate('/network-error');
+          
+          
+        } else if (err.response && err.response.status === 401) {
+          setIsAuthenticated(false);
+        } else {
+          //You can equally build a component for server error
+          console.log('Server error')
+        }
+          
+        
+        
+        
         console.log("is auth", isAuthenticated);
         setUser(null);
       })

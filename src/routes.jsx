@@ -11,6 +11,7 @@ import MobileMenu from "./pages/mobileMenu";
 import EmailedPassword from "./components/enterPasswordEmail";
 import PasswordOtp from "./components/passwordOtp";
 import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
+import NetworkError from "./components/ERRORPAGE/network";
 
 const router = createBrowserRouter([
   {
@@ -23,6 +24,8 @@ const router = createBrowserRouter([
   },
 
   { path: "/signup", element: <SignUp /> },
+  
+  {path: "/network-error", element: <NetworkError/>},
 
   { path: "/verify", element: <OTPPage /> },
 

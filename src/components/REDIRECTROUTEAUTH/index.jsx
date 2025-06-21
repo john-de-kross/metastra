@@ -7,6 +7,7 @@ const RedirctRouteAuth = ({ children }) => {
     const { isAuthenticated, isLoading } = useUserContext();
     
     if (isLoading) return <p>Loading...</p>
+
     return isAuthenticated ? <Navigate to="/home" /> : children
 
 
