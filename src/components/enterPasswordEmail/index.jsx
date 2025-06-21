@@ -21,7 +21,7 @@ const EmailedPassword = () => {
     setLoading(true);
     try {
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/otp",
+        "https://metastra-server.onrender.com/api/v1/users/otp",
         { email: mail }
       );
       console.log("response:", response.data);

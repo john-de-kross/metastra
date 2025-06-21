@@ -34,7 +34,7 @@ const Login = () => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/login",
+        "https://metastra-server.onrender.com/api/v1/users/login",
         loginData,
         {withCredentials: true}
       );
