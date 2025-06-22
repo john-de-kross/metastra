@@ -9,7 +9,7 @@ import toastAlert from "../ALERT";
 
 const Login = () => {
   const navigate = useNavigate();
-  const {loginData, setLoginData } =
+  const {loginData, setLoginData, setIsAuthenticated } =
     useUserContext();
   const [loading, setLoading] = useState(false);
 
@@ -39,8 +39,9 @@ const Login = () => {
         {withCredentials: true}
       );
       console.log("Response:", response);
+      setIsAuthenticated(true)
       toastAlert.success(response.data.message)
-      navigate("/home");
+      navigate("/home")
     } catch (error) {
       if (error.response) {
         const status = error.response.status;
