@@ -57,11 +57,9 @@ export const UserProvider = ({ children }) => {
       .catch((err) => {
         console.log(err)
         if (err.message === 'Network Error') {
-          //Build a page to handle network error and render it here, Louis
+          //Build a page to handle network error and render it here
           console.log("Network Error")
           // navigate('/network-error');
-          
-          
         } else if (err.response && err.response.status === 401) {
           setIsAuthenticated(false);
         } else {
