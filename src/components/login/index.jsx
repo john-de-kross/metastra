@@ -6,11 +6,9 @@ import { useUserContext } from "../../context/userContext";
 import Loader from "../loadingIndicator";
 import toastAlert from "../ALERT";
 
-
 const Login = () => {
   const navigate = useNavigate();
-  const {loginData, setLoginData } =
-    useUserContext();
+  const { loginData, setLoginData, setIsAuthenticated} = useUserContext();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -21,13 +19,10 @@ const Login = () => {
     console.log(loading);
   }, [loading]);
 
-
-
   const handleloginData = (e) => {
     const { name, value } = e.target;
     setLoginData((prev) => ({ ...prev, [name]: value }));
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -36,10 +31,10 @@ const Login = () => {
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/login",
         loginData,
-        {withCredentials: true}
+        { withCredentials: true }
       );
+      setIsAuthenticated(true);
       console.log("Response:", response);
-      toastAlert.success(response.data.message)
       navigate("/home");
     } catch (error) {
       if (error.response) {
@@ -47,15 +42,15 @@ const Login = () => {
         if (status === 401) {
           navigate("/verify");
         } else if (status === 400 || status === 404) {
-          toastAlert.error('Incorrect email or password')
+          toastAlert.error("Incorrect email or password");
         } else if (status === 500) {
-          toastAlert.error("Server error. Please try again later.")
-      
+          toastAlert.error("Server error. Please try again later.");
         } else {
-          toastAlert.error("Something went wrong. Please try again.")
+          toastAlert.error("Something went wrong. Please try again.");
         }
       } else {
-        toastAlert.error("Network error. Please check your connection.")
+        toastAlert.error("Network error. Please check your connection.");
+        console.log(error);
       }
     } finally {
       setLoading(false);
@@ -76,7 +71,6 @@ const Login = () => {
         {/* Form Section */}
         <div className="w-full md:w-1/2 max-w-md bg-white shadow-md rounded-lg p-4 sm:p-6">
           <form className="space-y-3" onSubmit={handleSubmit}>
-
             {/* Email Input */}
             <div className="relative">
               <input
@@ -93,7 +87,6 @@ const Login = () => {
             <div className="relative">
               <input
                 className="w-full h-10 px-3 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF] "
-                  
                 type="password"
                 name="password"
                 onChange={handleloginData}
@@ -121,7 +114,10 @@ const Login = () => {
 
             {/* Forgotten Password and Create Account Links */}
             <div className="text-center space-y-3">
-              <Link to="/enteremail" className="text-xs text-[#0866FF] hover:underline">
+              <Link
+                to="/enteremail"
+                className="text-xs text-[#0866FF] hover:underline"
+              >
                 Forgotten password?
               </Link>
               <hr className="border-gray-300" />

@@ -12,20 +12,23 @@ import EmailedPassword from "./components/enterPasswordEmail";
 import PasswordOtp from "./components/passwordOtp";
 import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
 import NetworkError from "./components/ERRORPAGE/network";
+import ServerError from "./components/serverError";
 
 const router = createBrowserRouter([
   {
-    path: '/',
+    path: "/",
     element: (
       <RedirctRouteAuth>
-        <Login />  
+        <Login />
       </RedirctRouteAuth>
     ),
   },
 
   { path: "/signup", element: <SignUp /> },
-  
-  {path: "/network-error", element: <NetworkError/>},
+
+  { path: "/network-error", element: <NetworkError /> },
+
+  { path: "/error", element: <ServerError /> },
 
   { path: "/verify", element: <OTPPage /> },
 

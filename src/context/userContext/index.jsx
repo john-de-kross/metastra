@@ -2,10 +2,13 @@ import React, { createContext, useContext, useState } from "react";
 import { useEffect } from "react";
 import NetworkError from "../../components/ERRORPAGE/network";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 
 // Create the context
 const UserContext = createContext({});
+
+// const navigate = useNavigate();
 
 // Create the provider
 export const UserProvider = ({ children }) => {
@@ -52,12 +55,13 @@ export const UserProvider = ({ children }) => {
       })
       .then((res) => {
         setIsAuthenticated(true);
+        // navigate("/home")
         setUser(res.data.user);
       })
       .catch((err) => {
         console.log(err)
         if (err.message === 'Network Error') {
-          //Build a page to handle network error and render it here
+          
           console.log("Network Error")
           // navigate('/network-error');
         } else if (err.response && err.response.status === 401) {
