@@ -33,10 +33,8 @@ const Login = () => {
         loginData,
         { withCredentials: true }
       );
-      setIsAuthenticated(true);
       console.log("Response:", response);
       setIsAuthenticated(true);
-      toastAlert.success(response.data.message);
       navigate("/home");
     } catch (error) {
       if (error.response) {
