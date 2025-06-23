@@ -76,7 +76,6 @@ const OTPPage = () => {
       console.log("response:", response);
       console.log("OTP verified successfully:", response.data.message);
       console.log("token:", token);
-      setIsAuthenticated(true);
       navigate("/");
     } catch (error) {
       console.error("Error verifying OTP:", error.response?.data?.message);
