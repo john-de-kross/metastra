@@ -8,7 +8,7 @@ import toastAlert from "../ALERT";
 
 const Login = () => {
   const navigate = useNavigate();
-  const { loginData, setLoginData, setIsAuthenticated} = useUserContext();
+  const { loginData, setLoginData, setIsAuthenticated } = useUserContext();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -35,6 +35,8 @@ const Login = () => {
       );
       setIsAuthenticated(true);
       console.log("Response:", response);
+      setIsAuthenticated(true);
+      toastAlert.success(response.data.message);
       navigate("/home");
     } catch (error) {
       if (error.response) {
