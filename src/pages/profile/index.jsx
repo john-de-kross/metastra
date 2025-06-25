@@ -1,27 +1,51 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import db from "../../assets/img/user.png";
 import Navbar from "../../components/navBar";
 import { FaMapMarkerAlt, FaBriefcase, FaCalendarAlt } from "react-icons/fa";
 import { IoMdSchool } from "react-icons/io";
 import { FaHandHoldingHeart } from "react-icons/fa";
+import axios from "axios";
+
+const uploadToCloudinary = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", "tajrjpnn");
+  // formData.append("cloud_name", "dg3kuzhgf");
+
+  try {
+    const response = await axios.post(
+      "https://api.cloudinary.com/v1_1/dg3kuzhgf/image/upload",
+      formData
+    );
+    return response.data.secure_url; // cloudinary url
+  } catch (err) {
+    console.error("Cloudinary upload error:", err);
+    return null;
+  }
+};
 
 const Profile = () => {
-  const [profilePic, setProfilePic] = useState(
-    "https://i.pinimg.com/736x/eb/76/a4/eb76a46ab920d056b02d203ca95e9a22.jpg"
-  );
+  const [profilePic, setProfilePic] = useState("");
   const [coverPic, setCoverPic] = useState(
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg"
   );
   const [activeTab, setActiveTab] = useState("Timeline");
-  const [userName, setUserName] = useState("Louis DM");
+  const [userName, setUserName] = useState("user");
   const [bio, setBio] = useState("Living the dream! 🌟");
   const [about, setAbout] = useState({
-    work: "Software Engineer at Tech Corp",
-    education: "BS in Computer Science, XYZ University",
-    location: "San Francisco, CA",
-    relationship: "Single",
-    joined: "January 2015",
+    work: "",
+    education: "",
+    location: "",
+    relationship: "",
+    joined: "",
   });
+  const [dpOption, setDpOption] = useState(false);
+
+  const dp =
+    "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
+
+  const cp =
+    "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg";
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -51,54 +75,107 @@ const Profile = () => {
 
   // Placeholder data
   const friends = [
-    { id: 1, name: "Jane Smith", pic: db },
-    { id: 2, name: "Mike Johnson", pic: db },
-    { id: 3, name: "Sarah Lee", pic: db },
-    { id: 4, name: "Tom Brown", pic: db },
+    { id: 1, name: "Jane Smith", pic: dp },
+    { id: 2, name: "Mike Johnson", pic: dp },
+    { id: 3, name: "Sarah Lee", pic: dp },
+    { id: 4, name: "Tom Brown", pic: dp },
   ];
   const lifeEvents = [
     { year: 2023, event: "Started working at Tech Corp" },
     { year: 2020, event: "Graduated from XYZ University" },
   ];
 
+  useEffect(() => {
+    const userData = async () => {
+      try {
+        const response = await axios.get(
+          "https://metastra-server.onrender.com/api/v1/users/user-profile",
+          { withCredentials: true }
+        );
+        const data = response.data;
+        console.log("data:", data);
+        console.log("data dp:", data.data.currentUser.profilePics);
+
+        const username = `${data.data.currentUser.firstname} ${data.data.currentUser.surname}`;
+
+        console.log("username:", username);
+
+        setUserName(username || "user");
+        setProfilePic(data.data.currentUser.profilePics);
+        setCoverPic(data.data.currentUser.coverPics);
+        setBio(data.bio);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    userData();
+  }, []);
+
   // Handle photo uploads
-  const handleProfilePicUpload = (event) => {
+  const handleProfilePicUpload = async (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = () => setProfilePic(reader.result);
-      reader.onerror = () => console.error("Error reading profile picture");
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Invalid file type");
+
+    if (!file || !file.type.startsWith("image/")) {
+      console.error("Invalid file for profile pic");
+      return;
+    }
+
+    const url = await uploadToCloudinary(file);
+
+    if (url) {
+      setProfilePic(url);
+
+      // send to backend
+      try {
+        await axios.put(
+          "https://metastra-server.onrender.com/api/v1/users/update-profile-pic",
+          { profilePic: url },
+          { withCredentials: true }
+        );
+      } catch (err) {
+        console.error("Backend update error:", err);
+      }
     }
   };
 
-  const handleCoverPicUpload = (event) => {
+  const handleCoverPicUpload = async (event) => {
     const file = event.target.files[0];
-    if (file && file.type.startsWith("image/")) {
-      const reader = new FileReader();
-      reader.onload = () => setCoverPic(reader.result);
-      reader.onerror = () => console.error("Error reading cover photo");
-      reader.readAsDataURL(file);
-    } else {
-      console.error("Invalid file type");
+    if (!file || !file.type.startsWith("image/")) {
+      console.error("Invalid file for cover pic");
+      return;
+    }
+
+    const url = await uploadToCloudinary(file);
+    if (url) {
+      setCoverPic(url);
+
+      //send to backend
+      try {
+        await axios.put(
+          "https://metastra-server.onrender.com/api/v1/users/update-cover-pic",
+          { coverPic: url },
+          { withCredentials: true }
+        );
+      } catch (err) {
+        console.error("Backend update error:", err);
+      }
     }
   };
 
   // Handle adding photos to Photos section
-  const handleAddPhotos = (event) => {
+  const handleAddPhotos = async (event) => {
     const files = Array.from(event.target.files);
-    files.forEach((file) => {
-      if (file && file.type.startsWith("image/")) {
-        const reader = new FileReader();
-        reader.onload = () => setPhotos((prev) => [reader.result, ...prev]);
-        reader.onerror = () => console.error("Error reading photo");
-        reader.readAsDataURL(file);
-      } else {
-        console.error("Invalid file type");
+    for (const file of files) {
+      if (!file.type.startsWith("image/")) {
+        console.error("Invalid photo file");
+        continue;
       }
-    });
+
+      const url = await uploadToCloudinary(file);
+      if (url) {
+        setPhotos((prev) => [url, ...prev]);
+      }
+    }
   };
 
   // Handle post creation
@@ -154,13 +231,16 @@ const Profile = () => {
               </h2>
               <div className="grid grid-cols-3 gap-2">
                 {friends.map((friend) => (
-                  <div key={friend.id} className="text-center">
+                  <div
+                    key={friend.id}
+                    className="text-center flex flex-col justify-center items-center"
+                  >
                     <img
                       src={friend.pic}
                       alt={friend.name}
                       className="w-20 h-20 rounded-md object-cover"
                     />
-                    <p className="text-sm text-fb-text-gray mt-1 leading-5">
+                    <p className="text-sm text-fb-text-gray font-semibold mt-1 leading-5">
                       {friend.name}
                     </p>
                   </div>
@@ -462,15 +542,17 @@ const Profile = () => {
           {/* Cover Photo */}
           <div className="relative">
             <img
-              src={coverPic}
+              src={coverPic || cp}
               alt="Cover"
               className="w-full h-60 sm:h-80 md:h-96 object-cover"
             />
             <label
-              className="absolute top-3 right-3 bg-gray-800 text-white px-3 py-1 rounded-lg cursor-pointer hover:bg-gray-700"
+              className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
               aria-label="Upload cover photo"
             >
-              Change Cover
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
+              </svg>
               <input
                 type="file"
                 accept="image/*"
@@ -484,7 +566,7 @@ const Profile = () => {
           <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
             <div className="relative">
               <img
-                src={profilePic}
+                src={profilePic || dp}
                 alt="Profile"
                 className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
               />
@@ -497,7 +579,7 @@ const Profile = () => {
                   fill="currentColor"
                   viewBox="0 0 20 20"
                 >
-                  <path d="M4 3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H4zm12 12H4V5h12v10zm-2-8a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm7 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z" />
+                  <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
                 </svg>
                 <input
                   type="file"

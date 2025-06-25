@@ -66,16 +66,12 @@ const OTPPage = () => {
       setLoading(true);
       console.log("email:", email);
       console.log("here");
-
       const response = await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/verify",
         { email, inputOtp: otp }
       );
-      const token = response.data.token;
-      localStorage.setItem("userToken", token);
       console.log("response:", response);
       console.log("OTP verified successfully:", response.data.message);
-      console.log("token:", token);
       navigate("/");
     } catch (error) {
       console.error("Error verifying OTP:", error.response?.data?.message);

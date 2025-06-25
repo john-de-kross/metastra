@@ -133,7 +133,7 @@ const SignUp = () => {
       console.log("Response:", response);
       console.log("User registered:", response.data);
       setErr({ server: ["Registration successful!"] });
-      setIsAuthenticated(true);
+      // setIsAuthenticated(true)
       navigate("/verify");
     } catch (error) {
       console.log("Full error:", error);
