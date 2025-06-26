@@ -15,8 +15,10 @@ import {
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import Navbar from "../../components/navBar";
+import { useUserContext } from "../../context/userContext";
 
-const MobileMenu = ({ userName = "Louis DM" }) => {
+
+const MobileMenu = () => {
   const menuItems = [
     {
       section: "Shortcuts",
@@ -49,6 +51,8 @@ const MobileMenu = ({ userName = "Louis DM" }) => {
       ],
     },
   ];
+
+   const { userName } = useUserContext()
 
   return (
     <div className="lg:hidden">

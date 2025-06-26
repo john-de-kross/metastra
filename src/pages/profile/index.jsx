@@ -5,6 +5,7 @@ import { FaMapMarkerAlt, FaBriefcase, FaCalendarAlt } from "react-icons/fa";
 import { IoMdSchool } from "react-icons/io";
 import { FaHandHoldingHeart } from "react-icons/fa";
 import axios from "axios";
+import { useUserContext } from "../../context/userContext";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -25,13 +26,7 @@ const uploadToCloudinary = async (file) => {
 };
 
 const Profile = () => {
-  const [profilePic, setProfilePic] = useState("");
-  const [coverPic, setCoverPic] = useState(
-    "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg"
-  );
   const [activeTab, setActiveTab] = useState("Timeline");
-  const [userName, setUserName] = useState("user");
-  const [bio, setBio] = useState("Living the dream! 🌟");
   const [about, setAbout] = useState({
     work: "",
     education: "",
@@ -40,7 +35,19 @@ const Profile = () => {
     joined: "",
   });
   const [dpOption, setDpOption] = useState(false);
-
+  const {
+    userName,
+    setUserName,
+    profilePic,
+    setProfilePic,
+    coverPic,
+    setCoverPic,
+    bio,
+    setBio,
+    isLoading,
+    setIsAuthenticated,
+    // isAuthenticated,
+  } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
 
@@ -85,32 +92,6 @@ const Profile = () => {
     { year: 2020, event: "Graduated from XYZ University" },
   ];
 
-  useEffect(() => {
-    const userData = async () => {
-      try {
-        const response = await axios.get(
-          "https://metastra-server.onrender.com/api/v1/users/user-profile",
-          { withCredentials: true }
-        );
-        const data = response.data;
-        console.log("data:", data);
-        console.log("data dp:", data.data.currentUser.profilePics);
-
-        const username = `${data.data.currentUser.firstname} ${data.data.currentUser.surname}`;
-
-        console.log("username:", username);
-
-        setUserName(username || "user");
-        setProfilePic(data.data.currentUser.profilePics);
-        setCoverPic(data.data.currentUser.coverPics);
-        setBio(data.bio);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    userData();
-  }, []);
-
   // Handle photo uploads
   const handleProfilePicUpload = async (event) => {
     const file = event.target.files[0];
@@ -133,7 +114,28 @@ const Profile = () => {
           { withCredentials: true }
         );
       } catch (err) {
-        console.error("Backend update error:", err);
+        if (err.response) {
+          // Server responded with a status outside 2xx
+          console.error("Backend update error (response):", {
+            status: err.response.status,
+            data: err.response.data,
+            message: err.response.data?.message || "Unknown server error",
+          });
+          //user might not be logged in
+          if (err.response.status === 401) {
+            console.error("Unauthorized. User may need to log in again.");
+            setIsAuthenticated(false);
+            navigate("/");
+          } else if (err.response.status === 500) {
+            console.error("Internal server error. Please try again later.");
+          }
+        } else if (err.request) {
+          // Request was made but no response received
+          console.error("No response from backend:", err.request);
+        } else {
+          // Something else went wrong in setting up the request
+          console.error("Unexpected Axios error:", err.message);
+        }
       }
     }
   };
@@ -157,7 +159,28 @@ const Profile = () => {
           { withCredentials: true }
         );
       } catch (err) {
-        console.error("Backend update error:", err);
+        if (err.response) {
+          // Server responded with a status outside 2xx
+          console.error("Backend update error (response):", {
+            status: err.response.status,
+            data: err.response.data,
+            message: err.response.data?.message || "Unknown server error",
+          });
+          //user might not be logged in
+          if (err.response.status === 401) {
+            console.error("Unauthorized. User may need to log in again.");
+            setIsAuthenticated(false);
+            navigate("/");
+          } else if (err.response.status === 500) {
+            console.error("Internal server error. Please try again later.");
+          }
+        } else if (err.request) {
+          // Request was made but no response received
+          console.error("No response from backend:", err.request);
+        } else {
+          // Something else went wrong in setting up the request
+          console.error("Unexpected Axios error:", err.message);
+        }
       }
     }
   };
@@ -212,6 +235,15 @@ const Profile = () => {
       joined: editForm.joined,
     });
     setIsEditing(false);
+    // try {
+    //   const profileRes = await axios.put(
+    //     "https://metastra-server.onrender.com/api/v1/users/user-profile",
+    //     { bio: bio },
+    //     { withCredentials: true }
+    //   );
+    // } catch (error) {
+    //   console.log("Refresh failed:", error);
+    // }
   };
 
   const handleEditCancel = () => {
@@ -441,6 +473,13 @@ const Profile = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="w-full min-h-screen flex items-center justify-center bg-fb-gray">
+        <div className="text-xl font-semibold text-fb-blue">Loading...</div>
+      </div>
+    );
+  }
   return (
     <div className="w-full min-h-screen bg-fb-gray">
       <Navbar />

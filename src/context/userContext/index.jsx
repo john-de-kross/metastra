@@ -1,14 +1,8 @@
-import React, { createContext, useContext, useState } from "react";
-import { useEffect } from "react";
-import NetworkError from "../../components/ERRORPAGE/network";
+import React, { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
-
 
 // Create the context
 const UserContext = createContext({});
-
-// const navigate = useNavigate();
 
 // Create the provider
 export const UserProvider = ({ children }) => {
@@ -23,6 +17,7 @@ export const UserProvider = ({ children }) => {
     email: "",
     password: "",
   });
+
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
@@ -32,7 +27,51 @@ export const UserProvider = ({ children }) => {
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
- 
+  const [userName, setUserName] = useState("user");
+  const [profilePic, setProfilePic] = useState("");
+  const [coverPic, setCoverPic] = useState(
+    "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg"
+  );
+  const [bio, setBio] = useState("Living the dream! 🌟");
+
+  // Function to refresh user and profile data
+  const refreshUser = async () => {
+    setIsLoading(true);
+    try {
+      const authRes = await axios.get(
+        "https://metastra-server.onrender.com/api/v1/users/check-auth",
+        { withCredentials: true }
+      );
+
+      setIsAuthenticated(true);
+      setUser(authRes.data.user);
+
+      const profileRes = await axios.get(
+        "https://metastra-server.onrender.com/api/v1/users/user-profile",
+        { withCredentials: true }
+      );
+
+      const currentUser = profileRes.data.data.currentUser;
+      const username = `${currentUser.firstname} ${currentUser.surname}`;
+
+      setUserName(username || "user");
+      setProfilePic(currentUser.profilePics);
+      setCoverPic(currentUser.coverPics);
+      setBio(profileRes.data.bio || "Living the dream! 🌟");
+      console.log("data:", profileRes.data.data);
+    } catch (error) {
+      console.log("Refresh failed:", error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Run only on mount
+  useEffect(() => {
+    refreshUser();
+  }, []);
 
   const value = {
     formData,
@@ -47,44 +86,18 @@ export const UserProvider = ({ children }) => {
     setLoginData,
     mail,
     setMail,
+    userName,
+    setUserName,
+    profilePic,
+    setProfilePic,
+    coverPic,
+    setCoverPic,
+    bio,
+    setBio,
+    refreshUser,
   };
-  useEffect(() => {
-    axios
-      .get("https://metastra-server.onrender.com/api/v1/users/check-auth", {
-        withCredentials: true,
-      })
-      .then((res) => {
-        setIsAuthenticated(true);
-        // navigate("/home")
-        setUser(res.data.user);
-      })
-      .catch((err) => {
-        console.log(err)
-        if (err.message === 'Network Error') {
-          
-          console.log("Network Error")
-          // navigate('/network-error');
-        } else if (err.response && err.response.status === 401) {
-          setIsAuthenticated(false);
-        } else {
-          //You can equally build a component for server error
-          console.log('Server error')
-        }
-          
-        
-        
-        
-        console.log("is auth", isAuthenticated);
-        setUser(null);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }, []);
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 };
 
-export const useUserContext = () => {
-  return useContext(UserContext);
-};
+export const useUserContext = () => useContext(UserContext);

@@ -5,6 +5,7 @@ import axios from "axios";
 import Layout from "../../components/layout";
 import dp from "../../assets/img/user.png";
 import { IoVideocam } from "react-icons/io5";
+import { useUserContext } from "../../context/userContext";
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -14,13 +15,9 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const postsPerPage = 5;
+  const { userName, profilePic } = useUserContext();
 
-  const currentUser = {
-    id: 1,
-    name: "John Doe",
-    profileImage: dp,
-  };
+  const postsPerPage = 5;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -76,18 +73,18 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto mt-25  md:mt-14">
+      <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto mt-25  md:mt-14 overflow-x-hidden">
         {/* Create Post */}
         <div className="bg-white rounded-lg shadow-sm p-6 sm:p-6 mb-6">
           <div className="flex items-center space-x-3">
             <img
-              src={currentUser.profileImage}
-              alt={currentUser.name}
-              className="w-10 h-10 rounded-full"
+              src={profilePic}
+              alt={userName}
+              className="w-10 rounded-full max-w-full h-auto"
             />
             <input
               type="text"
-              placeholder={`What's on your mind, ${currentUser.name}?`}
+              placeholder={`What's on your mind, ${userName}?`}
               className="w-full bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0866FF]"
             />
           </div>
@@ -144,7 +141,7 @@ const Home = () => {
                 <img
                   src={photo}
                   alt="Post"
-                  className="w-full h-auto max-h-[500px] rounded-lg object-cover mb-3"
+                  className="w-full h-auto max-h-[500px] rounded-lg object-cover mb-3 max-w-full"
                 />
               )}
               <div className="grid grid-cols-[30%_30%_30%] md:flex md:flex-wrap justify-around gap-2 border-t border-gray-200 pt-3">
