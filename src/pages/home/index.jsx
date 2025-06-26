@@ -73,7 +73,8 @@ const Home = () => {
 
   return (
     <Layout>
-      <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto mt-25  md:mt-14 overflow-x-hidden">
+      {/* <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto mt-25  lg:mt-14 overflow-x-hidden"> */}
+      <div className="w-full max-w-2xl mx-auto mt-25 lg:mt-14 px-2 sm:px-4 overflow-x-hidden">
         {/* Create Post */}
         <div className="bg-white rounded-lg shadow-sm p-6 sm:p-6 mb-6">
           <div className="flex items-center space-x-3">
@@ -144,16 +145,17 @@ const Home = () => {
                   className="w-full h-auto max-h-[500px] rounded-lg object-cover mb-3 max-w-full"
                 />
               )}
-              <div className="grid grid-cols-[30%_30%_30%] md:flex md:flex-wrap justify-around gap-2 border-t border-gray-200 pt-3">
-                <button className="flex items-center space-x-1 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm">
+              {/* <div className="grid grid-cols-[20%_20%_20%] md:flex md:flex-wrap justify-around gap-2 border-t border-gray-200 pt-3"> */}
+              <div className="flex flex-row flex-wrap justify-between gap-2 border-t border-gray-200 pt-3 w-full">
+                <button className="flex-1 min-w-0 flex items-center justify-center space-x-1 text-gray-600 hover:bg-gray-100 px-2 py-2 rounded text-sm">
                   <ThumbUpIcon className="w-5 h-5" />
                   <span>Like</span>
                 </button>
-                <button className="flex items-center space-x-1 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm">
+                <button className="flex-1 min-w-0 flex items-center justify-center space-x-1 text-gray-600 hover:bg-gray-100 px-2 py-2 rounded text-sm">
                   <ChatIcon className="w-5 h-5" />
                   <span>Comment</span>
                 </button>
-                <button className="flex items-center space-x-1 text-gray-600 hover:bg-gray-100 px-4 py-2 rounded text-sm">
+                <button className="flex-1 min-w-0 flex items-center justify-center space-x-1 text-gray-600 hover:bg-gray-100 px-2 py-2 rounded text-sm">
                   <ShareIcon className="w-5 h-5" />
                   <span>Share</span>
                 </button>

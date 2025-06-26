@@ -124,7 +124,7 @@ const OTPPage = () => {
               type="submit"
               disabled={otp.length !== 6}
               onClick={handleOtpVerify}
-              className={`w-full py-3 rounded-lg text-white font-semibold ${
+              className={`w-full py-3 rounded-lg text-white font-semibold flex items-center justify-center ${
                 otp.length === 6
                   ? "bg-[#0866FF] hover:bg-[#0756e6]"
                   : "bg-gray-300 cursor-not-allowed"

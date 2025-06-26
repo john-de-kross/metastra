@@ -6,6 +6,7 @@ import { IoMdSchool } from "react-icons/io";
 import { FaHandHoldingHeart } from "react-icons/fa";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
+import { AiOutlinePlus } from "react-icons/ai";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -51,8 +52,7 @@ const Profile = () => {
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
 
-  const cp =
-    "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg";
+  const cp = "https://www.bing.com/8389c9d1-7b99-4e88-ade9-8ada6089e8a8";
   const [posts, setPosts] = useState([
     {
       id: 1,
@@ -633,21 +633,22 @@ const Profile = () => {
                 {userName}
               </h1>
               <p className="text-gray-600">{bio}</p>
-              <div className="mt-2 flex flex-row sm:flex-row gap-2 ">
+              <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
                 <button
-                  className="bg-fb-blue text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
-                  aria-label="Add friend"
+                  className="bg-fb-blue flex items-center  text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
+                  aria-label="Add to story"
                 >
-                  Add Friend
-                </button>
-                <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
-                  Message
+                  <AiOutlinePlus />
+                  <p>Add to Story</p>
                 </button>
                 <button
                   className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
                   onClick={handleEditOpen}
                 >
                   Edit Profile
+                </button>{" "}
+                <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                  ...
                 </button>
               </div>
             </div>
