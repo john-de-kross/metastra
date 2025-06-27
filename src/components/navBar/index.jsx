@@ -14,28 +14,26 @@ import {
 } from "@heroicons/react/outline";
 import { UserGroupIcon, BellIcon } from "@heroicons/react/solid";
 import { Link } from "react-router-dom";
-import dp from "../../assets/img/user.png";
-import Menu from "../../components/menu"
-import Notifications from "../../components/notification"
-
+import { useUserContext } from "../../context/userContext";
+import Menu from "../../components/menu";
+import Notifications from "../../components/notification";
 
 const Navbar = () => {
-  // Mock notification counts 
+  // Mock notification counts
   const notifications = 3;
   const messages = 5;
 
-  const [openMenu, setOpenMenu] = useState(false)
+  const [openMenu, setOpenMenu] = useState(false);
   const [openNotifications, setOpenNotifications] = useState(false);
-  
-  const handleNotification = ()=>{
-    setOpenNotifications(!openNotifications),
-    setOpenMenu(false)
-  }
+  const { profilePic } = useUserContext();
 
-  const handleMenu = ()=>{
-    setOpenNotifications(false),
-    setOpenMenu(!openMenu)
-  }
+  const handleNotification = () => {
+    setOpenNotifications(!openNotifications), setOpenMenu(false);
+  };
+
+  const handleMenu = () => {
+    setOpenNotifications(false), setOpenMenu(!openMenu);
+  };
   return (
     <>
       {/* Desktop Navbar */}
@@ -99,16 +97,20 @@ const Navbar = () => {
             {/* Right - Menu, Messenger, Notifications, Profile */}
             <div className="flex items-center relative z-50 space-x-2">
               <div className="relative">
-                <button to="/menu" className={`p-2 rounded-full bg-gray-100 `} onClick={handleMenu}
->
-                 <MenuIcon className={`w-7 h-7  hover:text-[#0866FF] ${openMenu ? "text-[#0866FF]" :'text-gray-600' }`}/>
+                <button
+                  to="/menu"
+                  className={`p-2 rounded-full bg-gray-100 `}
+                  onClick={handleMenu}
+                >
+                  <MenuIcon
+                    className={`w-7 h-7  hover:text-[#0866FF] ${
+                      openMenu ? "text-[#0866FF]" : "text-gray-600"
+                    }`}
+                  />
                 </button>
-                <Menu openMenu={openMenu} setOpenMenu={setOpenMenu}/>
+                <Menu openMenu={openMenu} setOpenMenu={setOpenMenu} />
               </div>
-              <button
-               
-                className="p-2 rounded-full bg-gray-100 relative"
-              >
+              <button className="p-2 rounded-full bg-gray-100 relative">
                 <ChatIcon className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 {messages > 0 && (
                   <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -117,22 +119,31 @@ const Navbar = () => {
                 )}
               </button>
 
-              <div><button
-                
-                className={`p-2 rounded-full bg-gray-100 relative `} onClick={handleNotification}
-              >
-                <BellIcon className={`w-7 h-7  hover:text-[#0866FF] ${openNotifications ? "text-[#0866FF]" :'text-gray-600' }`} />
-                {notifications > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    {notifications}
-                  </span>
-                )}
-              </button>
-              <Notifications open={openNotifications} />
+              <div>
+                <button
+                  className={`p-2 rounded-full bg-gray-100 relative `}
+                  onClick={handleNotification}
+                >
+                  <BellIcon
+                    className={`w-7 h-7  hover:text-[#0866FF] ${
+                      openNotifications ? "text-[#0866FF]" : "text-gray-600"
+                    }`}
+                  />
+                  {notifications > 0 && (
+                    <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                      {notifications}
+                    </span>
+                  )}
+                </button>
+                <Notifications open={openNotifications} />
               </div>
-              
+
               <button className="p-2 rounded-full bg-gray-100">
-                <img src={dp} alt="Profile" className="rounded-full w-8 h-8" />
+                <img
+                  src={profilePic}
+                  alt="Profile"
+                  className="rounded-full w-8 h-8"
+                />
               </button>
             </div>
           </div>
@@ -145,12 +156,12 @@ const Navbar = () => {
           <h1 className="text-xl font-bold text-[#0866FF]">Metastra</h1>
           <div className="flex space-x-4 text-xl">
             <button className="p-2 hover:bg-gray-100 rounded-full">
-              <FiPlusCircle/>
+              <FiPlusCircle />
             </button>
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <GrSearch />
             </button>
-            <Link to='/menu' className="p-2 hover:bg-gray-100 rounded-full">
+            <Link to="/menu" className="p-2 hover:bg-gray-100 rounded-full">
               <GiHamburgerMenu />
             </Link>
           </div>
@@ -173,9 +184,9 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          
+
           <Link to="/menu" className="p-2">
-            <BiMessageRoundedDetail  className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+            <BiMessageRoundedDetail className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
         </div>
       </nav>

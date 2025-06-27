@@ -28,13 +28,7 @@ const uploadToCloudinary = async (file) => {
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Timeline");
-  const [about, setAbout] = useState({
-    work: "",
-    education: "",
-    location: "",
-    relationship: "",
-    joined: "",
-  });
+
   const [dpOption, setDpOption] = useState(false);
   const {
     userName,
@@ -47,7 +41,13 @@ const Profile = () => {
     setBio,
     isLoading,
     setIsAuthenticated,
-    // isAuthenticated,
+    myData,
+    setMyData,
+    about,
+    setAbout,
+    editForm,
+    setEditForm,
+    refreshUser,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
@@ -71,7 +71,6 @@ const Profile = () => {
   ]);
   const [newPost, setNewPost] = useState("");
   const [isEditing, setIsEditing] = useState(false);
-  const [editForm, setEditForm] = useState({ userName, bio, ...about });
   const [photos, setPhotos] = useState([
     "https://i.pinimg.com/736x/eb/76/a4/eb76a46ab920d056b02d203ca95e9a22.jpg",
     "https://i.pinimg.com/736x/f0/eb/8b/f0eb8b6ed8975277054aecc4d2327f6d.jpg",
@@ -224,7 +223,7 @@ const Profile = () => {
     setIsEditing(true);
   };
 
-  const handleEditConfirm = () => {
+  const handleEditConfirm = async () => {
     setUserName(editForm.userName);
     setBio(editForm.bio);
     setAbout({
@@ -235,15 +234,29 @@ const Profile = () => {
       joined: editForm.joined,
     });
     setIsEditing(false);
-    // try {
-    //   const profileRes = await axios.put(
-    //     "https://metastra-server.onrender.com/api/v1/users/user-profile",
-    //     { bio: bio },
-    //     { withCredentials: true }
-    //   );
-    // } catch (error) {
-    //   console.log("Refresh failed:", error);
-    // }
+    try {
+      const profileRes = await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/create-about-profile",
+        {
+          bio: editForm.bio,
+          work: editForm.work,
+          education: editForm.education,
+          location: editForm.location,
+          relationship: editForm.relationship,
+        },
+        { withCredentials: true }
+      );
+      await refreshUser();
+      console.log("profile res", profileRes);
+    } catch (error) {
+      if (error.response) {
+        console.error("Server responded with:", error.response.data);
+      } else if (error.request) {
+        console.error("No response received:", error.request);
+      } else {
+        console.error("Error setting up request:", error.message);
+      }
+    }
   };
 
   const handleEditCancel = () => {
@@ -329,7 +342,7 @@ const Profile = () => {
                     className="w-10 h-10 rounded-full mr-2"
                   />
                   <div>
-                    <p className="font-semibold">{userName}</p>
+                    <p className="font-semibold capitalize">{userName}</p>
                     <p className="text-gray-600 text-sm">{post.date}</p>
                   </div>
                 </div>
@@ -365,7 +378,7 @@ const Profile = () => {
                   aria-hidden="true"
                 />
                 <p className=" flex items-center">
-                  <strong>Work:</strong>&nbsp; {about.work}
+                  <strong>Work:</strong>&nbsp; {myData.work}
                 </p>
               </div>
               <div className="flex items-center">
@@ -374,7 +387,7 @@ const Profile = () => {
                   aria-hidden="true"
                 />
                 <p>
-                  <strong>Education:</strong> {about.education}
+                  <strong>Education:</strong> {myData.education}
                 </p>
               </div>
               <div className="flex items-center">
@@ -383,7 +396,7 @@ const Profile = () => {
                   aria-hidden="true"
                 />
                 <p>
-                  <strong>Location:</strong> {about.location}
+                  <strong>Location:</strong> {myData.location}
                 </p>
               </div>
               <div className="flex items-center">
@@ -392,7 +405,7 @@ const Profile = () => {
                   aria-hidden="true"
                 />
                 <p>
-                  <strong>Relationship:</strong> {about.relationship}
+                  <strong>Relationship:</strong> {myData.relationship}
                 </p>
               </div>
               <div className="flex items-center">
@@ -401,7 +414,7 @@ const Profile = () => {
                   aria-hidden="true"
                 />
                 <p>
-                  <strong>Joined:</strong> {about.joined}
+                  <strong>Joined:</strong> {myData.joined}
                 </p>
               </div>
             </div>
@@ -484,93 +497,142 @@ const Profile = () => {
     <div className="w-full min-h-screen bg-fb-gray">
       <Navbar />
       {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-full max-w-md">
-            <h2 className="text-xl font-semibold mb-4">Edit Profile</h2>
-            <div className="space-y-3">
-              <div>
-                <label className="block font-semibold text-sm">Name</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md text-sm"
-                  value={editForm.userName}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, userName: e.target.value })
-                  }
+        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in">
+            {/* Close button (optional) */}
+            <button
+              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
+              onClick={handleEditCancel}
+              aria-label="Close"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M6 18L18 6M6 6l12 12"
                 />
-              </div>
+              </svg>
+            </button>
+
+            {/* Profile Icon */}
+            <div className="flex flex-col items-center mb-6">
+              <img
+                src={profilePic || dp}
+                alt="Profile"
+                className="w-20 h-20 rounded-full border-4 border-blue-100 shadow mb-2 object-cover"
+              />
+              <h2 className="text-2xl font-bold text-fb-blue mb-1">
+                Edit Profile
+              </h2>
+              <p className="text-gray-500 text-sm">
+                Update your information below
+              </p>
+            </div>
+
+            <form className="space-y-4">
               <div>
-                <label className="block font-semibold text-sm">Bio</label>
+                <label className="block font-semibold text-sm mb-1 text-gray-700">
+                  Bio
+                </label>
                 <textarea
-                  className="w-full p-2 border rounded-md resize-none text-sm"
+                  className="w-full p-3 border border-gray-200 rounded-lg resize-none text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
                   rows="3"
                   value={editForm.bio}
                   onChange={(e) =>
                     setEditForm({ ...editForm, bio: e.target.value })
                   }
+                  placeholder="Tell us about yourself..."
                 />
               </div>
-              <div>
-                <label className="block font-semibold text-sm">Work</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md text-sm"
-                  value={editForm.work}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, work: e.target.value })
-                  }
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block font-semibold text-sm mb-1 text-gray-700">
+                    Work
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                    value={editForm.work}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, work: e.target.value })
+                    }
+                    placeholder="Where do you work?"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm mb-1 text-gray-700">
+                    Education
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                    value={editForm.education}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, education: e.target.value })
+                    }
+                    placeholder="Your education"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm mb-1 text-gray-700">
+                    Location
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                    value={editForm.location}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, location: e.target.value })
+                    }
+                    placeholder="Where do you live?"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-sm mb-1 text-gray-700">
+                    Relationship
+                  </label>
+                  <select
+                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition bg-white"
+                    value={editForm.relationship}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, relationship: e.target.value })
+                    }
+                  >
+                    <option value="">Select status</option>
+                    <option value="Single">Single</option>
+                    <option value="In a relationship">In a relationship</option>
+                    <option value="Engaged">Engaged</option>
+                    <option value="Married">Married</option>
+                    <option value="It's complicated">It's complicated</option>
+                    <option value="Separated">Separated</option>
+                    <option value="Divorced">Divorced</option>
+                    <option value="Widowed">Widowed</option>
+                  </select>
+                </div>
               </div>
-              <div>
-                <label className="block font-semibold text-sm">Education</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md text-sm"
-                  value={editForm.education}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, education: e.target.value })
-                  }
-                />
+              <div className="flex justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  className="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
+                  onClick={handleEditCancel}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="px-5 py-2 rounded-lg bg-fb-blue text-white font-semibold bg-blue-800 transition shadow"
+                  onClick={handleEditConfirm}
+                >
+                  Save Changes
+                </button>
               </div>
-              <div>
-                <label className="block font-semibold text-sm">Location</label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md text-sm"
-                  value={editForm.location}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, location: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block font-semibold text-sm">
-                  Relationship
-                </label>
-                <input
-                  type="text"
-                  className="w-full p-2 border rounded-md text-sm"
-                  value={editForm.relationship}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, relationship: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <button
-                className="bg-gray-200 text-gray-800 px-4 py-1 rounded-md hover:bg-gray-300"
-                onClick={handleEditCancel}
-              >
-                Cancel
-              </button>
-              <button
-                className="bg-fb-blue text-white px-4 py-1 rounded-md bg-blue-700"
-                onClick={handleEditConfirm}
-              >
-                Confirm
-              </button>
-            </div>
+            </form>
           </div>
         </div>
       )}
@@ -629,10 +691,10 @@ const Profile = () => {
               </label>
             </div>
             <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
                 {userName}
               </h1>
-              <p className="text-gray-600">{bio}</p>
+              <p className="text-gray-600">{myData.bio}</p>
               <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
                 <button
                   className="bg-fb-blue flex items-center  text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
@@ -685,41 +747,41 @@ const Profile = () => {
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
                 Intro
               </h2>
-              {bio && (
+              {myData.bio && (
                 <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
-                  {bio}
+                  {myData.bio}
                 </p>
               )}
-              {about.location && (
+              {myData.location && (
                 <div className="flex items-center mb-3">
                   <FaMapMarkerAlt
                     className="w-4 h-4 text-gray-500 mr-2"
                     aria-hidden="true"
                   />
                   <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Lives in</strong> {about.location}
+                    <strong>Lives in</strong> {myData.location}
                   </p>
                 </div>
               )}
-              {about.work && (
+              {myData.work && (
                 <div className="flex items-center mb-3">
                   <FaBriefcase
                     className="w-4 h-4 text-gray-500 mr-2"
                     aria-hidden="true"
                   />
                   <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Works at</strong> {about.work}
+                    <strong>Works at</strong> {myData.work}
                   </p>
                 </div>
               )}
-              {about.joined && (
+              {myData.joined && (
                 <div className="flex items-center mb-4">
                   <FaCalendarAlt
                     className="w-4 h-4 text-gray-500 mr-2"
                     aria-hidden="true"
                   />
                   <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Joined</strong> {about.joined}
+                    <strong>Joined</strong> {myData.joined}
                   </p>
                 </div>
               )}

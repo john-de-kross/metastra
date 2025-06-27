@@ -33,7 +33,42 @@ export const UserProvider = ({ children }) => {
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg"
   );
   const [bio, setBio] = useState("Living the dream! 🌟");
+  const [myData, setMyData] = useState({
+    bio: "",
+    work: "",
+    education: "",
+    location: "",
+    relationship: "",
+    joined: "",
+  });
 
+  const [about, setAbout] = useState({
+    bio: "",
+    work: "",
+    education: "",
+    location: "",
+    relationship: "",
+    // joined: "",
+  });
+
+  const [editForm, setEditForm] = useState({ userName, bio, ...about });
+
+  const fetchUserAboutData = async () => {
+    try {
+      const response = await axios.get(
+        "https://metastra-server.onrender.com/api/v1/users/about-user",
+        { withCredentials: true }
+      );
+      console.log("about data:", response.data.data);
+      setMyData({
+        bio: response.data.data.userAboutProfile.bio,
+        work: response.data.data.userAboutProfile.work,
+        education: response.data.data.userAboutProfile.education,
+        location: response.data.data.userAboutProfile.location,
+        relationship: response.data.data.userAboutProfile.relationship,
+      });
+    } catch (err) {}
+  };
   // Function to refresh user and profile data
   const refreshUser = async () => {
     setIsLoading(true);
@@ -51,6 +86,7 @@ export const UserProvider = ({ children }) => {
         { withCredentials: true }
       );
 
+      await fetchUserAboutData();
       const currentUser = profileRes.data.data.currentUser;
       const username = `${currentUser.firstname} ${currentUser.surname}`;
 
@@ -95,6 +131,12 @@ export const UserProvider = ({ children }) => {
     bio,
     setBio,
     refreshUser,
+    myData,
+    setMyData,
+    about,
+    setAbout,
+    editForm,
+    setEditForm,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

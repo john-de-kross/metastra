@@ -5,14 +5,10 @@ import { CgGames } from "react-icons/cg";
 import { HomeIcon, XIcon } from "@heroicons/react/outline";
 import { UserGroupIcon, CalendarIcon } from "@heroicons/react/solid";
 import { Link, NavLink } from "react-router-dom";
-import dp from "../../assets/img/user.png"
+import dp from "../../assets/img/user.png";
+import { useUserContext } from "../../context/userContext";
 
 const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
-  // Mock user data (replace with auth context or state)
-  const user = {
-    name: "John Doe",
-    profileImage: dp,
-  };
 
   // Navigation items
   const navItems = [
@@ -25,6 +21,7 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
     { to: "/events", icon: CalendarIcon, label: "Events" },
   ];
 
+  const { userName, profilePic } = useUserContext();
   return (
     <>
       {/* Desktop Sidebar */}
@@ -36,12 +33,12 @@ const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
             className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100"
           >
             <img
-              src={user.profileImage}
+              src={profilePic}
               alt="Profile"
               className="w-10 h-10 rounded-full"
             />
-            <span className="text-gray-800 font-semibold text-sm">
-              {user.name}
+            <span className="text-gray-800 font-semibold text-sm capitalize">
+              {userName}
             </span>
           </Link>
 

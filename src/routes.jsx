@@ -13,6 +13,8 @@ import PasswordOtp from "./components/passwordOtp";
 import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
 import NetworkError from "./components/ERRORPAGE/network";
 import ServerError from "./components/serverError";
+import Settings from "./pages/settings";
+
 
 const router = createBrowserRouter([
   {
@@ -44,6 +46,7 @@ const router = createBrowserRouter([
       { path: "/home", element: <Home /> },
       { path: "/profile", element: <Profile /> },
       { path: "/menu", element: <MobileMenu /> },
+      { path: "/settings", element: <Settings /> },
     ],
   },
 ]);
