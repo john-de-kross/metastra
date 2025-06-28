@@ -12,7 +12,7 @@ const FriendsPage = () => {
   return (
     <div>
       <Navbar />
-      <div className="flex mt-28 md:mt-15">
+      <div className="flex mt-38 md:mt-15">
         <FSidebar />
 
         <main className="flex-1 p-4 md:ml-64  bg-gray-100 min-h-screen">
