@@ -46,7 +46,7 @@ const Aside = () => {
   ];
 
   return (
-    <div className="hidden md:block w-80  border-l border-gray-200 fixed top-14 right-0 h-[calc(100vh-3.5rem)] overflow-y-auto z-0">
+    <div className="hidden md:block w-80   fixed top-14 right-0 h-[calc(100vh-3.5rem)] overflow-y-auto z-0">
       <div className="flex flex-col p-4 space-y-4">
         {/* Your Pages Section (Optional) */}
         {pages.length > 0 && (

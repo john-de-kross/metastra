@@ -1,128 +1,82 @@
 import React, { useState } from "react";
 
 export default function PrivacySettings() {
-  const [privacy, setPrivacy] = useState({
-    profileVisibility: "public",
-    searchEngine: true,
-    messageRequests: "friends",
-    timelinePosts: "friends",
-    tagReview: false,
-    locationSharing: false,
-  });
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setPrivacy({
-      ...privacy,
-      [name]: type === "checkbox" ? checked : value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Saving Privacy Settings:", privacy);
-    // TODO: Send settings to backend with axios.post(...)
-  };
+  const [searchEngineEnabled, setSearchEngineEnabled] = useState(false);
 
   return (
-    <div className="bg-white p-6 rounded shadow-md max-w-2xl">
-      <h3 className="text-2xl font-bold mb-6 text-gray-800">
+    <div className="bg-white  rounded-lg shadow-sm p-6 text-sm max-w-2xl mx-auto">
+      <h2 className="text-2xl font-semibold text-gray-900 mb-1">
         Privacy Settings
-      </h3>
-      <form onSubmit={handleSubmit} className="space-y-6 text-sm text-gray-700">
-        {/* Profile Visibility */}
+      </h2>
+      <p className="text-gray-600 mb-6">
+        Manage who can see your activity and how others find you on Facebook.
+      </p>
+
+      <div className="space-y-6">
+        {/* Future Posts Visibility */}
         <div>
-          <label className="block font-semibold mb-1">
-            Who can see your profile?
+          <label className="block text-sm font-medium text-gray-800 mb-1">
+            Who can see your future posts?
           </label>
-          <select
-            name="profileVisibility"
-            value={privacy.profileVisibility}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="public">Public</option>
-            <option value="friends">Friends Only</option>
-            <option value="private">Only Me</option>
+          <select className="w-full border border-gray-300 rounded-md p-2 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option>Public</option>
+            <option>Friends</option>
+            <option>Only Me</option>
+            <option>Custom</option>
           </select>
+          <p className="text-xs text-gray-500 mt-1">
+            This controls the default audience for future posts.
+          </p>
         </div>
 
-        {/* Search Engine */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="searchEngine"
-            checked={privacy.searchEngine}
-            onChange={handleChange}
-          />
-          <label className="text-sm">
-            Allow search engines to link to your profile
-          </label>
-        </div>
-
-        {/* Message Requests */}
+        {/* Friend List Visibility */}
         <div>
-          <label className="block font-semibold mb-1">
-            Who can message you?
+          <label className="block text-sm font-medium text-gray-800 mb-1">
+            Who can see your friend list?
           </label>
-          <select
-            name="messageRequests"
-            value={privacy.messageRequests}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="everyone">Everyone</option>
-            <option value="friends">Friends Only</option>
-            <option value="noOne">No One</option>
+          <select className="w-full border border-gray-300 rounded-md p-2 bg-gray-50 focus:outline-none focus:ring-1 focus:ring-blue-500">
+            <option>Public</option>
+            <option>Friends</option>
+            <option>Only Me</option>
           </select>
+          <p className="text-xs text-gray-500 mt-1">
+            Your friends will always be able to see mutual friends.
+          </p>
         </div>
 
-        {/* Timeline Posts */}
+        {/* Search Engine Visibility */}
         <div>
-          <label className="block font-semibold mb-1">
-            Who can post on your timeline?
+          <label className="block text-sm font-medium text-gray-800 mb-2">
+            Do you want search engines outside Facebook to link to your profile?
           </label>
-          <select
-            name="timelinePosts"
-            value={privacy.timelinePosts}
-            onChange={handleChange}
-            className="w-full p-2 border rounded"
-          >
-            <option value="everyone">Everyone</option>
-            <option value="friends">Friends Only</option>
-            <option value="onlyMe">Only Me</option>
-          </select>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="searchEngine"
+              className="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+              checked={searchEngineEnabled}
+              onChange={() => setSearchEngineEnabled(!searchEngineEnabled)}
+            />
+            <label htmlFor="searchEngine" className="ml-2 text-gray-700">
+              Yes, include my profile in search engine results
+            </label>
+          </div>
+          {/* <p className="text-xs text-gray-500 mt-1">
+            Note: It may take some time for changes to be reflected in search
+            engines.
+          </p> */}
         </div>
+      </div>
 
-        {/* Tag Review */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="tagReview"
-            checked={privacy.tagReview}
-            onChange={handleChange}
-          />
-          <label>Review tags before they appear on your timeline</label>
-        </div>
-
-        {/* Location Sharing */}
-        <div className="flex items-center gap-3">
-          <input
-            type="checkbox"
-            name="locationSharing"
-            checked={privacy.locationSharing}
-            onChange={handleChange}
-          />
-          <label>Allow apps to access your location</label>
-        </div>
-
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 font-medium"
-        >
+      {/* Action Footer */}
+      <div className="mt-8 flex justify-end items-center space-x-3">
+        <button className="px-4 py-2 rounded-md border text-gray-700 hover:bg-gray-100 text-sm">
+          Cancel
+        </button>
+        <button className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700 text-sm">
           Save Changes
         </button>
-      </form>
+      </div>
     </div>
   );
 }

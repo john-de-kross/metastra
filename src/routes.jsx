@@ -14,7 +14,8 @@ import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
 import NetworkError from "./components/ERRORPAGE/network";
 import ServerError from "./components/serverError";
 import Settings from "./pages/settings";
-
+import FriendsPage from "./pages/friends";
+import FriendRequest from "./components/friendRequest";
 
 const router = createBrowserRouter([
   {
@@ -47,6 +48,8 @@ const router = createBrowserRouter([
       { path: "/profile", element: <Profile /> },
       { path: "/menu", element: <MobileMenu /> },
       { path: "/settings", element: <Settings /> },
+      { path: "/friends", element: <FriendsPage /> },
+
     ],
   },
 ]);

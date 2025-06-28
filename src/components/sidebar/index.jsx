@@ -1,120 +1,81 @@
 import React from "react";
-import { LuTvMinimalPlay } from "react-icons/lu";
-import { FaShop } from "react-icons/fa6";
+import {
+  FaHome,
+  FaUserFriends,
+  FaStore,
+  FaCalendarAlt,
+  FaClock,
+  FaFlag,
+  FaVideo,
+  FaBookmark,
+  FaRegNewspaper,
+} from "react-icons/fa";
+import { HiUserGroup } from "react-icons/hi";
 import { CgGames } from "react-icons/cg";
-import { HomeIcon, XIcon } from "@heroicons/react/outline";
-import { UserGroupIcon, CalendarIcon } from "@heroicons/react/solid";
+import { RiMemoriesLine, RiEarthLine } from "react-icons/ri";
+import { GiMegaphone } from "react-icons/gi";
+import { BsExclamationTriangleFill, BsChevronDown } from "react-icons/bs";
 import { Link, NavLink } from "react-router-dom";
 import dp from "../../assets/img/user.png";
 import { useUserContext } from "../../context/userContext";
 
-const Sidebar = ({ isMobileMenuOpen, setIsMobileMenuOpen }) => {
+const navItems = [
+  { to: "/home", label: "Home", icon: FaHome },
+  { to: "/friends", label: "Friends", icon: FaUserFriends },
+  { to: "/groups", label: "Groups", icon: HiUserGroup },
+  { to: "/marketplace", label: "Marketplace", icon: FaStore },
+  { to: "/watch", label: "Watch", icon: FaVideo },
+  { to: "/memories", label: "Memories", icon: RiMemoriesLine },
+  { to: "/saved", label: "Saved", icon: FaBookmark },
+  { to: "/events", label: "Events", icon: FaCalendarAlt },
+  { to: "/pages", label: "Pages", icon: FaFlag },
+  { to: "/gaming", label: "Gaming", icon: CgGames },
+  { to: "/feeds", label: "Feeds", icon: FaRegNewspaper },
+  { to: "/ad-center", label: "Ad Center", icon: GiMegaphone },
+  { to: "/climate", label: "Climate Science Center", icon: RiEarthLine },
+  { to: "/crisis", label: "Crisis Response", icon: BsExclamationTriangleFill },
+  { to: "#", label: "See more", icon: BsChevronDown },
+];
 
-  // Navigation items
-  const navItems = [
-    { to: "/home", icon: HomeIcon, label: "Home" },
-    { to: "/friends", icon: UserGroupIcon, label: "Friends" },
-    { to: "/video", icon: LuTvMinimalPlay, label: "Watch" },
-    { to: "/marketplace", icon: FaShop, label: "Marketplace" },
-    { to: "/groups", icon: UserGroupIcon, label: "Groups" },
-    { to: "/gaming", icon: CgGames, label: "Gaming" },
-    { to: "/events", icon: CalendarIcon, label: "Events" },
-  ];
-
+export default function Sidebar() {
   const { userName, profilePic } = useUserContext();
+
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <div className="hidden md:block w-72 border-r border-gray-200 fixed top-14 left-0 h-[calc(100vh-3.5rem)] overflow-y-auto z-40">
-        <div className="flex flex-col p-4 space-y-2">
-          {/* Profile Section */}
-          <Link
-            to="/profile"
-            className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100"
+    <aside className="hidden md:block w-72 fixed scrollbar-fb top-14 left-0 h-[calc(100vh-3.5rem)]  border-gray-200 overflow-y-auto z-40">
+      <div className="flex flex-col p-4 space-y-2">
+        {/* Profile Section */}
+        <Link
+          to="/profile"
+          className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition"
+        >
+          <img
+            src={profilePic || dp}
+            alt="Profile"
+            className="w-10 h-10 rounded-full"
+          />
+          <span className="text-gray-800 font-semibold text-sm capitalize">
+            {userName}
+          </span>
+        </Link>
+
+        {/* Nav Items */}
+        {navItems.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              `flex items-center space-x-3 p-2 rounded-lg transition  ${
+                isActive
+                  ? " text-[#0866FF] font-semibold bg-white"
+                  : "text-gray-700 hover:bg-gray-300"
+              }`
+            }
           >
-            <img
-              src={profilePic}
-              alt="Profile"
-              className="w-10 h-10 rounded-full"
-            />
-            <span className="text-gray-800 font-semibold text-sm capitalize">
-              {userName}
-            </span>
-          </Link>
-
-          {/* Navigation Items */}
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                `flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-200 ${
-                  isActive
-                    ? "bg-gray-100 text-[#0866FF] font-semibold"
-                    : "text-gray-600"
-                }`
-              }
-            >
-              <item.icon className="w-7 h-7 text-[#0866FF]" />
-              <span className="text-sm font-medium">{item.label}</span>
-            </NavLink>
-          ))}
-        </div>
+            <Icon className="w-6 h-6 text-[#0866FF]" />
+            <span className="text-sm font-medium">{label}</span>
+          </NavLink>
+        ))}
       </div>
-
-      {/* Mobile Sidebar */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-50">
-          <div className="w-80 bg-white h-full p-4 overflow-y-auto">
-            {/* Close Button */}
-            <div className="flex justify-end">
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-full hover:bg-gray-100"
-              >
-                <XIcon className="w-6 h-6 text-gray-600" />
-              </button>
-            </div>
-
-            {/* Profile Section */}
-            <Link
-              to="/profile"
-              className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 mb-4"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              <img
-                src={user.profileImage}
-                alt="Profile"
-                className="w-10 h-10 rounded-full"
-              />
-              <span className="text-gray-800 font-semibold text-sm">
-                {user.name}
-              </span>
-            </Link>
-
-            {/* Navigation Items */}
-            {navItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                className={({ isActive }) =>
-                  `flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 ${
-                    isActive
-                      ? "bg-gray-100 text-[#0866FF] font-semibold"
-                      : "text-gray-600"
-                  }`
-                }
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <item.icon className="w-7 h-7" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        </div>
-      )}
-    </>
+    </aside>
   );
-};
-
-export default Sidebar;
+}

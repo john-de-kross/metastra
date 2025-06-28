@@ -51,6 +51,8 @@ export const UserProvider = ({ children }) => {
     // joined: "",
   });
 
+  const [active, setActive] = useState("requests");
+
   const [editForm, setEditForm] = useState({ userName, bio, ...about });
 
   const fetchUserAboutData = async () => {
@@ -137,6 +139,8 @@ export const UserProvider = ({ children }) => {
     setAbout,
     editForm,
     setEditForm,
+    active,
+    setActive,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

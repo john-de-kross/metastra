@@ -1,18 +1,17 @@
 import React, { useState } from "react";
-import { LuTvMinimalPlay } from "react-icons/lu";
-import { FaShop } from "react-icons/fa6";
-import { CgGames } from "react-icons/cg";
+import {
+  FaHome,
+  FaTv,
+  FaStore,
+  FaGamepad,
+  FaBell,
+  FaUsers,
+  FaFacebookMessenger,
+} from "react-icons/fa";
 import { FiPlusCircle } from "react-icons/fi";
 import { GrSearch } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { BiMessageRoundedDetail } from "react-icons/bi";
-import {
-  SearchIcon,
-  HomeIcon,
-  MenuIcon,
-  ChatIcon,
-} from "@heroicons/react/outline";
-import { UserGroupIcon, BellIcon } from "@heroicons/react/solid";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
 import Menu from "../../components/menu";
@@ -34,6 +33,7 @@ const Navbar = () => {
   const handleMenu = () => {
     setOpenNotifications(false), setOpenMenu(!openMenu);
   };
+
   return (
     <>
       {/* Desktop Navbar */}
@@ -54,7 +54,7 @@ const Navbar = () => {
                   className="w-full h-10 pl-10 pr-4 rounded-full bg-gray-100 text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0866FF] border-none placeholder-gray-500"
                   placeholder="Search Metastra"
                 />
-                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
+                <FaFacebookMessenger className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
               </div>
             </div>
 
@@ -63,33 +63,33 @@ const Navbar = () => {
               <div className="flex space-x-4">
                 <Link
                   to="/home"
-                  className="px-8 py-3  hover:bg-gray-100 border-b-3 border-[#0866FF]"
+                  className="px-8 py-3 hover:bg-gray-100 border-b-3 border-[#0866FF]"
                 >
-                  <HomeIcon className="w-7 h-7 text-[#0866FF]" />
+                  <FaHome className="w-7 h-7 text-[#0866FF]" />
                 </Link>
                 <Link
                   to="/video"
                   className="px-8 py-3 rounded-lg hover:bg-gray-100"
                 >
-                  <LuTvMinimalPlay className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+                  <FaTv className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 </Link>
                 <Link
                   to="/marketplace"
                   className="px-8 py-3 rounded-lg hover:bg-gray-100"
                 >
-                  <FaShop className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+                  <FaStore className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 </Link>
                 <Link
                   to="/groups"
                   className="px-8 py-3 rounded-lg hover:bg-gray-100"
                 >
-                  <UserGroupIcon className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+                  <FaUsers className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 </Link>
                 <Link
                   to="/gaming"
                   className="px-8 py-3 rounded-lg hover:bg-gray-100"
                 >
-                  <CgGames className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+                  <FaGamepad className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 </Link>
               </div>
             </div>
@@ -102,16 +102,17 @@ const Navbar = () => {
                   className={`p-2 rounded-full bg-gray-100 `}
                   onClick={handleMenu}
                 >
-                  <MenuIcon
-                    className={`w-7 h-7  hover:text-[#0866FF] ${
+                  <GiHamburgerMenu
+                    className={`w-7 h-7 hover:text-[#0866FF] ${
                       openMenu ? "text-[#0866FF]" : "text-gray-600"
                     }`}
                   />
                 </button>
                 <Menu openMenu={openMenu} setOpenMenu={setOpenMenu} />
               </div>
+
               <button className="p-2 rounded-full bg-gray-100 relative">
-                <ChatIcon className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+                <FaFacebookMessenger className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 {messages > 0 && (
                   <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                     {messages}
@@ -124,8 +125,8 @@ const Navbar = () => {
                   className={`p-2 rounded-full bg-gray-100 relative `}
                   onClick={handleNotification}
                 >
-                  <BellIcon
-                    className={`w-7 h-7  hover:text-[#0866FF] ${
+                  <FaBell
+                    className={`w-7 h-7 hover:text-[#0866FF] ${
                       openNotifications ? "text-[#0866FF]" : "text-gray-600"
                     }`}
                   />
@@ -168,25 +169,24 @@ const Navbar = () => {
         </div>
         <div className="flex justify-around items-center h-14">
           <Link to="/home" className="p-2">
-            <HomeIcon className="w-7 h-7 text-[#0866FF]" />
+            <FaHome className="w-7 h-7 text-[#0866FF]" />
           </Link>
           <Link to="/video" className="p-2">
-            <LuTvMinimalPlay className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+            <FaTv className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
           <Link to="/marketplace" className="p-2">
-            <FaShop className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+            <FaStore className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
           <Link to="/notifications" className="p-2 relative">
-            <BellIcon className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+            <FaBell className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
             {notifications > 0 && (
               <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
                 {notifications}
               </span>
             )}
           </Link>
-
           <Link to="/menu" className="p-2">
-            <BiMessageRoundedDetail className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
+            <FaFacebookMessenger className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
         </div>
       </nav>
