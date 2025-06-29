@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FriendCard from "../../components/friendCard";
+import axios from "axios";
+import { useUserContext } from "../../context/userContext";
 
 // Mock suggestion data
 const suggestions = [
@@ -36,17 +38,22 @@ const suggestions = [
 ];
 
 const Suggestions = () => {
+  const { mock, refreshUser } = useUserContext();
+  useEffect(() => {
+    console.log(mock);
+  }, []);
+
   return (
     <div>
       <section className="mb-6">
         <h2 className="text-xl font-semibold mb-4">Suggestions</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {suggestions.map((user, index) => (
+          {mock.users.map((user) => (
             <FriendCard
-              key={index}
-              name={user.name}
-              image={user.image}
-              mutual={user.mutual}
+              key={user.id}
+              name={`${user.firstname} ${user.surname}`}
+              image={user.profilePics}
+              mutual={Math.floor(Math.random() * 10)}
               buttonText="Add Friend"
               secondary="Remove"
             />

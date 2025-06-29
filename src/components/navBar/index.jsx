@@ -46,13 +46,13 @@ const Navbar = () => {
                 to="/"
                 className=" text-white bg-[#0866FF] rounded-full p-2 text-3xl font-bold"
               >
-                M
+                m
               </Link>
               <div className="relative w-64">
                 <input
                   type="text"
                   className="w-full h-10 pl-10 pr-4 rounded-full bg-gray-100 text-sm focus:outline-none focus:bg-white focus:ring-1 focus:ring-[#0866FF] border-none placeholder-gray-500"
-                  placeholder="Search Metastra"
+                  placeholder="Search metastra"
                 />
                 <FaFacebookMessenger className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500" />
               </div>
@@ -154,7 +154,7 @@ const Navbar = () => {
       {/* Mobile Navbar */}
       <nav className="w-full bg-white shadow-sm fixed top-0 z-50 lg:hidden">
         <div className="flex items-center justify-between px-4 py-2">
-          <h1 className="text-xl font-bold text-[#0866FF]">Metastra</h1>
+          <h1 className="text-xl font-bold text-[#0866FF]">metastra</h1>
           <div className="flex space-x-4 text-xl">
             <button className="p-2 hover:bg-gray-100 rounded-full">
               <FiPlusCircle />

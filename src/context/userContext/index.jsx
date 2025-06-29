@@ -52,6 +52,7 @@ export const UserProvider = ({ children }) => {
   });
 
   const [active, setActive] = useState("requests");
+  const [mock, setMock] = useState([]);
 
   const [editForm, setEditForm] = useState({ userName, bio, ...about });
 
@@ -97,6 +98,14 @@ export const UserProvider = ({ children }) => {
       setCoverPic(currentUser.coverPics);
       setBio(profileRes.data.bio || "Living the dream! 🌟");
       console.log("data:", profileRes.data.data);
+
+      const response = await axios.get(
+        "https://metastra-server.onrender.com/api/v1/users/suggested-users",
+        { withCredentials: true }
+      );
+      setMock(response.data.data);
+      console.log(mock);
+      console.log("mock:", response.data.data);
     } catch (error) {
       console.log("Refresh failed:", error);
       setIsAuthenticated(false);
@@ -141,6 +150,8 @@ export const UserProvider = ({ children }) => {
     setEditForm,
     active,
     setActive,
+    mock,
+    setMock,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
