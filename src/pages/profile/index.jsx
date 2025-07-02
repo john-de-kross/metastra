@@ -328,9 +328,14 @@ const Profile = () => {
                       />
                       <div>
                         <div className="flex items-center">
-                          <p className="font-semibold capitalize">{userName}</p>
-                          &nbsp;
-                          <p>{post?.content}</p>
+                          <p>
+                            <span className="font-semibold capitalize">
+                              {userName}
+                            </span>{" "}
+                            <span className="font-normal lowercase">
+                              {post?.content}
+                            </span>
+                          </p>
                         </div>
                         <p className="text-gray-600 text-sm">
                           {post.createdAt
@@ -579,9 +584,7 @@ const Profile = () => {
                         <div>
                           <div className="flex items-center">
                             {" "}
-                            <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname}`}</p>{" "}
-                            &nbsp;
-                            <p>{post.content}</p>
+                            <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname} ${post.content}`}</p>{" "}
                           </div>
 
                           <p className="text-gray-600 text-sm">
