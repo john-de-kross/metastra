@@ -133,6 +133,8 @@ export const UserProvider = ({ children }) => {
     console.log("Equal?", clickedUser === loggedInUser);
   }, [clickedUser]);
 
+  
+
   const value = {
     formData,
     setFormData,

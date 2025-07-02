@@ -8,6 +8,7 @@ import axios from "axios";
 import { useUserContext } from "../../context/userContext";
 import { AiOutlinePlus } from "react-icons/ai";
 import Loader from "../../components/loadingIndicator";
+import { BsThreeDots } from "react-icons/bs";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -248,31 +249,34 @@ const Profile = () => {
       case "Timeline":
         return (
           <div>
-            {/* Friends Preview */}
-            <div className="bg-white p-4 shadow-sm rounded-lg">
+            {/* <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
-                Friends ({friends.length})
+                Friends ({userDetails?.friends?.length || 0})
               </h2>
               <div className="grid grid-cols-3 gap-2">
-                {friends.map((friend) => (
-                  <div
-                    key={friend.id}
-                    className="text-center flex flex-col justify-center items-center"
-                  >
-                    <img
-                      src={friend.pic}
-                      alt={friend.name}
-                      className="w-20 h-20 rounded-md object-cover"
-                    />
-                    <p className="text-sm text-fb-text-gray font-semibold mt-1 leading-5">
-                      {friend.name}
-                    </p>
-                  </div>
-                ))}
+                {userDetails?.friends && userDetails.friends.length > 0 ? (
+                  userDetails.friends.map((friend) => (
+                    <div
+                      key={friend.id}
+                      className="text-center flex flex-col justify-center items-center"
+                    >
+                      <img
+                        src={friend.pic}
+                        alt={friend.name}
+                        className="w-20 h-20 rounded-md object-cover"
+                      />
+                      <p className="text-sm text-fb-text-gray font-semibold mt-1 leading-5">
+                        {friend.name}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p>No friends yet </p>
+                )}
               </div>
             </div>
-            {/* Photos Preview */}
-            <div className="bg-white p-4 shadow-sm rounded-lg">
+          
+            <div className="bg-white p-4 shadow-sm mt-4 rounded-lg hidden md:block">
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
                 Photos
               </h2>
@@ -286,8 +290,8 @@ const Profile = () => {
                   />
                 ))}
               </div>
-            </div>
-            <div className="bg-white p-4 mb-4 shadow rounded-lg">
+            </div> */}
+            <div className="bg-white p-4 mb-4 mt-4 shadow rounded-lg">
               <div className="flex items-center mb-2">
                 <img
                   src={profilePic}
@@ -309,40 +313,77 @@ const Profile = () => {
                 Post
               </button>
             </div>
-            {posts.map((post) => (
-              <div
-                key={post.id}
-                className="bg-white p-4 mb-4 shadow rounded-lg"
-              >
-                <div className="flex items-center mb-2">
-                  <img
-                    src={profilePic}
-                    alt="Profile"
-                    className="w-10 h-10 rounded-full mr-2"
-                  />
+            {userDetails?.posts && userDetails.posts.length > 0 ? (
+              userDetails.posts.map((post) => (
+                <div
+                  key={post.id}
+                  className="bg-white p-4 mb-4 shadow rounded-lg"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center mb-2">
+                      <img
+                        src={profilePic}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full mr-2"
+                      />
+                      <div>
+                        <div className="flex items-center">
+                          <p className="font-semibold capitalize">{userName}</p>
+                          &nbsp;
+                          <p>{post?.content}</p>
+                        </div>
+                        <p className="text-gray-600 text-sm">
+                          {post.createdAt
+                            ? new Date(post.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )
+                            : "Unknown date"}
+                        </p>
+                      </div>
+                    </div>
+                    <button className="text-3xl font-bold">
+                      <BsThreeDots />
+                    </button>
+                  </div>
+
                   <div>
-                    <p className="font-semibold capitalize">{userName}</p>
-                    <p className="text-gray-600 text-sm">{post.date}</p>
+                    {post.imageUrl && (
+                      <div className="mt-2 w-full border-2">
+                        <img
+                          src={post.imageUrl}
+                          alt="post"
+                          className="w-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex justify-between text-gray-600 text-sm">
+                    <span>{post.likes} Likes</span>
+                    <span>{post.comments} Comments</span>
+                  </div>
+                  <div className="flex justify-between mt-2 pt-2 border-t">
+                    <button className="text-gray-600 hover:text-fb-blue">
+                      Like
+                    </button>
+                    <button className="text-gray-600 hover:text-fb-blue">
+                      Comment
+                    </button>
+                    <button className="text-gray-600 hover:text-fb-blue">
+                      Share
+                    </button>
                   </div>
                 </div>
-                <p className="mb-2">{post.content}</p>
-                <div className="flex justify-between text-gray-600 text-sm">
-                  <span>{post.likes} Likes</span>
-                  <span>{post.comments} Comments</span>
-                </div>
-                <div className="flex justify-between mt-2 pt-2 border-t">
-                  <button className="text-gray-600 hover:text-fb-blue">
-                    Like
-                  </button>
-                  <button className="text-gray-600 hover:text-fb-blue">
-                    Comment
-                  </button>
-                  <button className="text-gray-600 hover:text-fb-blue">
-                    Share
-                  </button>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="col-span-3 text-center text-gray-400 mt-10">
+                No posts yet
+              </p>
+            )}
           </div>
         );
       case "About":
@@ -470,10 +511,9 @@ const Profile = () => {
       case "Posts":
         return (
           <div>
-            {/* Friends Preview */}
-            <div className="bg-white p-4 shadow-sm rounded-lg">
+            {/* <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
-                Friends ({userDetails.friends.length})
+                Friends ({userDetails?.friends?.length})
               </h2>
               <div className="grid grid-cols-3 gap-2">
                 {userDetails?.friends && userDetails.friends.length > 0 ? (
@@ -499,8 +539,8 @@ const Profile = () => {
                 )}
               </div>
             </div>
-            {/* Photos Preview */}
-            <div className="bg-white p-4 shadow-sm rounded-lg">
+            
+            <div className="bg-white p-4 shadow-sm mt-4 rounded-lg hidden md:block">
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
                 Photos
               </h2>
@@ -520,27 +560,57 @@ const Profile = () => {
                   </p>
                 )}
               </div>
-            </div>
+            </div> */}
 
-            <div>
+            <div className="mt-4">
               {userDetails?.posts && userDetails.posts.length > 0 ? (
                 userDetails.posts.map((post) => (
                   <div
                     key={post.id}
                     className="bg-white p-4 mb-4 shadow rounded-lg"
                   >
-                    <div className="flex items-center mb-2">
-                      <img
-                        src={userDetails.profile.profilePics}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full mr-2"
-                      />
-                      <div>
-                        <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname}`}</p>
-                        <p className="text-gray-600 text-sm">{post.date}</p>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center mb-2">
+                        <img
+                          src={userDetails.profile.profilePics}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full mr-2"
+                        />
+                        <div>
+                          <div className="flex items-center">
+                            {" "}
+                            <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname}`}</p>{" "}
+                            &nbsp;
+                            <p>{post.content}</p>
+                          </div>
+
+                          <p className="text-gray-600 text-sm">
+                            {new Date(post.createdAt).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )}
+                          </p>
+                        </div>
                       </div>
+                      <button className="text-3xl font-bold">
+                        <BsThreeDots />
+                      </button>
+                    </div>{" "}
+                    <div>
+                      {post.imageUrl && (
+                        <div className="mt-2 w-full border-2">
+                          <img
+                            src={post.imageUrl}
+                            alt="post"
+                            className="w-full  object-cover "
+                          />
+                        </div>
+                      )}
                     </div>
-                    <p className="mb-2">{post.content}</p>
                     <div className="flex justify-between text-gray-600 text-sm">
                       <span>{post.likes} Likes</span>
                       <span>{post.comments} Comments</span>
@@ -688,7 +758,9 @@ const Profile = () => {
   if (isLoading || localLoading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-fb-gray">
-        <div className="text-xl font-semibold text-fb-blue">Loading...</div>
+        <div className="text-xl font-semibold text-fb-blue">
+          <Loader />
+        </div>
       </div>
     );
   }
@@ -1019,98 +1091,93 @@ const Profile = () => {
           <div className="w-full sm:w-2/5 flex flex-col gap-4">
             {/* Intro Card */}
             {userId === logged ? (
-              <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
-                <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+              <div className="bg-white p-6 shadow rounded-xl hidden md:block">
+                <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
                   Intro
                 </h2>
                 {myData.bio && (
-                  <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
-                    {myData.bio}
+                  <p className="text-base text-gray-700 mb-5 text-center italic">
+                    "{myData.bio}"
                   </p>
                 )}
-                {myData.location && (
-                  <div className="flex items-center mb-3">
-                    <FaMapMarkerAlt
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Lives in</strong> {myData.location}
-                    </p>
-                  </div>
-                )}
-                {myData.work && (
-                  <div className="flex items-center mb-3">
-                    <FaBriefcase
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Works at</strong> {myData.work}
-                    </p>
-                  </div>
-                )}
-                {myData.joined && (
-                  <div className="flex items-center mb-4">
-                    <FaCalendarAlt
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Joined</strong> {myData.joined}
-                    </p>
-                  </div>
-                )}
+                <div className="space-y-3">
+                  {myData.location && (
+                    <div className="flex items-center gap-2">
+                      <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600">
+                        <strong>Lives in</strong> {myData.location}
+                      </span>
+                    </div>
+                  )}
+                  {myData.work && (
+                    <div className="flex items-center gap-2">
+                      <FaBriefcase className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600">
+                        <strong>Works at</strong> {myData.work}
+                      </span>
+                    </div>
+                  )}
+                  {myData.joined && (
+                    <div className="flex items-center gap-2">
+                      <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600">
+                        <strong>Joined</strong> {myData.joined}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <button
-                  className="w-full bg-fb-button-gray text-fb-text-gray px-4 py-1.5 rounded-md hover:bg-gray-300 text-sm font-medium transition-colors mt-3"
+                  className="w-full mt-6 bg-fb-blue text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition"
                   onClick={handleEditOpen}
                 >
                   Edit Details
                 </button>
               </div>
             ) : (
-              <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
-                <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+              <div className="bg-white p-6 shadow rounded-xl hidden md:block">
+                <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
                   Intro
                 </h2>
-                {otherProfile.about && (
-                  <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
-                    {otherProfile.about.bio}
+                {otherProfile.about?.bio && (
+                  <p className="text-base text-gray-700 mb-5 text-center italic">
+                    "{otherProfile.about.bio}"
                   </p>
                 )}
-                {otherProfile.about && (
-                  <div className="flex items-center mb-3">
-                    <FaMapMarkerAlt
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Lives in: </strong> {otherProfile.about.location}
-                    </p>
-                  </div>
-                )}
-                {otherProfile.about && (
-                  <div className="flex items-center mb-3">
-                    <FaBriefcase
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Works at: </strong> {otherProfile.about.work}
-                    </p>
-                  </div>
-                )}
-                {otherProfile.about && (
-                  <div className="flex items-center mb-4">
-                    <FaCalendarAlt
-                      className="w-4 h-4 text-gray-500 mr-2"
-                      aria-hidden="true"
-                    />
-                    <p className="text-sm text-fb-text-gray leading-5">
-                      <strong>Joined: </strong> {otherProfile.about.joined}
-                    </p>
-                  </div>
-                )}
+                <div className="space-y-3">
+                  {otherProfile.about?.location && (
+                    <div className="flex items-center gap-2">
+                      <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600">
+                        <strong>Lives in</strong> {otherProfile.about.location}
+                      </span>
+                    </div>
+                  )}
+                  {otherProfile.about?.work && (
+                    <div className="flex items-center gap-2">
+                      <FaBriefcase className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600">
+                        <strong>Works at</strong> {otherProfile.about.work}
+                      </span>
+                    </div>
+                  )}
+                  {otherProfile.about?.joined && (
+                    <div className="flex items-center gap-2">
+                      <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                      <span className="text-gray-600 flex items-center">
+                        <strong>Joined</strong> &nbsp;
+                        <p className="text-gray-600 text-sm">
+                          {new Date(
+                            otherProfile.about.joined
+                          ).toLocaleDateString("en-US", {
+                            year: "numeric",
+                            month: "long",
+                            day: "numeric",
+                          })}
+                        </p>
+                      </span>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
             {/* Life Events */}

@@ -80,6 +80,7 @@ const FriendsSidebar = () => {
                   key={tag}
                   onClick={() => {
                     setActive(tag);
+                    localStorage.setItem("active", tag);
                     setMobileOpen(false);
                   }}
                   className={`flex items-center p-2 rounded-lg transition-all ${
@@ -112,7 +113,6 @@ const FriendsSidebar = () => {
           <Link
             className="flex items-center p-2 rounded-lg transition-all hover:bg-gray-100"
             to="/home"
-            
           >
             <span className="bg-gray-200 p-2 rounded-full mr-4 flex items-center justify-center">
               <MdHome className="text-2xl text-gray-600" />
@@ -124,6 +124,7 @@ const FriendsSidebar = () => {
               key={tag}
               onClick={() => {
                 setActive(tag);
+                localStorage.setItem("activ", tag);
                 console.log(tag);
               }}
               className={`flex items-center p-2 rounded-lg transition-all ${
