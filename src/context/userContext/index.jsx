@@ -23,6 +23,8 @@ export const UserProvider = ({ children }) => {
     password: "",
   });
 
+  const [loggedInUser, setLoggedInUser] = useState("");
+  const [clickedUser, setClickedUser] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
@@ -97,8 +99,14 @@ export const UserProvider = ({ children }) => {
       setProfilePic(currentUser.profilePics);
       setCoverPic(currentUser.coverPics);
       setBio(profileRes.data.bio || "Living the dream! 🌟");
+      localStorage.setItem(
+        "loggedInUser",
+        profileRes.data.data.currentUser._id
+      );
+      // localStorage.setItem("userId", profileRes.data.data.currentUser._id);
+      setLoggedInUser(profileRes.data.data.currentUser._id);
       console.log("data:", profileRes.data.data);
-
+      console.log("loggedin:", profileRes.data.data.currentUser._id);
       const response = await axios.get(
         "https://metastra-server.onrender.com/api/v1/users/suggested-users",
         { withCredentials: true }
@@ -119,6 +127,11 @@ export const UserProvider = ({ children }) => {
   useEffect(() => {
     refreshUser();
   }, []);
+
+  useEffect(() => {
+    console.log("clicked:", clickedUser);
+    console.log("Equal?", clickedUser === loggedInUser);
+  }, [clickedUser]);
 
   const value = {
     formData,
@@ -152,6 +165,9 @@ export const UserProvider = ({ children }) => {
     setActive,
     mock,
     setMock,
+    clickedUser,
+    setClickedUser,
+    loggedInUser,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

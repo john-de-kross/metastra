@@ -7,19 +7,18 @@ import { FaHandHoldingHeart } from "react-icons/fa";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
 import { AiOutlinePlus } from "react-icons/ai";
+import Loader from "../../components/loadingIndicator";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
   formData.append("file", file);
   formData.append("upload_preset", "tajrjpnn");
-  // formData.append("cloud_name", "dg3kuzhgf");
-
   try {
     const response = await axios.post(
       "https://api.cloudinary.com/v1_1/dg3kuzhgf/image/upload",
       formData
     );
-    return response.data.secure_url; // cloudinary url
+    return response.data.secure_url;
   } catch (err) {
     console.error("Cloudinary upload error:", err);
     return null;
@@ -28,7 +27,7 @@ const uploadToCloudinary = async (file) => {
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Timeline");
-
+  const [activeTabb, setActiveTabb] = useState("Posts");
   const [dpOption, setDpOption] = useState(false);
   const {
     userName,
@@ -40,6 +39,7 @@ const Profile = () => {
     bio,
     setBio,
     isLoading,
+    setIsLoading,
     setIsAuthenticated,
     myData,
     setMyData,
@@ -48,10 +48,12 @@ const Profile = () => {
     editForm,
     setEditForm,
     refreshUser,
+    loggedInUser,
+    clickedUser,
+    setClickedUser,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
-
   const cp = "https://www.bing.com/8389c9d1-7b99-4e88-ade9-8ada6089e8a8";
   const [posts, setPosts] = useState([
     {
@@ -79,6 +81,10 @@ const Profile = () => {
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg",
   ]);
 
+  const [localLoading, setLocalLoading] = useState(false);
+
+  const [otherProfile, setOtherProfile] = useState({});
+
   // Placeholder data
   const friends = [
     { id: 1, name: "Jane Smith", pic: dp },
@@ -91,21 +97,18 @@ const Profile = () => {
     { year: 2020, event: "Graduated from XYZ University" },
   ];
 
-  // Handle photo uploads
+  // const isOwnProfile = userId === logged;
+
+  // photo uploads
   const handleProfilePicUpload = async (event) => {
     const file = event.target.files[0];
-
     if (!file || !file.type.startsWith("image/")) {
       console.error("Invalid file for profile pic");
       return;
     }
-
     const url = await uploadToCloudinary(file);
-
     if (url) {
       setProfilePic(url);
-
-      // send to backend
       try {
         await axios.put(
           "https://metastra-server.onrender.com/api/v1/users/update-profile-pic",
@@ -114,26 +117,10 @@ const Profile = () => {
         );
       } catch (err) {
         if (err.response) {
-          // Server responded with a status outside 2xx
-          console.error("Backend update error (response):", {
-            status: err.response.status,
-            data: err.response.data,
-            message: err.response.data?.message || "Unknown server error",
-          });
-          //user might not be logged in
           if (err.response.status === 401) {
-            console.error("Unauthorized. User may need to log in again.");
             setIsAuthenticated(false);
             navigate("/");
-          } else if (err.response.status === 500) {
-            console.error("Internal server error. Please try again later.");
           }
-        } else if (err.request) {
-          // Request was made but no response received
-          console.error("No response from backend:", err.request);
-        } else {
-          // Something else went wrong in setting up the request
-          console.error("Unexpected Axios error:", err.message);
         }
       }
     }
@@ -145,12 +132,9 @@ const Profile = () => {
       console.error("Invalid file for cover pic");
       return;
     }
-
     const url = await uploadToCloudinary(file);
     if (url) {
       setCoverPic(url);
-
-      //send to backend
       try {
         await axios.put(
           "https://metastra-server.onrender.com/api/v1/users/update-cover-pic",
@@ -159,48 +143,26 @@ const Profile = () => {
         );
       } catch (err) {
         if (err.response) {
-          // Server responded with a status outside 2xx
-          console.error("Backend update error (response):", {
-            status: err.response.status,
-            data: err.response.data,
-            message: err.response.data?.message || "Unknown server error",
-          });
-          //user might not be logged in
           if (err.response.status === 401) {
-            console.error("Unauthorized. User may need to log in again.");
             setIsAuthenticated(false);
             navigate("/");
-          } else if (err.response.status === 500) {
-            console.error("Internal server error. Please try again later.");
           }
-        } else if (err.request) {
-          // Request was made but no response received
-          console.error("No response from backend:", err.request);
-        } else {
-          // Something else went wrong in setting up the request
-          console.error("Unexpected Axios error:", err.message);
         }
       }
     }
   };
 
-  // Handle adding photos to Photos section
+  // adding photos to Photos section
   const handleAddPhotos = async (event) => {
     const files = Array.from(event.target.files);
     for (const file of files) {
-      if (!file.type.startsWith("image/")) {
-        console.error("Invalid photo file");
-        continue;
-      }
-
+      if (!file.type.startsWith("image/")) continue;
       const url = await uploadToCloudinary(file);
-      if (url) {
-        setPhotos((prev) => [url, ...prev]);
-      }
+      if (url) setPhotos((prev) => [url, ...prev]);
     }
   };
 
-  // Handle post creation
+  //  post creation
   const handlePostSubmit = () => {
     if (newPost.trim()) {
       setPosts([
@@ -217,7 +179,7 @@ const Profile = () => {
     }
   };
 
-  // Handle profile editing
+  //  profile editing
   const handleEditOpen = () => {
     setEditForm({ userName, bio, ...about });
     setIsEditing(true);
@@ -235,7 +197,7 @@ const Profile = () => {
     });
     setIsEditing(false);
     try {
-      const profileRes = await axios.post(
+      await axios.post(
         "https://metastra-server.onrender.com/api/v1/users/create-about-profile",
         {
           bio: editForm.bio,
@@ -247,21 +209,38 @@ const Profile = () => {
         { withCredentials: true }
       );
       await refreshUser();
-      console.log("profile res", profileRes);
     } catch (error) {
-      if (error.response) {
-        console.error("Server responded with:", error.response.data);
-      } else if (error.request) {
-        console.error("No response received:", error.request);
-      } else {
-        console.error("Error setting up request:", error.message);
-      }
+      // handle error
     }
   };
 
-  const handleEditCancel = () => {
-    setIsEditing(false);
-  };
+  useEffect(() => {
+    const handleOtherUserProfile = async () => {
+      setLocalLoading(true);
+      try {
+        const userId = localStorage.getItem("userId");
+        const resp = await axios.get(
+          `https://metastra-server.onrender.com/api/v1/users/view-user-profile/${userId}`,
+          { withCredentials: true }
+        );
+        console.log(clickedUser);
+        console.log(resp.data.data);
+        localStorage.setItem("userDetails", JSON.stringify(resp.data.data));
+        setOtherProfile(resp.data.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLocalLoading(false);
+      }
+    };
+    handleOtherUserProfile();
+  }, [clickedUser]);
+
+  const handleEditCancel = () => setIsEditing(false);
+
+  const userDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const userId = localStorage.getItem("userId");
+  const logged = localStorage.getItem("loggedInUser");
 
   // Render tab content
   const renderContent = () => {
@@ -486,7 +465,227 @@ const Profile = () => {
     }
   };
 
-  if (isLoading) {
+  const renderContentt = () => {
+    switch (activeTabb) {
+      case "Posts":
+        return (
+          <div>
+            {/* Friends Preview */}
+            <div className="bg-white p-4 shadow-sm rounded-lg">
+              <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+                Friends ({userDetails.friends.length})
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {userDetails?.friends && userDetails.friends.length > 0 ? (
+                  userDetails.friends.map((friend) => (
+                    <div
+                      key={friend.id}
+                      className="text-center flex flex-col justify-center items-center"
+                    >
+                      <img
+                        src={friend.pic}
+                        alt={friend.name}
+                        className="w-20 h-20 rounded-md object-cover"
+                      />
+                      <p className="text-sm text-fb-text-gray font-semibold mt-1 leading-5">
+                        {friend.name}
+                      </p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="col-span-3 text-center text-gray-400">
+                    No friends to show.
+                  </p>
+                )}
+              </div>
+            </div>
+            {/* Photos Preview */}
+            <div className="bg-white p-4 shadow-sm rounded-lg">
+              <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+                Photos
+              </h2>
+              <div className="grid grid-cols-3 gap-2">
+                {userDetails?.photos && userDetails?.photos.length > 0 ? (
+                  userDetails.photos.map((photo, index) => (
+                    <img
+                      key={index}
+                      src={photo}
+                      alt="User photo"
+                      className="w-20 h-20 rounded-md object-cover"
+                    />
+                  ))
+                ) : (
+                  <p className="col-span-3 text-center text-gray-400">
+                    No photos to show.
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div>
+              {userDetails?.posts && userDetails.posts.length > 0 ? (
+                userDetails.posts.map((post) => (
+                  <div
+                    key={post.id}
+                    className="bg-white p-4 mb-4 shadow rounded-lg"
+                  >
+                    <div className="flex items-center mb-2">
+                      <img
+                        src={userDetails.profile.profilePics}
+                        alt="Profile"
+                        className="w-10 h-10 rounded-full mr-2"
+                      />
+                      <div>
+                        <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname}`}</p>
+                        <p className="text-gray-600 text-sm">{post.date}</p>
+                      </div>
+                    </div>
+                    <p className="mb-2">{post.content}</p>
+                    <div className="flex justify-between text-gray-600 text-sm">
+                      <span>{post.likes} Likes</span>
+                      <span>{post.comments} Comments</span>
+                    </div>
+                    <div className="flex justify-between mt-2 pt-2 border-t">
+                      <button className="text-gray-600 hover:text-fb-blue">
+                        Like
+                      </button>
+                      <button className="text-gray-600 hover:text-fb-blue">
+                        Comment
+                      </button>
+                      <button className="text-gray-600 hover:text-fb-blue">
+                        Share
+                      </button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-3 text-center text-gray-400 mt-10">
+                  No posts to show.
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      case "About":
+        return (
+          <div className="bg-white p-4 shadow rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">About</h2>
+            <div className="mb-4">
+              <h3 className="font-semibold">Overview</h3>
+              <div className="flex items-center">
+                <FaBriefcase
+                  className="w-4 h-4 text-gray-500 mr-2"
+                  aria-hidden="true"
+                />
+                <p className=" flex items-center">
+                  <strong>Work:</strong>&nbsp; {userDetails.about.work}
+                </p>
+              </div>
+              <div className="flex items-center">
+                <IoMdSchool
+                  className="w-4 h-4 text-gray-500 mr-2"
+                  aria-hidden="true"
+                />
+                <p>
+                  <strong>Education:</strong> {userDetails.about.education}
+                </p>
+              </div>
+              <div className="flex items-center">
+                <FaMapMarkerAlt
+                  className="w-4 h-4 text-gray-500 mr-2"
+                  aria-hidden="true"
+                />
+                <p>
+                  <strong>Location:</strong> {userDetails.about.location}
+                </p>
+              </div>
+              <div className="flex items-center">
+                <FaHandHoldingHeart
+                  className="w-4 h-4 text-gray-500 mr-2"
+                  aria-hidden="true"
+                />
+                <p>
+                  <strong>Relationship:</strong>{" "}
+                  {userDetails.about.relationship}
+                </p>
+              </div>
+              <div className="flex items-center">
+                <FaCalendarAlt
+                  className="w-4 h-4 text-gray-500 mr-2"
+                  aria-hidden="true"
+                />
+                <p>
+                  <strong>Joined:</strong> {userDetails.about.joined}
+                </p>
+              </div>
+            </div>
+            <div>
+              <h3 className="font-semibold">Life Events</h3>
+              {lifeEvents.map((event, index) => (
+                <p key={index} className="text-gray-600">
+                  <strong>{event.year}:</strong> {event.event}
+                </p>
+              ))}
+            </div>
+          </div>
+        );
+      case "Friends":
+        return (
+          <div className="bg-white p-4 shadow rounded-lg ">
+            <h2 className="text-xl font-semibold mb-4 ">
+              Friends ({userDetails?.friends?.length || 0})
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {userDetails?.friends && userDetails.friends.length > 0 ? (
+                userDetails.friends.map((friend) => (
+                  <div key={friend.id} className="text-center">
+                    <img
+                      src={friend.pic}
+                      alt={friend.name}
+                      className="w-full h-32 rounded-md object-cover"
+                    />
+                    <p className="mt-2 font-semibold">{friend.name}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-3 text-center text-gray-400">
+                  No friends to show.
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      case "Photos":
+        return (
+          <div className="bg-white p-4 shadow rounded-lg">
+            <h2 className="text-xl font-semibold mb-4">Photos</h2>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+              {userDetails?.photos && userDetails.photos.length > 0 ? (
+                photos.map((photo, index) => (
+                  <img
+                    key={index}
+                    src={photo}
+                    alt="User photo"
+                    className="w-full h-32 object-cover rounded-md"
+                  />
+                ))
+              ) : (
+                <p className="col-span-3 text-center text-gray-400">
+                  No photos to show.
+                </p>
+              )}
+            </div>
+          </div>
+        );
+      default:
+        return (
+          <div className="text-gray-600">Select a tab to view content.</div>
+        );
+    }
+  };
+
+  if (isLoading || localLoading) {
     return (
       <div className="w-full min-h-screen flex items-center justify-center bg-fb-gray">
         <div className="text-xl font-semibold text-fb-blue">Loading...</div>
@@ -641,40 +840,16 @@ const Profile = () => {
       <div className="bg-white shadow-lg p-2">
         <div className="w-full max-w-5xl mx-auto bg-white">
           {/* Cover Photo */}
-          <div className="relative">
-            <img
-              src={coverPic || cp}
-              alt="Cover"
-              className="w-full h-60 sm:h-80 md:h-96 object-cover"
-            />
-            <label
-              className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
-              aria-label="Upload cover photo"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
-              </svg>
-              <p>Add cover photo</p>
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleCoverPicUpload}
-              />
-            </label>
-          </div>
-
-          {/* Profile Picture and Info */}
-          <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
+          {userId === logged ? (
             <div className="relative">
               <img
-                src={profilePic || dp}
-                alt="Profile"
-                className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
+                src={coverPic || dp}
+                alt="Cover"
+                className="w-full h-60 sm:h-80 md:h-96 object-cover"
               />
               <label
-                className="absolute bottom-0 right-2 text-white p-2 rounded-full cursor-pointer bg-blue-700"
-                aria-label="Upload profile picture"
+                className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
+                aria-label="Upload cover photo"
               >
                 <svg
                   className="w-5 h-5"
@@ -683,58 +858,157 @@ const Profile = () => {
                 >
                   <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
                 </svg>
+                <p>Add cover photo</p>
                 <input
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={handleProfilePicUpload}
+                  onChange={handleCoverPicUpload}
                 />
               </label>
             </div>
+          ) : (
+            <div className="relative">
+              <img
+                src={otherProfile.profile?.coverPics || dp}
+                alt="Cover"
+                className="w-full h-60 sm:h-80 md:h-96 object-cover"
+              />
+            </div>
+          )}
+
+          {/* Profile Picture and Info */}
+          <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
+            <div className="relative">
+              <img
+                src={
+                  userId === logged
+                    ? profilePic || dp
+                    : otherProfile.profile?.profilePics || dp
+                }
+                alt="Profile"
+                className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
+              />
+              {userId === logged && (
+                <label
+                  className="absolute bottom-0 right-2 text-white p-2 rounded-full cursor-pointer bg-blue-700"
+                  aria-label="Upload profile picture"
+                >
+                  <svg
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
+                  </svg>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleProfilePicUpload}
+                  />
+                </label>
+              )}
+            </div>
             <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-              <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
-                {userName}
-              </h1>
-              <p className="text-gray-600">{myData.bio}</p>
-              <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
-                <button
-                  className="bg-fb-blue flex items-center  text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
-                  aria-label="Add to story"
-                >
-                  <AiOutlinePlus />
-                  <p>Add to Story</p>
-                </button>
-                <button
-                  className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
-                  onClick={handleEditOpen}
-                >
-                  Edit Profile
-                </button>{" "}
-                <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
-                  ...
-                </button>
-              </div>
+              {logged === userId ? (
+                <div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                    {userName}
+                  </h1>
+                  <p className="text-gray-600">{myData.bio}</p>
+                  <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                    <button
+                      className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
+                      aria-label="Add to story"
+                    >
+                      <AiOutlinePlus />
+                      <p>Add to Story</p>
+                    </button>
+                    <button
+                      className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                      onClick={handleEditOpen}
+                    >
+                      Edit Profile
+                    </button>
+                    <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                      ...
+                    </button>
+                  </div>
+                </div>
+              ) : otherProfile.profile ? (
+                <div>
+                  <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                    {`${otherProfile.profile.firstname} ${otherProfile.profile.surname}`}
+                  </h1>
+                  <p className="text-gray-600">
+                    {otherProfile.about?.bio || ""}
+                  </p>
+                  <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                    <button
+                      className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                      aria-label="Add friend"
+                    >
+                      <p>Add Friend</p>
+                    </button>
+                    <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
+                      Message
+                    </button>
+                    <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                      ...
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  {/* <h1 className="text-2xl font-bold text-gray-400">
+                    <Loader />
+                  </h1> */}
+                </div>
+              )}
             </div>
           </div>
 
           {/* Navigation Tabs */}
-          <div className="border-t mt-4 pt-2 px-4 sm:px-6">
-            <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
-              {["Timeline", "About", "Friends", "Photos"].map((tab) => (
-                <li
-                  key={tab}
-                  className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
-                    activeTab === tab
-                      ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
-                      : "text-gray-600 hover:text-fb-blue"
-                  }`}
-                  onClick={() => setActiveTab(tab)}
-                >
-                  {tab}
-                </li>
-              ))}
-            </ul>
-          </div>
+          {logged === userId ? (
+            <div className="border-t mt-4 pt-2 px-4 sm:px-6">
+              <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
+                {["Timeline", "About", "Friends", "Photos"].map((tab) => (
+                  <li
+                    key={tab}
+                    className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
+                      activeTab === tab
+                        ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
+                        : "text-gray-600 hover:text-fb-blue"
+                    }`}
+                    onClick={() => setActiveTab(tab)}
+                  >
+                    {tab}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <div className="border-t mt-4 pt-2 px-4 sm:px-6">
+              <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
+                {["Posts", "Friends", "About", "Photos", "Videos"].map(
+                  (tab) => (
+                    <li
+                      key={tab}
+                      className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
+                        activeTabb === tab
+                          ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
+                          : "text-gray-600 hover:text-fb-blue"
+                      }`}
+                      onClick={() => setActiveTabb(tab)}
+                    >
+                      {tab}
+                    </li>
+                  )
+                )}
+              </ul>
+            </div>
+          )}
         </div>
       </div>
 
@@ -744,55 +1018,101 @@ const Profile = () => {
           {/* Left Sidebar */}
           <div className="w-full sm:w-2/5 flex flex-col gap-4">
             {/* Intro Card */}
-            <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
-              <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
-                Intro
-              </h2>
-              {myData.bio && (
-                <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
-                  {myData.bio}
-                </p>
-              )}
-              {myData.location && (
-                <div className="flex items-center mb-3">
-                  <FaMapMarkerAlt
-                    className="w-4 h-4 text-gray-500 mr-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Lives in</strong> {myData.location}
+            {userId === logged ? (
+              <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
+                <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+                  Intro
+                </h2>
+                {myData.bio && (
+                  <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
+                    {myData.bio}
                   </p>
-                </div>
-              )}
-              {myData.work && (
-                <div className="flex items-center mb-3">
-                  <FaBriefcase
-                    className="w-4 h-4 text-gray-500 mr-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Works at</strong> {myData.work}
+                )}
+                {myData.location && (
+                  <div className="flex items-center mb-3">
+                    <FaMapMarkerAlt
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Lives in</strong> {myData.location}
+                    </p>
+                  </div>
+                )}
+                {myData.work && (
+                  <div className="flex items-center mb-3">
+                    <FaBriefcase
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Works at</strong> {myData.work}
+                    </p>
+                  </div>
+                )}
+                {myData.joined && (
+                  <div className="flex items-center mb-4">
+                    <FaCalendarAlt
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Joined</strong> {myData.joined}
+                    </p>
+                  </div>
+                )}
+                <button
+                  className="w-full bg-fb-button-gray text-fb-text-gray px-4 py-1.5 rounded-md hover:bg-gray-300 text-sm font-medium transition-colors mt-3"
+                  onClick={handleEditOpen}
+                >
+                  Edit Details
+                </button>
+              </div>
+            ) : (
+              <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
+                <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+                  Intro
+                </h2>
+                {otherProfile.about && (
+                  <p className="text-sm text-fb-text-gray mb-4 text-center leading-5">
+                    {otherProfile.about.bio}
                   </p>
-                </div>
-              )}
-              {myData.joined && (
-                <div className="flex items-center mb-4">
-                  <FaCalendarAlt
-                    className="w-4 h-4 text-gray-500 mr-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>Joined</strong> {myData.joined}
-                  </p>
-                </div>
-              )}
-              <button
-                className="w-full bg-fb-button-gray text-fb-text-gray px-4 py-1.5 rounded-md hover:bg-gray-300 text-sm font-medium transition-colors mt-3"
-                onClick={handleEditOpen}
-              >
-                Edit Details
-              </button>
-            </div>
+                )}
+                {otherProfile.about && (
+                  <div className="flex items-center mb-3">
+                    <FaMapMarkerAlt
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Lives in: </strong> {otherProfile.about.location}
+                    </p>
+                  </div>
+                )}
+                {otherProfile.about && (
+                  <div className="flex items-center mb-3">
+                    <FaBriefcase
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Works at: </strong> {otherProfile.about.work}
+                    </p>
+                  </div>
+                )}
+                {otherProfile.about && (
+                  <div className="flex items-center mb-4">
+                    <FaCalendarAlt
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>Joined: </strong> {otherProfile.about.joined}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
             {/* Life Events */}
             <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
               <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
@@ -813,7 +1133,9 @@ const Profile = () => {
           </div>
 
           {/* Main Content */}
-          <div className="w-full sm:w-3/5">{renderContent()}</div>
+          <div className="w-full sm:w-3/5">
+            {logged === userId ? renderContent() : renderContentt()}
+          </div>
         </div>
       </div>
     </div>

@@ -38,7 +38,8 @@ const suggestions = [
 ];
 
 const Suggestions = () => {
-  const { mock, refreshUser } = useUserContext();
+  const { mock, refreshUser, clickedUser, setClickedUser } = useUserContext();
+  
   useEffect(() => {
     console.log(mock);
   }, []);
@@ -50,7 +51,8 @@ const Suggestions = () => {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {mock.users.map((user) => (
             <FriendCard
-              key={user.id}
+              key={user._id}
+              id={user._id}
               name={`${user.firstname} ${user.surname}`}
               image={user.profilePics}
               mutual={Math.floor(Math.random() * 10)}

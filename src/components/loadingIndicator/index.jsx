@@ -1,10 +1,10 @@
 import React from "react";
+import logo from "../../assets/img/logo.jpeg";
 
 const Loader = () => {
   return (
-    <div>
-
-      <div class="border-gray-300 h-4 flex items-center justify-center w-4 animate-spin rounded-full border-8 border-t-blue-600" />
+    <div className="flex flex-col items-center justify-center">
+      <img src={logo} alt="loader" className="w-12 h-12 animate-bounce rounded-full" />
     </div>
   );
 };

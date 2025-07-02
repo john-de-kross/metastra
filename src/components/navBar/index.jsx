@@ -8,6 +8,7 @@ import {
   FaUsers,
   FaFacebookMessenger,
 } from "react-icons/fa";
+import logo from "../../assets/img/logo.jpeg";
 import { FiPlusCircle } from "react-icons/fi";
 import { GrSearch } from "react-icons/gr";
 import { GiHamburgerMenu } from "react-icons/gi";
@@ -44,9 +45,13 @@ const Navbar = () => {
             <div className="flex items-center space-x-3">
               <Link
                 to="/"
-                className=" text-white bg-[#0866FF] rounded-full p-2 text-3xl font-bold"
+                className=" text-white rounded-full p-2 text-3xl font-bold"
               >
-                m
+                <img
+                  src={logo}
+                  alt="metastra"
+                  className="w-10 h-10 rounded-full"
+                />
               </Link>
               <div className="relative w-64">
                 <input

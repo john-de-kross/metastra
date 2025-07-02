@@ -39,6 +39,8 @@ const navItems = [
 
 export default function Sidebar() {
   const { userName, profilePic } = useUserContext();
+  const logged = localStorage.getItem("loggedInUser");
+  const userId = localStorage.getItem("userId");
 
   return (
     <aside className="hidden md:block w-72 fixed scrollbar-fb top-14 left-0 h-[calc(100vh-3.5rem)]  border-gray-200 overflow-y-auto z-40">
@@ -46,6 +48,10 @@ export default function Sidebar() {
         {/* Profile Section */}
         <Link
           to="/profile"
+          onClick={() => {
+            localStorage.setItem("userId", logged);
+            console.log("Navigating to profile of:", userId);
+          }}
           className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-100 transition"
         >
           <img
