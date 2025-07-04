@@ -9,6 +9,11 @@ import { useUserContext } from "../../context/userContext";
 import { AiOutlinePlus } from "react-icons/ai";
 import Loader from "../../components/loadingIndicator";
 import { BsThreeDots } from "react-icons/bs";
+import { RiShareForwardLine } from "react-icons/ri";
+import { FaRegComment } from "react-icons/fa6";
+import { SlLike } from "react-icons/sl";
+import { IoSend } from "react-icons/io5";
+import { MdAddPhotoAlternate } from "react-icons/md";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -72,7 +77,7 @@ const Profile = () => {
       comments: 1,
     },
   ]);
-  const [newPost, setNewPost] = useState("");
+  // const [newPost, setNewPost] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [photos, setPhotos] = useState([
     "https://i.pinimg.com/736x/eb/76/a4/eb76a46ab920d056b02d203ca95e9a22.jpg",
@@ -85,6 +90,13 @@ const Profile = () => {
   const [localLoading, setLocalLoading] = useState(false);
 
   const [otherProfile, setOtherProfile] = useState({});
+
+  const [commentInfo, setCommentInfo] = useState({
+    postId: "",
+    comment: "",
+    id: "",
+    userName: "",
+  });
 
   // Placeholder data
   const friends = [
@@ -153,6 +165,45 @@ const Profile = () => {
     }
   };
 
+  const [newPost, setNewPost] = useState("");
+  const [postImage, setPostImage] = useState(null);
+
+  const handleImageChange = (e) => {
+    setPostImage(e.target.files[0]);
+  };
+
+  useEffect(() => {
+    console.log(postImage);
+  }, [postImage]);
+  //  post creation
+  const handlePostSubmit = async (e) => {
+    e.preventDefault();
+    let imageUrl = "";
+    if (postImage) {
+      if (!postImage.type.startsWith("image/")) {
+        console.log("Invalid file for this post");
+        return;
+      }
+      imageUrl = await uploadToCloudinary(postImage);
+    }
+    try {
+      await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/post-content",
+        { text: newPost, imageUrl: imageUrl },
+        { withCredentials: true }
+      );
+      setNewPost("");
+      setPostImage(null);
+    } catch (err) {
+      if (err.response) {
+        if (err.response.status === 401) {
+          setIsAuthenticated(false);
+          navigate("/");
+        }
+      }
+    }
+  };
+
   // adding photos to Photos section
   const handleAddPhotos = async (event) => {
     const files = Array.from(event.target.files);
@@ -160,23 +211,6 @@ const Profile = () => {
       if (!file.type.startsWith("image/")) continue;
       const url = await uploadToCloudinary(file);
       if (url) setPhotos((prev) => [url, ...prev]);
-    }
-  };
-
-  //  post creation
-  const handlePostSubmit = () => {
-    if (newPost.trim()) {
-      setPosts([
-        {
-          id: posts.length + 1,
-          content: newPost,
-          date: new Date().toLocaleDateString(),
-          likes: 0,
-          comments: 0,
-        },
-        ...posts,
-      ]);
-      setNewPost("");
     }
   };
 
@@ -238,10 +272,18 @@ const Profile = () => {
   }, [clickedUser]);
 
   const handleEditCancel = () => setIsEditing(false);
+  const [openOptions, setOpenOptions] = useState(null);
 
   const userDetails = JSON.parse(localStorage.getItem("userDetails"));
   const userId = localStorage.getItem("userId");
   const logged = localStorage.getItem("loggedInUser");
+  const [liked, setLiked] = useState(false);
+  const [drpOptions, setDrpOptions] = useState(null);
+  const [showCommentBox, setShowCommentBox] = useState(false);
+
+  const handleLike = () => {
+    setLiked(!liked);
+  };
 
   // Render tab content
   const renderContent = () => {
@@ -292,31 +334,54 @@ const Profile = () => {
               </div>
             </div> */}
             <div className="bg-white p-4 mb-4 mt-4 shadow rounded-lg">
-              <div className="flex items-center mb-2">
-                <img
-                  src={profilePic}
-                  alt="Profile"
-                  className="w-10 h-10 rounded-full mr-2"
-                />
-                <textarea
-                  className="w-full p-2 h-10 rounded-full bg-gray-100  resize-none"
-                  placeholder={`What's on your mind, ${userName}?`}
-                  value={newPost}
-                  onChange={(e) => setNewPost(e.target.value)}
-                />
-              </div>
-              <button
-                className="w-50 flex justify-center items-center mx-auto bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
-                onClick={handlePostSubmit}
-                disabled={!newPost.trim()}
-              >
-                Post
-              </button>
+              <form onSubmit={handlePostSubmit}>
+                <div className="flex items-center mb-2">
+                  <img
+                    src={profilePic}
+                    alt="Profile"
+                    className="w-10 h-10 rounded-full mr-2"
+                  />{" "}
+                  <textarea
+                    className="w-full p-2 h-10 rounded-full bg-gray-100  resize-none"
+                    placeholder={`What's on your mind, ${userName}?`}
+                    value={newPost}
+                    onChange={(e) => {
+                      setNewPost(e.target.value);
+                      console.log(newPost);
+                    }}
+                  />
+                  <label>
+                    <MdAddPhotoAlternate className="text-blue-500 text-4xl" />
+
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                </div>
+                {postImage && (
+                  <div className="mt-2 w-full border-2">
+                    <img
+                      src={postImage}
+                      alt="img"
+                      className="w-40 h-40 object-cover border-2"
+                    />
+                  </div>
+                )}
+                <button
+                  type="submit"
+                  className="w-50 flex justify-center items-center mx-auto bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
+                >
+                  Post
+                </button>
+              </form>
             </div>
             {userDetails?.posts && userDetails.posts.length > 0 ? (
               userDetails.posts.map((post) => (
                 <div
-                  key={post.id}
+                  key={post._id}
                   className="bg-white p-4 mb-4 shadow rounded-lg"
                 >
                   <div className="flex items-center justify-between">
@@ -351,11 +416,48 @@ const Profile = () => {
                         </p>
                       </div>
                     </div>
-                    <button className="text-3xl font-bold">
+                    <button
+                      className="text-3xl font-bold"
+                      onClick={() => {
+                        setOpenOptions(
+                          openOptions === post._id ? null : post._id
+                        );
+                      }}
+                    >
                       <BsThreeDots />
                     </button>
+                    {openOptions === post._id && (
+                      <div className="absolute right-0 md:right-26 mt-8 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                        <button
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                          onClick={() => {
+                            setOpenOptions(null);
+                          }}
+                        >
+                          Delete Post
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                          onClick={() => {
+                            setOpenOptions(null);
+                          }}
+                        >
+                          Hide post
+                        </button>
+                        <button
+                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                          onClick={() => setOpenOptions(null)}
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
                   </div>
-
+                  <div>
+                    {post.postText && (
+                      <p className="text-gray-600 text-md">{post.postText}</p>
+                    )}
+                  </div>
                   <div>
                     {post.imageUrl && (
                       <div className="mt-2 w-full border-2">
@@ -367,21 +469,59 @@ const Profile = () => {
                       </div>
                     )}
                   </div>
-                  <div className="flex justify-between text-gray-600 text-sm">
+
+                  <div className="flex justify-between mt-3 text-gray-600 text-sm">
                     <span>{post.likes} Likes</span>
                     <span>{post.comments} Comments</span>
                   </div>
-                  <div className="flex justify-between mt-2 pt-2 border-t">
-                    <button className="text-gray-600 hover:text-fb-blue">
-                      Like
+                  <div className="flex justify-between    text-2xl mb-4">
+                    <button
+                      className="text-gray-600 hover:text-fb-blue"
+                      onClick={handleLike}
+                    >
+                      <SlLike
+                        className={`${
+                          liked ? "text-blue-500" : "text-gray-600"
+                        }`}
+                      />
+                    </button>
+                    <button
+                      className="text-gray-600 hover:text-fb-blue"
+                      onClick={() => {
+                        setShowCommentBox(
+                          showCommentBox === post._id ? null : post._id
+                        );
+                        console.log("postId", post._id);
+                      }}
+                    >
+                      <FaRegComment />
                     </button>
                     <button className="text-gray-600 hover:text-fb-blue">
-                      Comment
-                    </button>
-                    <button className="text-gray-600 hover:text-fb-blue">
-                      Share
+                      <RiShareForwardLine />
                     </button>
                   </div>
+                  {showCommentBox === post._id && (
+                    <div className={`flex items-center gap-4 mb-2`}>
+                      <input
+                        type="text"
+                        placeholder={`Comment as ${userName}`}
+                        className="w-full p-2 h-10 rounded-md bg-gray-100  resize-none"
+                        onChange={(e) => {
+                          setCommentInfo((prev) => ({
+                            ...prev,
+                            postId: post._id,
+                            comment: e.target.value,
+                            id: userId,
+                            userName: userName,
+                          }));
+                          console.log(commentInfo);
+                        }}
+                      />
+                      <button className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50">
+                        <IoSend />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -571,7 +711,7 @@ const Profile = () => {
               {userDetails?.posts && userDetails.posts.length > 0 ? (
                 userDetails.posts.map((post) => (
                   <div
-                    key={post.id}
+                    key={post._id}
                     className="bg-white p-4 mb-4 shadow rounded-lg"
                   >
                     <div className="flex items-center justify-between">
@@ -599,9 +739,43 @@ const Profile = () => {
                           </p>
                         </div>
                       </div>
-                      <button className="text-3xl font-bold">
+                      <button
+                        className="text-3xl font-bold"
+                        onClick={() => {
+                          setDrpOptions(
+                            drpOptions === post._id ? null : post._id
+                          );
+                          console.log("postId", post._id);
+                        }}
+                      >
                         <BsThreeDots />
                       </button>
+                      {drpOptions === post._id && (
+                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => {
+                              setDrpOptions(null);
+                            }}
+                          >
+                            Report post
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => {
+                              setDrpOptions(null);
+                            }}
+                          >
+                            Hide post
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => setDrpOptions(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>{" "}
                     <div>
                       {post.imageUrl && (
@@ -614,21 +788,57 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-                    <div className="flex justify-between text-gray-600 text-sm">
+                    <div className="flex justify-between text-gray-600 mt-2 text-sm">
                       <span>{post.likes} Likes</span>
                       <span>{post.comments} Comments</span>
                     </div>
-                    <div className="flex justify-between mt-2 pt-2 border-t">
-                      <button className="text-gray-600 hover:text-fb-blue">
-                        Like
+                    <div className="flex justify-between mt-2 pt-2  text-2xl mb-4">
+                      <button
+                        className="text-gray-600 hover:text-fb-blue"
+                        onClick={handleLike}
+                      >
+                        <SlLike
+                          className={`${
+                            liked ? "text-blue-500" : "text-gray-600"
+                          }`}
+                        />
+                      </button>
+                      <button
+                        className="text-gray-600 hover:text-fb-blue"
+                        onClick={() => {
+                          setShowCommentBox(
+                            showCommentBox === post._id ? null : post._id
+                          );
+                        }}
+                      >
+                        <FaRegComment />
                       </button>
                       <button className="text-gray-600 hover:text-fb-blue">
-                        Comment
-                      </button>
-                      <button className="text-gray-600 hover:text-fb-blue">
-                        Share
+                        <RiShareForwardLine />
                       </button>
                     </div>
+                    {showCommentBox === post._id && (
+                      <div className={`flex items-center gap-4 mb-2`}>
+                        <input
+                          type="text"
+                          placeholder={`Comment as ${userName}`}
+                          className="w-full p-2 h-10 rounded-md bg-gray-100  resize-none"
+                          onChange={(e) => {
+                            setCommentInfo((prev) => ({
+                              ...prev,
+                              id: logged,
+                              userName: userName,
+                              postId: post._id,
+                              comment: e.target.value,
+                            }));
+                            console.log(commentInfo);
+                          }}
+                        />
+                        <button className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50">
+                          <IoSend />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))
               ) : (
