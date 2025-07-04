@@ -14,6 +14,7 @@ import { FaRegComment } from "react-icons/fa6";
 import { SlLike } from "react-icons/sl";
 import { IoSend } from "react-icons/io5";
 import { MdAddPhotoAlternate } from "react-icons/md";
+import toastAlert from "../../components/ALERT";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -128,6 +129,8 @@ const Profile = () => {
           { profilePic: url },
           { withCredentials: true }
         );
+        toastAlert.success("Profile picture updated successfully");
+        await refreshUser();
       } catch (err) {
         if (err.response) {
           if (err.response.status === 401) {
@@ -154,6 +157,8 @@ const Profile = () => {
           { coverPic: url },
           { withCredentials: true }
         );
+        toastAlert.success("Cover photo updated successfully");
+        await refreshUser();
       } catch (err) {
         if (err.response) {
           if (err.response.status === 401) {
@@ -192,6 +197,8 @@ const Profile = () => {
         { text: newPost, imageUrl: imageUrl },
         { withCredentials: true }
       );
+      toastAlert.success("Post created successfully");
+      await refreshUser();
       setNewPost("");
       setPostImage(null);
     } catch (err) {
@@ -285,6 +292,27 @@ const Profile = () => {
     setLiked(!liked);
   };
 
+  const handleDeletePost = async (id) => {
+    console.log("Deleting post with ID:", id);
+    try {
+      await axios.delete(
+        `https://metastra-server.onrender.com/api/v1/users/delete-post/${id}`,
+        { withCredentials: true }
+      );
+      setOpenOptions(null);
+      console.log("Post deleted successfully");
+      toastAlert.success("Post deleted successfully");
+      await refreshUser();
+    } catch (err) {
+      console.error("Error deleting post:", err);
+      if (err.response) {
+        if (err.response.status === 401) {
+          setIsAuthenticated(false);
+          navigate("/");
+        }
+      }
+    }
+  };
   // Render tab content
   const renderContent = () => {
     switch (activeTab) {
@@ -362,11 +390,11 @@ const Profile = () => {
                   </label>
                 </div>
                 {postImage && (
-                  <div className="mt-2 w-full border-2">
+                  <div className="mt-4 w-full">
                     <img
-                      src={postImage}
+                      src={URL.createObjectURL(postImage)}
                       alt="img"
-                      className="w-40 h-40 object-cover border-2"
+                      className="w-30 h-30 object-contain shadow-lg shadow-blue-200 rounded-md"
                     />
                   </div>
                 )}
@@ -432,6 +460,7 @@ const Profile = () => {
                           className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
                           onClick={() => {
                             setOpenOptions(null);
+                            handleDeletePost(post._id);
                           }}
                         >
                           Delete Post
@@ -464,7 +493,7 @@ const Profile = () => {
                         <img
                           src={post.imageUrl}
                           alt="post"
-                          className="w-full object-cover"
+                          className="w-full object-cover h-110 object-top"
                         />
                       </div>
                     )}
@@ -777,6 +806,11 @@ const Profile = () => {
                         </div>
                       )}
                     </div>{" "}
+                    <div>
+                      {post.postText && (
+                        <p className="text-gray-600 text-md">{post.postText}</p>
+                      )}
+                    </div>
                     <div>
                       {post.imageUrl && (
                         <div className="mt-2 w-full border-2">
@@ -1130,7 +1164,7 @@ const Profile = () => {
               <img
                 src={coverPic || dp}
                 alt="Cover"
-                className="w-full h-60 sm:h-80 md:h-96 object-cover"
+                className="w-full h-60 sm:h-80 md:h-96 object-cover object-top"
               />
               <label
                 className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
@@ -1147,7 +1181,7 @@ const Profile = () => {
                 <input
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  className="hidden "
                   onChange={handleCoverPicUpload}
                 />
               </label>
