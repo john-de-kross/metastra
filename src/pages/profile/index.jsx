@@ -100,6 +100,7 @@ const Profile = () => {
 
     const handleNewComment = (data) => {
       console.log("New comment received:", data);
+      alert("New comment received");
       setCommentInfo(data);
     };
 

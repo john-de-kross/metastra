@@ -133,7 +133,7 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  // Run only on mount
+  
   useEffect(() => {
     refreshUser();
   }, []);
