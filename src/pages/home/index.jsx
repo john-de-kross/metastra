@@ -83,7 +83,7 @@ const Home = () => {
             className="flex items-center space-x-3"
             onClick={() => {
               setClickedUser(loggedInUser);
-             
+
               console.log("Clicked user:", clickedUser);
               console.log("loggedin:", loggedInUser);
             }}

@@ -1,5 +1,12 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+} from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
 
 // Create the context
 const UserContext = createContext({});
@@ -22,6 +29,8 @@ export const UserProvider = ({ children }) => {
     email: "",
     password: "",
   });
+
+  const socketRef = useRef(null);
 
   const [loggedInUser, setLoggedInUser] = useState("");
   const [clickedUser, setClickedUser] = useState("");
@@ -57,6 +66,7 @@ export const UserProvider = ({ children }) => {
   const [mock, setMock] = useState([]);
 
   const [editForm, setEditForm] = useState({ userName, bio, ...about });
+  const [otherProfile, setOtherProfile] = useState({});
 
   const fetchUserAboutData = async () => {
     try {
@@ -129,11 +139,24 @@ export const UserProvider = ({ children }) => {
   }, []);
 
   useEffect(() => {
+    socketRef.current = io("https://metastra-server.onrender.com", {
+      withCredentials: true,
+    });
+
+    socketRef.current.on("connect", () => {
+      console.log("Socket connected:", socketRef.current.id);
+      socketRef.current.emit("register", loggedInUser);
+    });
+
+    return () => {
+      socketRef.current.disconnect();
+    };
+  }, []);
+
+  useEffect(() => {
     console.log("clicked:", clickedUser);
     console.log("Equal?", clickedUser === loggedInUser);
   }, [clickedUser]);
-
-  
 
   const value = {
     formData,
@@ -169,7 +192,10 @@ export const UserProvider = ({ children }) => {
     setMock,
     clickedUser,
     setClickedUser,
+    otherProfile,
+    setOtherProfile,
     loggedInUser,
+    socketRef,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

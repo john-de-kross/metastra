@@ -58,26 +58,13 @@ const Profile = () => {
     loggedInUser,
     clickedUser,
     setClickedUser,
+    otherProfile,
+    setOtherProfile,
+    socketRef,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
   const cp = "https://www.bing.com/8389c9d1-7b99-4e88-ade9-8ada6089e8a8";
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      content: "Just had a great day at the beach! 🏖️",
-      date: "June 4, 2025",
-      likes: 15,
-      comments: 3,
-    },
-    {
-      id: 2,
-      content: "Loving my new job! #WorkHard",
-      date: "June 3, 2025",
-      likes: 10,
-      comments: 1,
-    },
-  ]);
   // const [newPost, setNewPost] = useState("");
   const [isEditing, setIsEditing] = useState(false);
   const [photos, setPhotos] = useState([
@@ -90,13 +77,10 @@ const Profile = () => {
 
   const [localLoading, setLocalLoading] = useState(false);
 
-  const [otherProfile, setOtherProfile] = useState({});
-
   const [commentInfo, setCommentInfo] = useState({
     postId: "",
     comment: "",
-    id: "",
-    userName: "",
+    imageUrl: "",
   });
 
   // Placeholder data
@@ -111,8 +95,50 @@ const Profile = () => {
     { year: 2020, event: "Graduated from XYZ University" },
   ];
 
-  // const isOwnProfile = userId === logged;
+  useEffect(() => {
+    if (!socketRef.current) return;
 
+    const handleNewComment = (data) => {
+      console.log("New comment received:", data);
+      setCommentInfo(data);
+    };
+
+    socketRef.current.on("newComment", handleNewComment);
+
+    return () => {
+      socketRef.current.off("newComment", handleNewComment);
+    };
+  }, [socketRef]);
+
+  const handlePostComment = async (id) => {
+    if (!commentInfo.comment.trim()) return;
+
+    const payload = {
+      comment: commentInfo.comment,
+      postId: id,
+      imageUrl: "",
+    };
+
+    try {
+      console.log("Posting to server with ID:", id);
+      const resp = await axios.post(
+        `https://metastra-server.onrender.com/api/v1/users/comment-on-post/${id}`,
+        payload,
+        { withCredentials: true }
+      );
+
+      console.log("Response from server:", resp.data);
+      socketRef.current?.emit("newComment", payload);
+      toastAlert.success("Comment posted successfully");
+
+      // Clear input
+      setCommentInfo((prev) => ({ ...prev, comment: "" }));
+    } catch (err) {
+      console.error("Error posting comment:", err);
+    }
+  };
+
+  // const isOwnProfile = userId === logged;
   // photo uploads
   const handleProfilePicUpload = async (event) => {
     const file = event.target.files[0];
@@ -520,6 +546,7 @@ const Profile = () => {
                         setShowCommentBox(
                           showCommentBox === post._id ? null : post._id
                         );
+
                         console.log("postId", post._id);
                       }}
                     >
@@ -533,20 +560,24 @@ const Profile = () => {
                     <div className={`flex items-center gap-4 mb-2`}>
                       <input
                         type="text"
+                        value={commentInfo.comment}
                         placeholder={`Comment as ${userName}`}
                         className="w-full p-2 h-10 rounded-md bg-gray-100  resize-none"
                         onChange={(e) => {
-                          setCommentInfo((prev) => ({
-                            ...prev,
+                          setCommentInfo({
                             postId: post._id,
                             comment: e.target.value,
-                            id: userId,
-                            userName: userName,
-                          }));
+                            imageUrl: "",
+                          });
                           console.log(commentInfo);
                         }}
                       />
-                      <button className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50">
+                      <button
+                        className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
+                        onClick={() => {
+                          handlePostComment(post._id);
+                        }}
+                      >
                         <IoSend />
                       </button>
                     </div>
@@ -855,20 +886,24 @@ const Profile = () => {
                       <div className={`flex items-center gap-4 mb-2`}>
                         <input
                           type="text"
+                          value={commentInfo.comment}
                           placeholder={`Comment as ${userName}`}
                           className="w-full p-2 h-10 rounded-md bg-gray-100  resize-none"
                           onChange={(e) => {
-                            setCommentInfo((prev) => ({
-                              ...prev,
-                              id: logged,
-                              userName: userName,
+                            setCommentInfo({
                               postId: post._id,
                               comment: e.target.value,
-                            }));
+                              imageUrl: "",
+                            });
                             console.log(commentInfo);
                           }}
                         />
-                        <button className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50">
+                        <button
+                          className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
+                          onClick={() => {
+                            handlePostComment(post._id);
+                          }}
+                        >
                           <IoSend />
                         </button>
                       </div>
