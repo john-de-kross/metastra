@@ -16,6 +16,7 @@ import ServerError from "./components/serverError";
 import Settings from "./pages/settings";
 import FriendsPage from "./pages/friends";
 import FriendRequest from "./components/friendRequest";
+import PostDetail from "./components/postDetail";
 
 const router = createBrowserRouter([
   {
@@ -49,6 +50,7 @@ const router = createBrowserRouter([
       { path: "/menu", element: <MobileMenu /> },
       { path: "/settings", element: <Settings /> },
       { path: "/friends", element: <FriendsPage /> },
+      {path:"/viewPost", element:<PostDetail/>}
 
     ],
   },

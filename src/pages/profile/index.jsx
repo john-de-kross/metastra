@@ -15,6 +15,9 @@ import { SlLike } from "react-icons/sl";
 import { IoSend } from "react-icons/io5";
 import { MdAddPhotoAlternate } from "react-icons/md";
 import toastAlert from "../../components/ALERT";
+import { SiPodcastindex } from "react-icons/si";
+import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -61,6 +64,8 @@ const Profile = () => {
     otherProfile,
     setOtherProfile,
     socketRef,
+    clickedPost,
+    setClickedPost,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
@@ -75,7 +80,48 @@ const Profile = () => {
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg",
   ]);
 
+  const navigate = useNavigate()
+
   const [localLoading, setLocalLoading] = useState(false);
+
+  const postsDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const viewedPost = localStorage.getItem("clickedPost");
+  const [clickedPostDetails, setClickedPostDetails] = useState({});
+
+  useEffect(() => {
+    console.log(postsDetails);
+  }, [postsDetails]);
+
+  const handleClickedPost = (id) => {
+    if (!Array.isArray(postsDetails?.posts)) {
+      console.error("postsDetails.posts is undefined or not an array");
+      return;
+    }
+
+    postsDetails.posts.map((post) => {
+      if (post._id === viewedPost) {
+        setClickedPostDetails(post);
+        console.log("found");
+        localStorage.setItem("clickedPostDetails", JSON.stringify(post));
+        console.log("clickedPostDetails:", clickedPostDetails);
+      } else {
+        console.log("No post found with this ID");
+        return;
+      }
+    });
+  };
+
+  // const handleClickedPost = (id) => {
+  //   if (!postsDetails?.posts) return;
+
+  //   postsDetails.posts.forEach((post) => {
+  //     if (post._id === id) {
+  //       setClickedPostDetails(post);
+  //       localStorage.setItem("clickedPostDetails", JSON.stringify(post));
+  //       console.log("clickedPostDetails:", post);
+  //     }
+  //   });
+  // };
 
   const [commentInfo, setCommentInfo] = useState({
     postId: "",
@@ -109,7 +155,7 @@ const Profile = () => {
     return () => {
       socketRef.current.off("newComment", handleNewComment);
     };
-  }, [socketRef]);
+  }, []);
 
   const handlePostComment = async (id) => {
     if (!commentInfo.comment.trim()) return;
@@ -438,6 +484,12 @@ const Profile = () => {
                 <div
                   key={post._id}
                   className="bg-white p-4 mb-4 shadow rounded-lg"
+                  onClick={() => {
+                    setClickedPost(post._id);
+                    localStorage.setItem("clickedPost", post._id);
+                    handleClickedPost(post._id);
+                    navigate("/viewPost");
+                  }}
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center mb-2">

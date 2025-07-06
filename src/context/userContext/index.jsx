@@ -52,6 +52,7 @@ export const UserProvider = ({ children }) => {
     relationship: "",
     joined: "",
   });
+  const [clickedPost, setClickedPost] = useState("");
 
   const [about, setAbout] = useState({
     bio: "",
@@ -133,7 +134,6 @@ export const UserProvider = ({ children }) => {
     }
   };
 
-  
   useEffect(() => {
     refreshUser();
   }, []);
@@ -196,6 +196,8 @@ export const UserProvider = ({ children }) => {
     setOtherProfile,
     loggedInUser,
     socketRef,
+    clickedPost,
+    setClickedPost,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -45,7 +45,7 @@ const SignUp = () => {
     { length: 100 },
     (_, i) => new Date().getFullYear() - i
   );
-  const genders = ["Female", "Male", "Custom"];
+  const genders = ["Female", "Male", "Others"];
 
   useEffect(() => {
     console.log("is auth?:", isAuthenticated);
