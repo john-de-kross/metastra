@@ -165,7 +165,7 @@ const PostDetail = () => {
           </div>
           <div className="max-w-lg flex items-center gap-3 px-4 py-3">
             <img
-              src={postDetail.author?.profilePics}
+              src={postDetail?.author?.profilePics}
               className="w-9 h-9 rounded-full object-cover"
               alt="You"
             />

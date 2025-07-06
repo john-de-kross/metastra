@@ -80,7 +80,7 @@ const Profile = () => {
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg",
   ]);
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const [localLoading, setLocalLoading] = useState(false);
 
@@ -484,105 +484,108 @@ const Profile = () => {
                 <div
                   key={post._id}
                   className="bg-white p-4 mb-4 shadow rounded-lg"
-                  onClick={() => {
-                    setClickedPost(post._id);
-                    localStorage.setItem("clickedPost", post._id);
-                    handleClickedPost(post._id);
-                    navigate("/viewPost");
-                  }}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center mb-2">
-                      <img
-                        src={profilePic}
-                        alt="Profile"
-                        className="w-10 h-10 rounded-full mr-2"
-                      />
-                      <div>
-                        <div className="flex items-center">
-                          <p>
-                            <span className="font-semibold capitalize">
-                              {userName}
-                            </span>{" "}
-                            <span className="font-normal lowercase">
-                              {post?.content}
-                            </span>
+                  <div
+                    onClick={() => {
+                      setClickedPost(post._id);
+                      localStorage.setItem("clickedPost", post._id);
+                      handleClickedPost(post._id);
+                      navigate("/viewPost");
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center mb-2">
+                        <img
+                          src={profilePic}
+                          alt="Profile"
+                          className="w-10 h-10 rounded-full mr-2"
+                        />
+                        <div>
+                          <div className="flex items-center">
+                            <p>
+                              <span className="font-semibold capitalize">
+                                {userName}
+                              </span>{" "}
+                              <span className="font-normal lowercase">
+                                {post?.content}
+                              </span>
+                            </p>
+                          </div>
+                          <p className="text-gray-600 text-sm">
+                            {post.createdAt
+                              ? new Date(post.createdAt).toLocaleDateString(
+                                  "en-US",
+                                  {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                  }
+                                )
+                              : "Unknown date"}
                           </p>
                         </div>
-                        <p className="text-gray-600 text-sm">
-                          {post.createdAt
-                            ? new Date(post.createdAt).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
-                            : "Unknown date"}
-                        </p>
                       </div>
+                      <button
+                        className="text-3xl font-bold"
+                        onClick={() => {
+                          setOpenOptions(
+                            openOptions === post._id ? null : post._id
+                          );
+                        }}
+                      >
+                        <BsThreeDots />
+                      </button>
+                      {openOptions === post._id && (
+                        <div className="absolute right-0 md:right-26 mt-8 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => {
+                              setOpenOptions(null);
+                              handleDeletePost(post._id);
+                            }}
+                          >
+                            Delete Post
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => {
+                              setOpenOptions(null);
+                            }}
+                          >
+                            Hide post
+                          </button>
+                          <button
+                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                            onClick={() => setOpenOptions(null)}
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      )}
                     </div>
-                    <button
-                      className="text-3xl font-bold"
-                      onClick={() => {
-                        setOpenOptions(
-                          openOptions === post._id ? null : post._id
-                        );
-                      }}
-                    >
-                      <BsThreeDots />
-                    </button>
-                    {openOptions === post._id && (
-                      <div className="absolute right-0 md:right-26 mt-8 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                        <button
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                          onClick={() => {
-                            setOpenOptions(null);
-                            handleDeletePost(post._id);
-                          }}
-                        >
-                          Delete Post
-                        </button>
-                        <button
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                          onClick={() => {
-                            setOpenOptions(null);
-                          }}
-                        >
-                          Hide post
-                        </button>
-                        <button
-                          className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                          onClick={() => setOpenOptions(null)}
-                        >
-                          Cancel
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    {post.postText && (
-                      <p className="text-gray-600 text-md">{post.postText}</p>
-                    )}
-                  </div>
-                  <div>
-                    {post.imageUrl && (
-                      <div className="mt-2 w-full border-2">
-                        <img
-                          src={post.imageUrl}
-                          alt="post"
-                          className="w-full object-cover h-110 object-top"
-                        />
-                      </div>
-                    )}
-                  </div>
+                    <div>
+                      {post.postText && (
+                        <p className="text-gray-600 text-md">{post.postText}</p>
+                      )}
+                    </div>
+                    <div>
+                      {post.imageUrl && (
+                        <div className="mt-2 w-full border-2">
+                          <img
+                            src={post.imageUrl}
+                            alt="post"
+                            className="w-full object-cover h-110 object-top"
+                          />
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="flex justify-between mt-3 text-gray-600 text-sm">
-                    <span>{post.likes} Likes</span>
-                    <span>{post.comments} Comments</span>
+                    <div className="flex justify-between mt-3 text-gray-600 text-sm">
+                      <span>{post.likes} Likes</span>
+                      <span>{post.comments} Comments</span>
+                    </div>
                   </div>
-                  <div className="flex justify-between    text-2xl mb-4">
+                  <div className="flex justify-between border-t border-b border-gray-300 p-2 text-2xl mb-4">
                     <button
                       className="text-gray-600 hover:text-fb-blue"
                       onClick={handleLike}
@@ -827,88 +830,99 @@ const Profile = () => {
                     key={post._id}
                     className="bg-white p-4 mb-4 shadow rounded-lg"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center mb-2">
-                        <img
-                          src={userDetails.profile.profilePics}
-                          alt="Profile"
-                          className="w-10 h-10 rounded-full mr-2"
-                        />
-                        <div>
-                          <div className="flex items-center">
-                            {" "}
-                            <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname} ${post.content}`}</p>{" "}
-                          </div>
-
-                          <p className="text-gray-600 text-sm">
-                            {new Date(post.createdAt).toLocaleDateString(
-                              "en-US",
-                              {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                              }
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                      <button
-                        className="text-3xl font-bold"
-                        onClick={() => {
-                          setDrpOptions(
-                            drpOptions === post._id ? null : post._id
-                          );
-                          console.log("postId", post._id);
-                        }}
-                      >
-                        <BsThreeDots />
-                      </button>
-                      {drpOptions === post._id && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
-                          <button
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                            onClick={() => {
-                              setDrpOptions(null);
-                            }}
-                          >
-                            Report post
-                          </button>
-                          <button
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                            onClick={() => {
-                              setDrpOptions(null);
-                            }}
-                          >
-                            Hide post
-                          </button>
-                          <button
-                            className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
-                            onClick={() => setDrpOptions(null)}
-                          >
-                            Cancel
-                          </button>
-                        </div>
-                      )}
-                    </div>{" "}
-                    <div>
-                      {post.postText && (
-                        <p className="text-gray-600 text-md">{post.postText}</p>
-                      )}
-                    </div>
-                    <div>
-                      {post.imageUrl && (
-                        <div className="mt-2 w-full border-2">
+                    <div
+                      onClick={() => {
+                        setClickedPost(post._id);
+                        localStorage.setItem("clickedPost", post._id);
+                        handleClickedPost(post._id);
+                        navigate("/viewPost");
+                      }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center mb-2">
                           <img
-                            src={post.imageUrl}
-                            alt="post"
-                            className="w-full  object-cover "
+                            src={userDetails.profile.profilePics}
+                            alt="Profile"
+                            className="w-10 h-10 rounded-full mr-2"
                           />
+                          <div>
+                            <div className="flex items-center">
+                              {" "}
+                              <p className="font-semibold capitalize">{`${userDetails.profile.firstname} ${userDetails.profile.surname} ${post.content}`}</p>{" "}
+                            </div>
+
+                            <p className="text-gray-600 text-sm">
+                              {new Date(post.createdAt).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )}
+                            </p>
+                          </div>
                         </div>
-                      )}
-                    </div>
-                    <div className="flex justify-between text-gray-600 mt-2 text-sm">
-                      <span>{post.likes} Likes</span>
-                      <span>{post.comments} Comments</span>
+                        <button
+                          className="text-3xl font-bold"
+                          onClick={() => {
+                            setDrpOptions(
+                              drpOptions === post._id ? null : post._id
+                            );
+                            console.log("postId", post._id);
+                          }}
+                        >
+                          <BsThreeDots />
+                        </button>
+                        {drpOptions === post._id && (
+                          <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                              onClick={() => {
+                                setDrpOptions(null);
+                              }}
+                            >
+                              Report post
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                              onClick={() => {
+                                setDrpOptions(null);
+                              }}
+                            >
+                              Hide post
+                            </button>
+                            <button
+                              className="w-full text-left px-4 py-2 hover:bg-gray-100 text-gray-700"
+                              onClick={() => setDrpOptions(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        )}
+                      </div>{" "}
+                      <div>
+                        {post.postText && (
+                          <p className="text-gray-600 text-md">
+                            {post.postText}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        {post.imageUrl && (
+                          <div className="mt-2 w-full border-2">
+                            <img
+                              src={post.imageUrl}
+                              alt="post"
+                              className="w-full  object-cover "
+                            />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex justify-between text-gray-600 mt-2 text-sm">
+                        <span>{post.likes} Likes</span>
+                        <span>{post.comments} Comments</span>
+                      </div>
                     </div>
                     <div className="flex justify-between mt-2 pt-2  text-2xl mb-4">
                       <button
