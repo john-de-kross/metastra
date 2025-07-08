@@ -142,6 +142,7 @@ export const UserProvider = ({ children }) => {
 
   useEffect(() => {
     socketRef.current = io("https://metastra-server.onrender.com", {
+      path: "/socket.io",
       withCredentials: true,
     });
 
