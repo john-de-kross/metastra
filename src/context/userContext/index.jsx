@@ -30,6 +30,8 @@ export const UserProvider = ({ children }) => {
     password: "",
   });
 
+  const userr = JSON.parse(localStorage.getItem("userDetails"));
+
   const socketRef = useRef(null);
 
   const [loggedInUser, setLoggedInUser] = useState("");
@@ -145,13 +147,15 @@ export const UserProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current.id);
-      socketRef.current.emit("register", loggedInUser);
+      // console.log("logged in user=", loggedInUser);
+      console.log("logged in user=", userr.profile._id);
+      socketRef.current.emit("register", userr.profile._id);
     });
 
     return () => {
       socketRef.current.disconnect();
     };
-  }, []);
+  }, [socketRef]);
 
   useEffect(() => {
     console.log("clicked:", clickedUser);
