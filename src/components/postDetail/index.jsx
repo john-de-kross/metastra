@@ -160,7 +160,7 @@ const PostDetail = () => {
 
   return (
     <div className="h-full  bg-gray-100">
-      <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 relative">
+      <div className="w-full md:max-w-2xl bg-white rounded-lg shadow-lg p-4 relative">
         <div className="flex items-center justify-around mx-auto border-b-1 border-gray-300  p-2 sticky top-0 left-0  right-0 bg-white z-10">
           <FiArrowLeft
             size={24}
