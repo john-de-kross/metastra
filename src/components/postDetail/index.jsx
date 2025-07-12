@@ -1,21 +1,113 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaThumbsUp, FaRegCommentAlt, FaShare } from "react-icons/fa";
 import { AiOutlineSend } from "react-icons/ai";
 import Navbar from "../navBar";
 import axios from "axios";
 import { useUserContext } from "../../context/userContext";
 import toastAlert from "../../components/ALERT";
+import Loader from "../loadingIndicator";
+import { format, register } from "timeago.js";
+import { FiArrowLeft } from "react-icons/fi";
+import { useLocation } from "react-router-dom";
 
 const PostDetail = () => {
-  const { socketRef } = useUserContext();
+  const { socketRef, clickedPost, showPost, setShowPost } = useUserContext();
   const [commentText, setCommentText] = useState("");
-  const postDetail = JSON.parse(localStorage.getItem("clickedPostDetails"));
-  const post = localStorage.getItem("clickedPost");
+  // const postDetail = JSON.parse(localStorage.getItem("clickedPostDetails"));
+  // const post = localStorage.getItem("clickedPost");
+  const [post] = useState(() => localStorage.getItem("clickedPost"));
+  const [postDetail, setPostDetail] = useState({});
+  const [loading, setLoading] = useState(false);
 
   const [commentInfo, setCommentInfo] = useState({
     postId: "",
     comment: "",
     imageUrl: "",
+  });
+  // custom short strings
+  const customStrings = {
+    justNow: "just now",
+    seconds: "just now",
+    minute: "1 min ago",
+    minutes: (n) => `${n} mins ago`,
+    hour: "1 hr ago",
+    hours: (n) => `${n} hrs ago`,
+    day: "1 day ago",
+    days: (n) => `${n} days ago`,
+    week: "1 wk ago",
+    weeks: (n) => `${n} wks ago`,
+    month: "1 mo ago",
+    months: (n) => `${n} mos ago`,
+    year: "1 yr ago",
+    years: (n) => `${n} yrs ago`,
+  };
+
+  //  custom locale
+  register("short-en", (number, index) => {
+    const mapping = [
+      [customStrings.justNow, customStrings.justNow], // 0: < 1s
+      [customStrings.seconds, customStrings.seconds], // 1: < 1m
+      [customStrings.minute, customStrings.minutes(number)], // 2: < 2m
+      [customStrings.minutes(number), customStrings.minutes(number)], // 3: < 1h
+      [customStrings.hour, customStrings.hour], // 4: < 2h
+      [customStrings.hours(number), customStrings.hours(number)], // 5: < 1d
+      [customStrings.day, customStrings.day], // 6: < 2d
+      [customStrings.days(number), customStrings.days(number)], // 7: < 1w
+      [customStrings.week, customStrings.week], // 8: < 2w
+      [customStrings.weeks(number), customStrings.weeks(number)], // 9: < 1mo
+      [customStrings.month, customStrings.month], // 10: < 2mo
+      [customStrings.months(number), customStrings.months(number)], // 11: < 1y
+      [customStrings.year, customStrings.year], // 12: < 2y
+      [customStrings.years(number), customStrings.years(number)], // 13+: > 2y
+    ];
+    return mapping[index];
+  });
+
+  // useEffect(() => {
+  //   if (!post) return;
+
+  //   const fetchComments = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const resp = await axios.get(
+  //         `https://metastra-server.onrender.com/api/v1/users/get-comments/${post}`,
+  //         { withCredentials: true }
+  //       );
+  //       console.log("pos", resp.data.data);
+  //       setPostDetail(resp.data.data);
+  //     } catch (err) {
+  //       console.log(err);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+
+  //   fetchComments();
+  // }, []);
+
+  useEffect(() => {
+    console.log("post:", post);
+
+    const fetchComments = async () => {
+      setLoading(true);
+      try {
+        const resp = await axios.get(
+          `https://metastra-server.onrender.com/api/v1/users/get-comments/${post}`,
+          { withCredentials: true }
+        );
+        console.log("pos", resp.data.data);
+        setPostDetail(resp.data.data);
+      } catch (err) {
+        console.log(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchComments();
+  }, []);
+
+  useEffect(() => {
+    console.log("show:", showPost);
   });
 
   const handlePostComment = async (id) => {
@@ -46,274 +138,146 @@ const PostDetail = () => {
     }
   };
 
-  return (
-    <div className="w-full min-h-screen bg-fb-gray py-6 ">
-      <Navbar />
-      <div className="flex flex-col md:flex-row gap-6 max-w-7xl mx-auto mt-18 md:mt-12 px-4">
-        <aside className="hidden md:inline-block fixed top-[80px] lg:left-4 lg:w-[320px] space-y-6 z-10">
-          <div>
-            <h3 className="text-lg font-semibold text-[#050505] mb-3">
-              Your Shortcuts
-            </h3>
-            <div className="space-y-2">
-              <a
-                href="/home"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                Home
-              </a>
-              <a
-                href="/friends"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                Friends
-              </a>
-              <a
-                href="/groups"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                Groups
-              </a>
-              <a
-                href="/events"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                Events
-              </a>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-[#050505] mb-3">
-              Groups You Might Like
-            </h3>
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg shadow p-3">
-                <img
-                  src="https://images.unsplash.com/photo-1516321318423-ffd391d2a931"
-                  alt="Tech Enthusiasts Group"
-                  className="w-12 h-12 rounded-full object-cover mb-2"
-                />
-                <p className="text-sm font-semibold text-[#050505]">
-                  Tech Enthusiasts
-                </p>
-                <p className="text-xs text-gray-500">12K members</p>
-                <button className="mt-2 bg-[#1B74E4] text-white text-xs py-1 px-3 rounded-md hover:bg-[#1A68D0]">
-                  Join Group
-                </button>
-              </div>
-              <div className="bg-white rounded-lg shadow p-3">
-                <img
-                  src="https://images.pexels.com/photos/346885/pexels-photo-346885.jpeg"
-                  alt="Travel Lovers Group"
-                  className="w-12 h-12 rounded-full object-cover mb-2"
-                />
-                <p className="text-sm font-semibold text-[#050505]">
-                  Travel Lovers
-                </p>
-                <p className="text-xs text-gray-500">8K members</p>
-                <button className="mt-2 bg-[#1B74E4] text-white text-xs py-1 px-3 rounded-md hover:bg-[#1A68D0]">
-                  Join Group
-                </button>
-              </div>
-            </div>
-          </div>
-        </aside>
+  useEffect(() => {
+    if (showPost) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
 
-        <div className="max-w-xl w-full mt-10 mx-auto bg-white rounded-lg shadow md:ml-[340px] lg:mr-[340px]">
-          <div className="flex items-center gap-3 p-4">
-            <img
-              src={postDetail?.author?.profilePics || "/default-avatar.png"}
-              className="w-10 h-10 rounded-full object-cover"
-              alt="Author"
-            />
-            <div>
-              <p className="text-gray-800 font-semibold">
-                {postDetail?.author?.firstname} {postDetail?.author?.surname}
-              </p>
-              <p className="text-xs text-gray-500">
-                {new Date(postDetail?.createdAt).toLocaleString()}
-              </p>
-            </div>
-          </div>
-          {postDetail?.postText && (
-            <p className="px-4 pb-2 text-gray-800 text-[15px] leading-snug">
-              {postDetail?.postText}
-            </p>
-          )}
-          {postDetail?.imageUrl && (
-            <div className="w-full max-h-[600px] m-auto overflow-hidden max-w-lg">
+    return () => {
+      document.body.style.overflow = "unset"; // Cleanup on unmount
+    };
+  }, [showPost]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader />
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full  bg-gray-100">
+      <div className="w-full max-w-2xl bg-white rounded-lg shadow-lg p-4 relative">
+        <div className="flex items-center justify-around mx-auto border-b-1 border-gray-300  p-2 sticky top-0 left-0  right-0 bg-white z-10">
+          <FiArrowLeft
+            size={24}
+            onClick={() => {
+              setShowPost(false);
+            }}
+          />
+          <p className="text-lg font-semibold text-[#050505] capitalize">
+            {postDetail?.post?.author?.firstname}{" "}
+            {postDetail?.post?.author?.surname}'s Post
+          </p>
+          <FaShare size={24} className="" />
+        </div>
+        <div className=" flex justify-center items-center overflow-scroll">
+          <div className="max-w-xl w-full  mx-auto bg-white rounded-lg md:shadow ">
+            <div className="flex items-center gap-3 p-4 ">
               <img
-                src={postDetail.imageUrl}
-                alt="Post"
-                className="w-full h-full object-contain border-2"
+                src={postDetail?.author?.profilePics || "/default-avatar.png"}
+                className="w-10 h-10 rounded-full object-cover"
+                alt="Author"
               />
-            </div>
-          )}
-          <div className="px-4 text-sm text-gray-500 mt-2 border-b pb-2">
-            <span>135 Likes</span> · <span>29 Comments</span>
-          </div>
-          <div className="flex justify-around text-gray-600 border-b text-sm font-medium">
-            <button className="py-3 flex items-center gap-2 hover:text-fb-blue">
-              <FaThumbsUp /> Like
-            </button>
-            <button className="py-3 flex items-center gap-2 hover:text-fb-blue">
-              <FaRegCommentAlt /> Comment
-            </button>
-            <button className="py-3 flex items-center gap-2 hover:text-fb-blue">
-              <FaShare /> Share
-            </button>
-          </div>
-          <div className="max-w-lg flex items-center gap-3 px-4 py-3">
-            <img
-              src={postDetail?.author?.profilePics}
-              className="w-9 h-9 rounded-full object-cover"
-              alt="You"
-            />
-            <div className="flex-grow bg-gray-100 rounded-full px-3 py-2 flex items-center">
-              <input
-                type="text"
-                value={commentInfo.comment}
-                onChange={(e) => {
-                  setCommentInfo({
-                    postId: post,
-                    comment: e.target.value,
-                    imageUrl: "",
-                  });
-                  console.log(commentInfo);
-                }}
-                placeholder="Write a comment..."
-                className="bg-transparent w-full text-sm outline-none"
-              />
-              <AiOutlineSend
-                onClick={() => {
-                  handlePostComment(post);
-                }}
-                className="text-fb-blue cursor-pointer"
-              />
-            </div>
-          </div>
-          <div className="max-w-lg px-4 py-3 space-y-4">
-            {[1, 2].map((_, index) => (
-              <div key={index} className="flex gap-3">
-                <img
-                  src="/default-avatar.png"
-                  className="w-8 h-8 rounded-full object-cover"
-                  alt="User"
-                />
-                <div className="bg-gray-100 rounded-xl px-4 py-2 w-full">
-                  <p className="text-sm font-semibold text-gray-800">
-                    Jane Doe
-                  </p>
-                  <p className="text-sm text-gray-700">Nice post!</p>
-                </div>
+              <div>
+                <p className="text-gray-800 font-semibold">
+                  {postDetail?.post?.author?.firstname}{" "}
+                  {postDetail?.post?.author?.surname}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {new Date(postDetail?.post?.createdAt).toLocaleString()}
+                </p>
               </div>
-            ))}
+            </div>
+            {postDetail?.post?.postText && (
+              <p className="px-4 pb-2 text-gray-800 text-[15px] leading-snug">
+                {postDetail?.post.postText}
+              </p>
+            )}
+            {postDetail?.post?.imageUrl && (
+              <div className="w-full max-h-[600px] m-auto overflow-hidden max-w-lg">
+                <img
+                  src={postDetail?.post.imageUrl}
+                  alt="Post"
+                  className="w-full h-full object-contain border-2"
+                />
+              </div>
+            )}
+            <div className="px-4 text-sm text-gray-500 mt-2 border-b pb-2">
+              <span>135 Likes</span> ·{" "}
+              <span>{postDetail?.postComment?.length} comments</span>
+            </div>
+            <div className="flex justify-between px-4 text-gray-600 border-b text-sm font-medium">
+              <button className="py-3 flex items-center gap-2 hover:text-fb-blue ">
+                <FaThumbsUp /> Like
+              </button>
+              {/* <button className="py-3 flex items-center gap-2 hover:text-fb-blue">
+              <FaRegCommentAlt /> Comment
+            </button> */}
+              <button className="py-3 flex items-center gap-2 hover:text-fb-blue ">
+                <FaShare /> Share
+              </button>
+            </div>
+            <div className="max-w-lg flex items-center gap-3 px-4 py-3">
+              <img
+                src={postDetail?.author?.profilePics}
+                className="w-9 h-9 rounded-full object-cover"
+                alt="You"
+              />
+              <div className="flex-grow bg-gray-100 rounded-full px-3 py-2 flex items-center">
+                <input
+                  type="text"
+                  value={commentInfo.comment}
+                  onChange={(e) => {
+                    setCommentInfo({
+                      postId: post,
+                      comment: e.target.value,
+                      imageUrl: "",
+                    });
+                    console.log(commentInfo);
+                  }}
+                  placeholder="Write a comment..."
+                  className="bg-transparent w-full text-sm outline-none"
+                />
+                <AiOutlineSend
+                  onClick={() => {
+                    handlePostComment(post);
+                  }}
+                  className="text-fb-blue cursor-pointer"
+                />
+              </div>
+            </div>
+            <div className="max-w-lg px-4 py-3 ">
+              {postDetail?.postComment?.map((post, index) => (
+                <div>
+                  <div key={index} className="flex gap-3">
+                    <img
+                      src={post?.user?.profilePics}
+                      className="w-8 h-8 rounded-full object-cover"
+                      alt="User"
+                    />
+                    <div className="bg-gray-100 rounded-xl px-4 py-2 w-full">
+                      <p className="text-sm font-semibold text-gray-800">
+                        {post?.user?.firstname} {post?.user?.surname}
+                      </p>
+                      <p className="text-sm text-gray-700">{post?.comment}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4 mt-2 ml-15 text-gray-500">
+                    <p className="text-xs text-gray-500">
+                      {format(post?.createdAt)}
+                    </p>
+                    <button>Like</button>
+                    <button>Reply</button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-
-        <aside className="hidden lg:inline-block fixed top-[80px] right-4 w-[320px] space-y-6 z-10">
-          <div>
-            <h3 className="text-lg font-semibold text-[#050505] mb-3">
-              Sponsored
-            </h3>
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg shadow p-4">
-                <img
-                  src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
-                  alt="Premium Headphones Ad"
-                  className="w-full h-32 object-cover rounded-md mb-2"
-                />
-                <h4 className="text-sm font-semibold text-[#050505]">
-                  Amazing Product
-                </h4>
-                <p className="text-xs text-gray-500 mb-2">
-                  Discover the best deals today!
-                </p>
-                <a
-                  href="https://example.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#1B74E4] text-white text-sm py-1 px-3 rounded-md hover:bg-[#1A68D0]"
-                >
-                  Learn More
-                </a>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <img
-                  src="https://images.pexels.com/photos/1043474/pexels-photo-1043474.jpeg"
-                  alt="Trendy Fashion Ad"
-                  className="w-full h-32 object-cover rounded-md mb-2"
-                />
-                <h4 className="text-sm font-semibold text-[#050505]">
-                  Exclusive Offer
-                </h4>
-                <p className="text-xs text-gray-500 mb-2">
-                  Limited time discount!
-                </p>
-                <a
-                  href="https://example.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#1B74E4] text-white text-sm py-1 px-3 rounded-md hover:bg-[#1A68D0]"
-                >
-                  Shop Now
-                </a>
-              </div>
-              <div className="bg-white rounded-lg shadow p-4">
-                <img
-                  src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70"
-                  alt="Morning Coffee Ad"
-                  className="w-full h-32 object-cover rounded-md mb-2"
-                />
-                <h4 className="text-sm font-semibold text-[#050505]">
-                  New Arrivals
-                </h4>
-                <p className="text-xs text-gray-500 mb-2">
-                  Check out our latest collection!
-                </p>
-                <a
-                  href="https://example.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="bg-[#1B74E4] text-white text-sm py-1 px-3 rounded-md hover:bg-[#1A68D0]"
-                >
-                  Explore Now
-                </a>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-[#050505] mb-3">
-              Trending Topics
-            </h3>
-            <div className="space-y-2">
-              <a
-                href="#"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                #TechNews
-              </a>
-              <a
-                href="#"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                #TravelVibes
-              </a>
-              <a
-                href="#"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                #Foodie
-              </a>
-              <a
-                href="#"
-                className="block p-2 text-[15px] font-medium text-[#050505] hover:bg-[#F0F2F5] rounded-md"
-              >
-                #FitnessGoals
-              </a>
-            </div>
-          </div>
-        </aside>
       </div>
     </div>
   );

@@ -29,7 +29,7 @@ export const UserProvider = ({ children }) => {
     email: "",
     password: "",
   });
-
+  const [showPost, setShowPost] = useState(false);
   const userr = JSON.parse(localStorage.getItem("userDetails"));
 
   const socketRef = useRef(null);
@@ -203,6 +203,8 @@ export const UserProvider = ({ children }) => {
     socketRef,
     clickedPost,
     setClickedPost,
+    showPost,
+    setShowPost,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

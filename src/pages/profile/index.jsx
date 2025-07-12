@@ -18,6 +18,7 @@ import toastAlert from "../../components/ALERT";
 import { SiPodcastindex } from "react-icons/si";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+import PostDetail from "../../components/postDetail";
 
 const uploadToCloudinary = async (file) => {
   const formData = new FormData();
@@ -38,6 +39,7 @@ const uploadToCloudinary = async (file) => {
 const Profile = () => {
   const [activeTab, setActiveTab] = useState("Timeline");
   const [activeTabb, setActiveTabb] = useState("Posts");
+
   const [dpOption, setDpOption] = useState(false);
   const {
     userName,
@@ -66,6 +68,8 @@ const Profile = () => {
     socketRef,
     clickedPost,
     setClickedPost,
+    showPost,
+    setShowPost,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
@@ -89,7 +93,7 @@ const Profile = () => {
   const [clickedPostDetails, setClickedPostDetails] = useState({});
 
   useEffect(() => {
-    console.log(postsDetails);
+    console.log("pd:", postsDetails);
   }, [postsDetails]);
 
   const handleClickedPost = (id) => {
@@ -102,7 +106,7 @@ const Profile = () => {
       if (post._id === viewedPost) {
         setClickedPostDetails(post);
         console.log("found");
-        localStorage.setItem("clickedPostDetails", JSON.stringify(post));
+        // localStorage.setItem("clickedPostDetails", JSON.stringify(post));
         console.log("clickedPostDetails:", clickedPostDetails);
       } else {
         console.log("No post found with this ID");
@@ -325,7 +329,7 @@ const Profile = () => {
       );
       await refreshUser();
     } catch (error) {
-      // handle error
+      console.log(error);
     }
   };
 
@@ -490,7 +494,9 @@ const Profile = () => {
                       setClickedPost(post._id);
                       localStorage.setItem("clickedPost", post._id);
                       handleClickedPost(post._id);
-                      navigate("/viewPost");
+                      setShowPost(true);
+                      // console.log(showPost)
+                      // navigate("/viewPost");
                     }}
                   >
                     <div className="flex items-center justify-between">
@@ -835,7 +841,7 @@ const Profile = () => {
                         setClickedPost(post._id);
                         localStorage.setItem("clickedPost", post._id);
                         handleClickedPost(post._id);
-                        navigate("/viewPost");
+                        setShowPost(true);
                       }}
                     >
                       <div className="flex items-center justify-between">
@@ -1114,206 +1120,173 @@ const Profile = () => {
     );
   }
   return (
-    <div className="w-full min-h-screen bg-fb-gray">
-      <Navbar />
-      {isEditing && (
-        <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in">
-            {/* Close button (optional) */}
-            <button
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
-              onClick={handleEditCancel}
-              aria-label="Close"
-            >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
-
-            {/* Profile Icon */}
-            <div className="flex flex-col items-center mb-6">
-              <img
-                src={profilePic || dp}
-                alt="Profile"
-                className="w-20 h-20 rounded-full border-4 border-blue-100 shadow mb-2 object-cover"
-              />
-              <h2 className="text-2xl font-bold text-fb-blue mb-1">
-                Edit Profile
-              </h2>
-              <p className="text-gray-500 text-sm">
-                Update your information below
-              </p>
-            </div>
-
-            <form className="space-y-4">
-              <div>
-                <label className="block font-semibold text-sm mb-1 text-gray-700">
-                  Bio
-                </label>
-                <textarea
-                  className="w-full p-3 border border-gray-200 rounded-lg resize-none text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
-                  rows="3"
-                  value={editForm.bio}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, bio: e.target.value })
-                  }
-                  placeholder="Tell us about yourself..."
-                />
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-semibold text-sm mb-1 text-gray-700">
-                    Work
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
-                    value={editForm.work}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, work: e.target.value })
-                    }
-                    placeholder="Where do you work?"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-sm mb-1 text-gray-700">
-                    Education
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
-                    value={editForm.education}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, education: e.target.value })
-                    }
-                    placeholder="Your education"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-sm mb-1 text-gray-700">
-                    Location
-                  </label>
-                  <input
-                    type="text"
-                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
-                    value={editForm.location}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, location: e.target.value })
-                    }
-                    placeholder="Where do you live?"
-                  />
-                </div>
-                <div>
-                  <label className="block font-semibold text-sm mb-1 text-gray-700">
-                    Relationship
-                  </label>
-                  <select
-                    className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition bg-white"
-                    value={editForm.relationship}
-                    onChange={(e) =>
-                      setEditForm({ ...editForm, relationship: e.target.value })
-                    }
-                  >
-                    <option value="">Select status</option>
-                    <option value="Single">Single</option>
-                    <option value="In a relationship">In a relationship</option>
-                    <option value="Engaged">Engaged</option>
-                    <option value="Married">Married</option>
-                    <option value="It's complicated">It's complicated</option>
-                    <option value="Separated">Separated</option>
-                    <option value="Divorced">Divorced</option>
-                    <option value="Widowed">Widowed</option>
-                  </select>
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  type="button"
-                  className="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
-                  onClick={handleEditCancel}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="px-5 py-2 rounded-lg bg-fb-blue text-white font-semibold bg-blue-800 transition shadow"
-                  onClick={handleEditConfirm}
-                >
-                  Save Changes
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {/* Header Section */}
-      <div className="bg-white shadow-lg p-2">
-        <div className="w-full max-w-5xl mx-auto bg-white">
-          {/* Cover Photo */}
-          {userId === logged ? (
-            <div className="relative">
-              <img
-                src={coverPic || dp}
-                alt="Cover"
-                className="w-full h-60 sm:h-80 md:h-96 object-cover object-top"
-              />
-              <label
-                className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
-                aria-label="Upload cover photo"
+    <div className="relative">
+      <div
+        className={`w-full min-h-screen bg-fb-gray ${
+          showPost ? "fixed" : "block"
+        }`}
+      >
+        <Navbar />
+        {isEditing && (
+          <div className="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-8 relative animate-fade-in">
+              {/* Close button (optional) */}
+              <button
+                className="absolute top-4 right-4 text-gray-400 hover:text-gray-700 transition"
+                onClick={handleEditCancel}
+                aria-label="Close"
               >
                 <svg
-                  className="w-5 h-5"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  className="w-6 h-6"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
                 >
-                  <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
-                <p>Add cover photo</p>
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden "
-                  onChange={handleCoverPicUpload}
-                />
-              </label>
-            </div>
-          ) : (
-            <div className="relative">
-              <img
-                src={otherProfile.profile?.coverPics || dp}
-                alt="Cover"
-                className="w-full h-60 sm:h-80 md:h-96 object-cover"
-              />
-            </div>
-          )}
+              </button>
 
-          {/* Profile Picture and Info */}
-          <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
-            <div className="relative">
-              <img
-                src={
-                  userId === logged
-                    ? profilePic || dp
-                    : otherProfile.profile?.profilePics || dp
-                }
-                alt="Profile"
-                className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
-              />
-              {userId === logged && (
+              {/* Profile Icon */}
+              <div className="flex flex-col items-center mb-6">
+                <img
+                  src={profilePic || dp}
+                  alt="Profile"
+                  className="w-20 h-20 rounded-full border-4 border-blue-100 shadow mb-2 object-cover"
+                />
+                <h2 className="text-2xl font-bold text-fb-blue mb-1">
+                  Edit Profile
+                </h2>
+                <p className="text-gray-500 text-sm">
+                  Update your information below
+                </p>
+              </div>
+
+              <form className="space-y-4">
+                <div>
+                  <label className="block font-semibold text-sm mb-1 text-gray-700">
+                    Bio
+                  </label>
+                  <textarea
+                    className="w-full p-3 border border-gray-200 rounded-lg resize-none text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                    rows="3"
+                    value={editForm.bio}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, bio: e.target.value })
+                    }
+                    placeholder="Tell us about yourself..."
+                  />
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-semibold text-sm mb-1 text-gray-700">
+                      Work
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                      value={editForm.work}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, work: e.target.value })
+                      }
+                      placeholder="Where do you work?"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-sm mb-1 text-gray-700">
+                      Education
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                      value={editForm.education}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, education: e.target.value })
+                      }
+                      placeholder="Your education"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-sm mb-1 text-gray-700">
+                      Location
+                    </label>
+                    <input
+                      type="text"
+                      className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition"
+                      value={editForm.location}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, location: e.target.value })
+                      }
+                      placeholder="Where do you live?"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-sm mb-1 text-gray-700">
+                      Relationship
+                    </label>
+                    <select
+                      className="w-full p-3 border border-gray-200 rounded-lg text-sm focus:ring-2 focus:ring-fb-blue focus:border-fb-blue transition bg-white"
+                      value={editForm.relationship}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          relationship: e.target.value,
+                        })
+                      }
+                    >
+                      <option value="">Select status</option>
+                      <option value="Single">Single</option>
+                      <option value="In a relationship">
+                        In a relationship
+                      </option>
+                      <option value="Engaged">Engaged</option>
+                      <option value="Married">Married</option>
+                      <option value="It's complicated">It's complicated</option>
+                      <option value="Separated">Separated</option>
+                      <option value="Divorced">Divorced</option>
+                      <option value="Widowed">Widowed</option>
+                    </select>
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-2">
+                  <button
+                    type="button"
+                    className="px-5 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
+                    onClick={handleEditCancel}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    className="px-5 py-2 rounded-lg bg-fb-blue text-white font-semibold bg-blue-800 transition shadow"
+                    onClick={handleEditConfirm}
+                  >
+                    Save Changes
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* Header Section */}
+        <div className="bg-white shadow-lg p-2">
+          <div className="w-full max-w-5xl mx-auto bg-white">
+            {/* Cover Photo */}
+            {userId === logged ? (
+              <div className="relative">
+                <img
+                  src={coverPic || dp}
+                  alt="Cover"
+                  className="w-full h-60 sm:h-80 md:h-96 object-cover object-top"
+                />
                 <label
-                  className="absolute bottom-0 right-2 text-white p-2 rounded-full cursor-pointer bg-blue-700"
-                  aria-label="Upload profile picture"
+                  className="absolute top-28 md:top-14 right-3 bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer hover:bg-blue-800 flex items-center gap-2"
+                  aria-label="Upload cover photo"
                 >
                   <svg
                     className="w-5 h-5"
@@ -1322,238 +1295,288 @@ const Profile = () => {
                   >
                     <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
                   </svg>
+                  <p>Add cover photo</p>
                   <input
                     type="file"
                     accept="image/*"
-                    className="hidden"
-                    onChange={handleProfilePicUpload}
+                    className="hidden "
+                    onChange={handleCoverPicUpload}
                   />
                 </label>
-              )}
-            </div>
-            <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-              {logged === userId ? (
-                <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
-                    {userName}
-                  </h1>
-                  <p className="text-gray-600">{myData.bio}</p>
-                  <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
-                    <button
-                      className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
-                      aria-label="Add to story"
+              </div>
+            ) : (
+              <div className="relative">
+                <img
+                  src={otherProfile.profile?.coverPics || dp}
+                  alt="Cover"
+                  className="w-full h-60 sm:h-80 md:h-96 object-cover"
+                />
+              </div>
+            )}
+
+            {/* Profile Picture and Info */}
+            <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
+              <div className="relative">
+                <img
+                  src={
+                    userId === logged
+                      ? profilePic || dp
+                      : otherProfile.profile?.profilePics || dp
+                  }
+                  alt="Profile"
+                  className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
+                />
+                {userId === logged && (
+                  <label
+                    className="absolute bottom-0 right-2 text-white p-2 rounded-full cursor-pointer bg-blue-700"
+                    aria-label="Upload profile picture"
+                  >
+                    <svg
+                      className="w-5 h-5"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
                     >
-                      <AiOutlinePlus />
-                      <p>Add to Story</p>
-                    </button>
-                    <button
-                      className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
-                      onClick={handleEditOpen}
-                    >
-                      Edit Profile
-                    </button>
-                    <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
-                      ...
-                    </button>
+                      <path d="M4 16a2 2 0 0 1-2-2v-2a1 1 0 1 1 2 0v2h12v-2a1 1 0 1 1 2 0v2a2 2 0 0 1-2 2H4zm6-2a1 1 0 0 1-1-1V7.41l-2.3 2.3a1 1 0 1 1-1.4-1.42l4-4a1 1 0 0 1 1.4 0l4 4a1 1 0 1 1-1.4 1.42L11 7.41V13a1 1 0 0 1-1 1z" />
+                    </svg>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleProfilePicUpload}
+                    />
+                  </label>
+                )}
+              </div>
+              <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
+                {logged === userId ? (
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                      {userName}
+                    </h1>
+                    <p className="text-gray-600">{myData.bio}</p>
+                    <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                      <button
+                        className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
+                        aria-label="Add to story"
+                      >
+                        <AiOutlinePlus />
+                        <p>Add to Story</p>
+                      </button>
+                      <button
+                        className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                        onClick={handleEditOpen}
+                      >
+                        Edit Profile
+                      </button>
+                      <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                        ...
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : otherProfile.profile ? (
-                <div>
-                  <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
-                    {`${otherProfile.profile.firstname} ${otherProfile.profile.surname}`}
-                  </h1>
-                  <p className="text-gray-600">
-                    {otherProfile.about?.bio || ""}
-                  </p>
-                  <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
-                    <button
-                      className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
-                      aria-label="Add friend"
-                    >
-                      <p>Add Friend</p>
-                    </button>
-                    <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
-                      Message
-                    </button>
-                    <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
-                      ...
-                    </button>
+                ) : otherProfile.profile ? (
+                  <div>
+                    <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                      {`${otherProfile.profile.firstname} ${otherProfile.profile.surname}`}
+                    </h1>
+                    <p className="text-gray-600">
+                      {otherProfile.about?.bio || ""}
+                    </p>
+                    <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                      <button
+                        className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                        aria-label="Add friend"
+                      >
+                        <p>Add Friend</p>
+                      </button>
+                      <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
+                        Message
+                      </button>
+                      <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                        ...
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div>
-                  {/* <h1 className="text-2xl font-bold text-gray-400">
+                ) : (
+                  <div>
+                    {/* <h1 className="text-2xl font-bold text-gray-400">
                     <Loader />
                   </h1> */}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
 
-          {/* Navigation Tabs */}
-          {logged === userId ? (
-            <div className="border-t mt-4 pt-2 px-4 sm:px-6">
-              <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
-                {["Timeline", "About", "Friends", "Photos"].map((tab) => (
-                  <li
-                    key={tab}
-                    className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
-                      activeTab === tab
-                        ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
-                        : "text-gray-600 hover:text-fb-blue"
-                    }`}
-                    onClick={() => setActiveTab(tab)}
-                  >
-                    {tab}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ) : (
-            <div className="border-t mt-4 pt-2 px-4 sm:px-6">
-              <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
-                {["Posts", "Friends", "About", "Photos", "Videos"].map(
-                  (tab) => (
+            {/* Navigation Tabs */}
+            {logged === userId ? (
+              <div className="border-t mt-4 pt-2 px-4 sm:px-6">
+                <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
+                  {["Timeline", "About", "Friends", "Photos"].map((tab) => (
                     <li
                       key={tab}
                       className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
-                        activeTabb === tab
+                        activeTab === tab
                           ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
                           : "text-gray-600 hover:text-fb-blue"
                       }`}
-                      onClick={() => setActiveTabb(tab)}
+                      onClick={() => setActiveTab(tab)}
                     >
                       {tab}
                     </li>
-                  )
-                )}
-              </ul>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Main Content Section */}
-      <div className="bg-gray-100 p-2">
-        <div className="w-full max-w-5xl mx-auto mt-4 flex flex-col sm:flex-row gap-4 px-4 sm:px-0 bg-gray-100">
-          {/* Left Sidebar */}
-          <div className="w-full sm:w-2/5 flex flex-col gap-4">
-            {/* Intro Card */}
-            {userId === logged ? (
-              <div className="bg-white p-6 shadow rounded-xl hidden md:block">
-                <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
-                  Intro
-                </h2>
-                {myData.bio && (
-                  <p className="text-base text-gray-700 mb-5 text-center italic">
-                    "{myData.bio}"
-                  </p>
-                )}
-                <div className="space-y-3">
-                  {myData.location && (
-                    <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600">
-                        <strong>Lives in</strong> {myData.location}
-                      </span>
-                    </div>
-                  )}
-                  {myData.work && (
-                    <div className="flex items-center gap-2">
-                      <FaBriefcase className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600">
-                        <strong>Works at</strong> {myData.work}
-                      </span>
-                    </div>
-                  )}
-                  {myData.joined && (
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600">
-                        <strong>Joined</strong> {myData.joined}
-                      </span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  className="w-full mt-6 bg-fb-blue text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition"
-                  onClick={handleEditOpen}
-                >
-                  Edit Details
-                </button>
+                  ))}
+                </ul>
               </div>
             ) : (
-              <div className="bg-white p-6 shadow rounded-xl hidden md:block">
-                <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
-                  Intro
-                </h2>
-                {otherProfile.about?.bio && (
-                  <p className="text-base text-gray-700 mb-5 text-center italic">
-                    "{otherProfile.about.bio}"
-                  </p>
-                )}
-                <div className="space-y-3">
-                  {otherProfile.about?.location && (
-                    <div className="flex items-center gap-2">
-                      <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600">
-                        <strong>Lives in</strong> {otherProfile.about.location}
-                      </span>
-                    </div>
+              <div className="border-t mt-4 pt-2 px-4 sm:px-6">
+                <ul className="flex justify-center sm:justify-start space-x-4 sm:space-x-6">
+                  {["Posts", "Friends", "About", "Photos", "Videos"].map(
+                    (tab) => (
+                      <li
+                        key={tab}
+                        className={`cursor-pointer px-2 py-2 text-sm sm:text-base ${
+                          activeTabb === tab
+                            ? "text-fb-blue font-semibold border-b-2 border-fb-blue"
+                            : "text-gray-600 hover:text-fb-blue"
+                        }`}
+                        onClick={() => setActiveTabb(tab)}
+                      >
+                        {tab}
+                      </li>
+                    )
                   )}
-                  {otherProfile.about?.work && (
-                    <div className="flex items-center gap-2">
-                      <FaBriefcase className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600">
-                        <strong>Works at</strong> {otherProfile.about.work}
-                      </span>
-                    </div>
-                  )}
-                  {otherProfile.about?.joined && (
-                    <div className="flex items-center gap-2">
-                      <FaCalendarAlt className="w-5 h-5 text-blue-500" />
-                      <span className="text-gray-600 flex items-center">
-                        <strong>Joined</strong> &nbsp;
-                        <p className="text-gray-600 text-sm">
-                          {new Date(
-                            otherProfile.about.joined
-                          ).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          })}
-                        </p>
-                      </span>
-                    </div>
-                  )}
-                </div>
+                </ul>
               </div>
             )}
-            {/* Life Events */}
-            <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
-              <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
-                Life Events
-              </h2>
-              {lifeEvents.map((event, index) => (
-                <div key={index} className="flex items-center mb-3">
-                  <FaCalendarAlt
-                    className="w-4 h-4 text-gray-500 mr-2"
-                    aria-hidden="true"
-                  />
-                  <p className="text-sm text-fb-text-gray leading-5">
-                    <strong>{event.year}:</strong> {event.event}
-                  </p>
-                </div>
-              ))}
-            </div>
           </div>
+        </div>
 
-          {/* Main Content */}
-          <div className="w-full sm:w-3/5">
-            {logged === userId ? renderContent() : renderContentt()}
+        {/* Main Content Section */}
+        <div className="bg-gray-100 p-2 relative">
+          <div className="w-full max-w-5xl mx-auto mt-4 flex flex-col sm:flex-row gap-4 px-4 sm:px-0 bg-gray-100">
+            {/* Left Sidebar */}
+            <div className="w-full sm:w-2/5 flex flex-col gap-4">
+              {/* Intro Card */}
+              {userId === logged ? (
+                <div className="bg-white p-6 shadow rounded-xl hidden md:block">
+                  <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
+                    Intro
+                  </h2>
+                  {myData.bio && (
+                    <p className="text-base text-gray-700 mb-5 text-center italic">
+                      "{myData.bio}"
+                    </p>
+                  )}
+                  <div className="space-y-3">
+                    {myData.location && (
+                      <div className="flex items-center gap-2">
+                        <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600">
+                          <strong>Lives in</strong> {myData.location}
+                        </span>
+                      </div>
+                    )}
+                    {myData.work && (
+                      <div className="flex items-center gap-2">
+                        <FaBriefcase className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600">
+                          <strong>Works at</strong> {myData.work}
+                        </span>
+                      </div>
+                    )}
+                    {myData.joined && (
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600">
+                          <strong>Joined</strong> {myData.joined}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    className="w-full mt-6 bg-fb-blue text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-800 transition"
+                    onClick={handleEditOpen}
+                  >
+                    Edit Details
+                  </button>
+                </div>
+              ) : (
+                <div className="bg-white p-6 shadow rounded-xl hidden md:block">
+                  <h2 className="text-lg font-bold text-fb-blue mb-4 tracking-wide">
+                    Intro
+                  </h2>
+                  {otherProfile.about?.bio && (
+                    <p className="text-base text-gray-700 mb-5 text-center italic">
+                      "{otherProfile.about.bio}"
+                    </p>
+                  )}
+                  <div className="space-y-3">
+                    {otherProfile.about?.location && (
+                      <div className="flex items-center gap-2">
+                        <FaMapMarkerAlt className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600">
+                          <strong>Lives in</strong>{" "}
+                          {otherProfile.about.location}
+                        </span>
+                      </div>
+                    )}
+                    {otherProfile.about?.work && (
+                      <div className="flex items-center gap-2">
+                        <FaBriefcase className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600">
+                          <strong>Works at</strong> {otherProfile.about.work}
+                        </span>
+                      </div>
+                    )}
+                    {otherProfile.about?.joined && (
+                      <div className="flex items-center gap-2">
+                        <FaCalendarAlt className="w-5 h-5 text-blue-500" />
+                        <span className="text-gray-600 flex items-center">
+                          <strong>Joined</strong> &nbsp;
+                          <p className="text-gray-600 text-sm">
+                            {new Date(
+                              otherProfile.about.joined
+                            ).toLocaleDateString("en-US", {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            })}
+                          </p>
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {/* Life Events */}
+              <div className="bg-white p-4 shadow-sm rounded-lg hidden md:block">
+                <h2 className="text-base font-semibold text-fb-text-gray mb-3 leading-6">
+                  Life Events
+                </h2>
+                {lifeEvents.map((event, index) => (
+                  <div key={index} className="flex items-center mb-3">
+                    <FaCalendarAlt
+                      className="w-4 h-4 text-gray-500 mr-2"
+                      aria-hidden="true"
+                    />
+                    <p className="text-sm text-fb-text-gray leading-5">
+                      <strong>{event.year}:</strong> {event.event}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Main Content */}
+            <div className="w-full sm:w-3/5">
+              {logged === userId ? renderContent() : renderContentt()}
+            </div>
           </div>
         </div>
       </div>
+      {showPost && (
+        <div className="fixed inset-0 z-50  overflow-y-scroll bg-opacity-30 backdrop-blur-sm flex items-center justify-center ">
+          <PostDetail />
+        </div>
+      )}
     </div>
   );
 };
