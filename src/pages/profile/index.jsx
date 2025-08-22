@@ -186,7 +186,7 @@ const Profile = () => {
 
   const handlePostComment = async (post) => {
     if (!commentInfo.comment.trim()) return;
-
+  
     const payload = {
       comment: commentInfo.comment,
       postId: post?._id,
@@ -970,7 +970,7 @@ const Profile = () => {
                       </div>
                       <div className="flex justify-between text-gray-600 mt-2 text-sm">
                         <span>{post.likes} Likes</span>
-                        <span>{postsDetails.postComment.length} Comments</span>
+                        <span>{postsDetails?.postComment?.length} Comments</span>
                       </div>
                     </div>
                     <div className="flex justify-between mt-2 pt-2  text-2xl mb-4">
