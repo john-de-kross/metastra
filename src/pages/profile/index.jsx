@@ -70,6 +70,7 @@ const Profile = () => {
     setClickedPost,
     showPost,
     setShowPost,
+    presentUser,
   } = useUserContext();
   const dp =
     "https://img.freepik.com/premium-vector/user-profile-icon-flat-style-member-avatar-vector-illustration-isolated-background-human-permission-sign-business-concept_157943-15752.jpg?semt=ais_hybrid&w=740";
@@ -145,44 +146,73 @@ const Profile = () => {
     { year: 2020, event: "Graduated from XYZ University" },
   ];
 
-  useEffect(() => {
-    if (!socketRef.current) return;
+  // useEffect(() => {
+  //   if (!socketRef.current || !presentUser) return;
 
-    const handleNewComment = (data) => {
-      console.log("New comment received:", data);
-      alert("New comment received");
-      setCommentInfo(data);
-    };
+  // const handleNewComment = (data) => {
+  //   // ✅ Don't alert if the logged-in user is the one who commented
+  //   if (data.commenterId === presentUser) return;
 
-    socketRef.current.on("newComment", handleNewComment);
+  //   // ✅ Alert only if the comment is on a post owned by the logged-in user
+  //   if (data.postOwnerId === presentUser) {
+  //     console.log("🔔 New comment received on your post:", data);
+  //     alert("💬 New comment received on your post!");
+  //     setCommentInfo(data);
+  //   }
+  // };
+  //   socketRef.current.on("newComment", handleNewComment);
 
-    return () => {
-      socketRef.current.off("newComment", handleNewComment);
-    };
-  }, []);
+  //   return () => {
+  //     socketRef.current.off("newComment", handleNewComment);
+  //   };
+  // }, [presentUser]);
 
-  const handlePostComment = async (id) => {
+  //realone
+  //   useEffect(() => {
+  //   if (!socketRef.current) return;
+
+  //   const handleNewComment = (data) => {
+  //     console.log("🔔 Comment on your post:", data);
+  //     alert("💬 Someone commented on your post!");
+  //     setCommentInfo(data);
+  //   };
+
+  //   socketRef.current.on("newComment", handleNewComment);
+
+  //   return () => {
+  //     socketRef.current.off("newComment", handleNewComment);
+  //   };
+  // }, []);
+
+  const handlePostComment = async (post) => {
     if (!commentInfo.comment.trim()) return;
 
     const payload = {
       comment: commentInfo.comment,
-      postId: id,
+      postId: post?._id,
       imageUrl: "",
     };
 
     try {
-      console.log("Posting to server with ID:", id);
+      console.log("Posting to server with ID:", post._id);
       const resp = await axios.post(
-        `https://metastra-server.onrender.com/api/v1/users/comment-on-post/${id}`,
+        `https://metastra-server.onrender.com/api/v1/users/comment-on-post/${post._id}`,
         payload,
         { withCredentials: true }
       );
 
       console.log("Response from server:", resp.data);
-      socketRef.current?.emit("newComment", payload);
+
+      // ✅ Emit socket event with post owner and commenter info
+      socketRef.current?.emit("newComment", {
+        ...payload,
+        postOwnerId: postsDetails?.post?.author?._id,
+        commenterId: presentUser,
+      });
+
       toastAlert.success("Comment posted successfully");
 
-      // Clear input
+      // ✅ Clear input
       setCommentInfo((prev) => ({ ...prev, comment: "" }));
     } catch (err) {
       console.error("Error posting comment:", err);
@@ -585,10 +615,23 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-
+{/* xxxxxxx */}
                     <div className="flex justify-between mt-3 text-gray-600 text-sm">
-                      <span>{post.likes} Likes</span>
-                      <span>{post.comments} Comments</span>
+                      <div>
+                        {postsDetails?.posts?.map((postDetail, index) => {
+                          if (postDetail._id === post._id) {
+                            return (
+                              <div key={index}>
+                                <span>{postDetail.likes || 0} Likes</span>
+                                <span>
+                                  {postDetail.comments?.length || 0} Comments
+                                </span>
+                              </div>
+                            );
+                          }
+                          return null;
+                        })}
+                      </div>
                     </div>
                   </div>
                   <div className="flex justify-between border-t border-b border-gray-300 p-2 text-2xl mb-4">
@@ -637,7 +680,7 @@ const Profile = () => {
                       <button
                         className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
                         onClick={() => {
-                          handlePostComment(post._id);
+                          handlePostComment(post);
                         }}
                       >
                         <IoSend />
@@ -927,7 +970,7 @@ const Profile = () => {
                       </div>
                       <div className="flex justify-between text-gray-600 mt-2 text-sm">
                         <span>{post.likes} Likes</span>
-                        <span>{post.comments} Comments</span>
+                        <span>{postsDetails.postComment.length} Comments</span>
                       </div>
                     </div>
                     <div className="flex justify-between mt-2 pt-2  text-2xl mb-4">
@@ -974,7 +1017,7 @@ const Profile = () => {
                         <button
                           className="bg-fb-blue text-white px-4 py-2 rounded-md bg-blue-700 disabled:opacity-50"
                           onClick={() => {
-                            handlePostComment(post._id);
+                            handlePostComment(post);
                           }}
                         >
                           <IoSend />

@@ -39,7 +39,7 @@ const suggestions = [
 
 const Suggestions = () => {
   const { mock, refreshUser, clickedUser, setClickedUser } = useUserContext();
-  
+
   useEffect(() => {
     console.log(mock);
   }, []);
@@ -56,8 +56,14 @@ const Suggestions = () => {
               name={`${user.firstname} ${user.surname}`}
               image={user.profilePics}
               mutual={Math.floor(Math.random() * 10)}
-              buttonText="Add Friend"
-              secondary="Remove"
+              primaryButton={{
+                label: "Add Friend",
+                onClick: () => console.log("Add friend:", user._id),
+              }}
+              secondaryButton={{
+                label: "Delete",
+                onClick: () => console.log("Delete:", user._id),
+              }}
             />
           ))}
         </div>

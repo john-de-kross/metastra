@@ -87,7 +87,6 @@ const PostDetail = () => {
 
   useEffect(() => {
     console.log("post:", post);
-
     const fetchComments = async () => {
       setLoading(true);
       try {
@@ -109,6 +108,28 @@ const PostDetail = () => {
   useEffect(() => {
     console.log("show:", showPost);
   });
+
+  useEffect(() => {
+    if (!socketRef.current) return;
+
+    const handleNewComment = (newComment) => {
+      console.log("💬 Received new comment:", newComment);
+
+      setPostDetail((prev) => ({
+        ...prev,
+        postComment: [...prev?.postComment, newComment],
+      }));
+    };
+
+    console.log("postDetail:", postDetail);
+
+    socketRef.current.on("newComment", handleNewComment);
+
+    // Clean up on unmount
+    return () => {
+      socketRef.current.off("newComment", handleNewComment);
+    };
+  }, []);
 
   const handlePostComment = async (id) => {
     if (!commentInfo.comment.trim()) return;
@@ -255,7 +276,7 @@ const PostDetail = () => {
                 <div>
                   <div key={index} className="flex gap-3">
                     <img
-                      src={post?.user?.profilePics}
+                      src={post?.user?.profilePics || ""}
                       className="w-8 h-8 rounded-full object-cover"
                       alt="User"
                     />
@@ -263,7 +284,9 @@ const PostDetail = () => {
                       <p className="text-sm font-semibold text-gray-800">
                         {post?.user?.firstname} {post?.user?.surname}
                       </p>
-                      <p className="text-sm text-gray-700">{post?.comment}</p>
+                      <p className="text-sm text-gray-700">
+                        {post?.comment || post?.comment?.comment}
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 mt-2 ml-15 text-gray-500">

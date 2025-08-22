@@ -31,6 +31,11 @@ export const UserProvider = ({ children }) => {
   });
   const [showPost, setShowPost] = useState(false);
   const userr = JSON.parse(localStorage.getItem("userDetails"));
+  // const [presentUser, setPresentUser] = useState(
+  //   localStorage.getItem("presentUser") || ""
+  // );
+
+  const [presentUser, setPresentUser] = useState(null);
 
   const socketRef = useRef(null);
 
@@ -70,6 +75,7 @@ export const UserProvider = ({ children }) => {
 
   const [editForm, setEditForm] = useState({ userName, bio, ...about });
   const [otherProfile, setOtherProfile] = useState({});
+  const postsDetails = JSON.parse(localStorage.getItem("userDetails"));
 
   const fetchUserAboutData = async () => {
     try {
@@ -119,6 +125,11 @@ export const UserProvider = ({ children }) => {
       // localStorage.setItem("userId", profileRes.data.data.currentUser._id);
       setLoggedInUser(profileRes.data.data.currentUser._id);
       console.log("data:", profileRes.data.data);
+
+      const userId = profileRes.data.data.currentUser._id;
+      setPresentUser(userId);
+      localStorage.setItem("presentUser", userId);
+
       console.log("loggedin:", profileRes.data.data.currentUser._id);
       const response = await axios.get(
         "https://metastra-server.onrender.com/api/v1/users/suggested-users",
@@ -140,7 +151,45 @@ export const UserProvider = ({ children }) => {
     refreshUser();
   }, []);
 
+  // useEffect(() => {
+  //   if (!socketRef.current || !presentUser) return;
+
+  //   const handleNewComment = (data) => {
+  //     if (data.commenterId === presentUser) return; // Ignore your own comments
+  //     if (data.postOwnerId === presentUser) {
+  //       alert("💬 Someone commented on your post!");
+  //     }
+  //   };
+
+  //   socketRef.current.on("newComment", handleNewComment);
+
+  //   return () => {
+  //     socketRef.current.off("newComment", handleNewComment);
+  //   };
+  // }, [presentUser]);
+
+  // useEffect(() => {
+  //   if (!presentUser) return;
+
+  //   socketRef.current = io("https://metastra-server.onrender.com", {
+  //     path: "/socket.io",
+  //     withCredentials: true,
+  //   });
+
+  //   socketRef.current.on("connect", () => {
+  //     console.log("Socket connected:", socketRef.current.id);
+  //     console.log("Registering user:", presentUser);
+  //     socketRef.current.emit("register", presentUser);
+  //   });
+
+  //   return () => {
+  //     socketRef.current.disconnect();
+  //   };
+  // }, [presentUser]);
+
   useEffect(() => {
+    if (!presentUser) return;
+
     socketRef.current = io("https://metastra-server.onrender.com", {
       path: "/socket.io",
       withCredentials: true,
@@ -148,15 +197,54 @@ export const UserProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current.id);
-      // console.log("logged in user=", loggedInUser);
-      console.log("logged in user=", userr.profile._id);
-      socketRef.current.emit("register", userr.profile._id);
+      socketRef.current.emit("register", presentUser);
+
+      // ✅ Register event listener after connection
+      const handleNewComment = (data) => {
+        console.log("🔥 newComment received:", data);
+        console.log("🔥 newComment received:", data);
+        console.log("📌 commenterId:", data.commenterId);
+        console.log("📌 postOwnerId:", data.authorId);
+        console.log("👤 presentUser:", presentUser);
+        if (data.commenterId === presentUser) return;
+        // if (data.user._id === presentUser ) return
+        if (data.authorId === presentUser) {
+          alert("💬 Someone commented on your post!");
+        }
+      };
+
+      socketRef.current.on("newComment", handleNewComment);
+
+      // Cleanup
+      socketRef.current.on("disconnect", () => {
+        socketRef.current.off("newComment", handleNewComment);
+      });
     });
 
     return () => {
       socketRef.current.disconnect();
     };
-  }, [socketRef]);
+  }, [presentUser]);
+
+  // useEffect(() => {
+  //   if (!socketRef.current) return;
+
+  //   const handleNewComment = (data) => {
+  //     if (postsDetails?.post?.author?._id === presentUser) return;
+
+  //     if (postsDetails?.post?.author?._id === presentUser) {
+  //       console.log("New comment on your post:", data);
+  //       alert("💬 New comment on your post!");
+  //       // Optionally set global state or push notification to context
+  //     }
+  //   };
+
+  //   socketRef.current.on("newComment", handleNewComment);
+
+  //   return () => {
+  //     socketRef.current.off("newComment", handleNewComment);
+  //   };
+  // }, [socketRef, presentUser]);
 
   useEffect(() => {
     console.log("clicked:", clickedUser);
@@ -205,6 +293,8 @@ export const UserProvider = ({ children }) => {
     setClickedPost,
     showPost,
     setShowPost,
+    presentUser,
+    setPresentUser,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
