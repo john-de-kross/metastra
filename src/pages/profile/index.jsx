@@ -327,7 +327,14 @@ const Profile = () => {
         `https://metastra-server.onrender.com/api/v1/users/check-user-online/${clickedUser}`,
         { withCredentials: true }
       )
-      .then((res) => setOnline(res.data.isOnline))
+      .then((res) => {
+        setOnline(res.data.isOnline)
+        console.log("checking if user is online", res.data.isOnline)
+        
+      })
+  
+
+  
       .catch((err) => console.log(err));
   }, []);
 
