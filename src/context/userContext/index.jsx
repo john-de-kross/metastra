@@ -198,6 +198,7 @@ export const UserProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current.id);
+      setIsOnline(true)
       
       socketRef.current.emit("register", presentUser);
 

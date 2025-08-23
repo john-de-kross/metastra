@@ -16,7 +16,7 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const { userName, profilePic, clickedUser, setClickedUser, loggedInUser, isOnline, mock } =
+  const { userName, profilePic, clickedUser, setClickedUser, loggedInUser, isOnline} =
     useUserContext();
 
   const postsPerPage = 5;
