@@ -1439,6 +1439,9 @@ const Profile = () => {
                 {online && (
                   <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
                 )}
+                {lastSeenAt && (
+                  <div className="offline absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full text-gray-900 md:top-38 md:right-8 z-50 bg-gray-400">{ lastSeenAt }</div>
+                )}
                 <img
                   src={
                     userId === logged
