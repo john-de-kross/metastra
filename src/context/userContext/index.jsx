@@ -41,6 +41,7 @@ export const UserProvider = ({ children }) => {
 
   const [loggedInUser, setLoggedInUser] = useState("");
   const [clickedUser, setClickedUser] = useState("");
+  const [isOnline, setIsOnline] = useState(false)
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
@@ -197,7 +198,9 @@ export const UserProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current.id);
+      
       socketRef.current.emit("register", presentUser);
+
 
       // ✅ Register event listener after connection
       const handleNewComment = (data) => {
@@ -217,6 +220,8 @@ export const UserProvider = ({ children }) => {
 
       // Cleanup
       socketRef.current.on("disconnect", () => {
+        // set online users to false
+        setIsOnline(false)
         socketRef.current.off("newComment", handleNewComment);
       });
     });
@@ -295,6 +300,8 @@ export const UserProvider = ({ children }) => {
     setShowPost,
     presentUser,
     setPresentUser,
+    isOnline,
+    setIsOnline
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

@@ -186,7 +186,7 @@ const Profile = () => {
 
   const handlePostComment = async (post) => {
     if (!commentInfo.comment.trim()) return;
-  
+
     const payload = {
       comment: commentInfo.comment,
       postId: post?._id,
@@ -317,6 +317,19 @@ const Profile = () => {
       }
     }
   };
+
+  //Handle user online
+  const [online, setOnline] = useState(false)
+
+  useEffect(() => {
+    axios
+      .get(
+        `https://metastra-server.onrender.com/api/v1/users/check-user-online/${clickedUser}`,
+        { withCredentials: true }
+      )
+      .then((res) => setOnline(res.data.isOnline))
+      .catch((err) => console.log(err));
+  }, []);
 
   // adding photos to Photos section
   const handleAddPhotos = async (event) => {
@@ -615,7 +628,7 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-{/* xxxxxxx */}
+                    {/* xxxxxxx */}
                     <div className="flex justify-between mt-3 text-gray-600 text-sm">
                       <div>
                         {postsDetails?.posts?.map((postDetail, index) => {
@@ -970,7 +983,9 @@ const Profile = () => {
                       </div>
                       <div className="flex justify-between text-gray-600 mt-2 text-sm">
                         <span>{post.likes} Likes</span>
-                        <span>{postsDetails?.postComment?.length} Comments</span>
+                        <span>
+                          {postsDetails?.postComment?.length} Comments
+                        </span>
                       </div>
                     </div>
                     <div className="flex justify-between mt-2 pt-2  text-2xl mb-4">
@@ -1162,6 +1177,7 @@ const Profile = () => {
       </div>
     );
   }
+
   return (
     <div className="relative">
       <div
@@ -1360,6 +1376,9 @@ const Profile = () => {
             {/* Profile Picture and Info */}
             <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
               <div className="relative">
+                {online && (
+                  <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
+                )}
                 <img
                   src={
                     userId === logged
@@ -1369,6 +1388,7 @@ const Profile = () => {
                   alt="Profile"
                   className="w-32 h-32 sm:w-40 sm:h-40 md:w-44 md:h-44 rounded-full border-4 border-white object-cover"
                 />
+
                 {userId === logged && (
                   <label
                     className="absolute bottom-0 right-2 text-white p-2 rounded-full cursor-pointer bg-blue-700"

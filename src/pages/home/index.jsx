@@ -16,10 +16,12 @@ const Home = () => {
   const [hasMore, setHasMore] = useState(true);
   const [loading, setLoading] = useState(false);
 
-  const { userName, profilePic, clickedUser, setClickedUser, loggedInUser } =
+  const { userName, profilePic, clickedUser, setClickedUser, loggedInUser, isOnline, mock } =
     useUserContext();
 
   const postsPerPage = 5;
+
+ 
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,12 +80,11 @@ const Home = () => {
       {/* <div className="w-full max-w-2xl px-4 sm:px-6 mx-auto mt-25  lg:mt-14 overflow-x-hidden"> */}
       <div className="w-full max-w-2xl mx-auto mt-25 lg:mt-14 px-2 sm:px-4 overflow-x-hidden">
         {/* Create Post */}
-        <div className="bg-white rounded-lg shadow-sm p-6 sm:p-6 mb-6">
+        <div className="relative bg-white rounded-lg shadow-sm p-6 sm:p-6 mb-6">
           <div
             className="flex items-center space-x-3"
             onClick={() => {
               setClickedUser(loggedInUser);
-
               console.log("Clicked user:", clickedUser);
               console.log("loggedin:", loggedInUser);
             }}
@@ -91,8 +92,11 @@ const Home = () => {
             <img
               src={profilePic}
               alt={userName}
-              className="w-10 rounded-full max-w-full h-auto"
+              className="w-10 rounded-full max-w-full h-10"
             />
+            {isOnline && (
+              <div className="online absolute w-3 h-3 mt-7 ml-7 rounded-full bg-green-500"></div>
+            )}
             <input
               type="text"
               placeholder={`What's on your mind, ${userName}?`}
