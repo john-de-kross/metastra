@@ -184,6 +184,50 @@ const Profile = () => {
   //   };
   // }, []);
 
+  //convert timestampto readable time function
+  const timeAgo = (date) => {
+  const now = new Date();
+  const seconds = Math.floor((now - date) / 1000);
+
+  if (seconds < 60) {
+    return "1s";
+  }
+
+  const minute = Math.floor(seconds / 60);
+
+  if (minute < 60) {
+    return `${minute}m`;
+  }
+
+  const hour = Math.floor(minute / 60);
+
+  if (minute < 24) {
+    return `${hour}h`;
+  }
+
+  const days = Math.floor(hour / 24);
+
+  if (days < 7) {
+    return `${days}d`;
+  }
+
+  const week = Math.floor(days / 7);
+
+  if (week < 4) {
+    return `${week}w`;
+  }
+
+  const month = Math.floor(days / 30);
+
+  if (month < 12) {
+    return `${month}m`;
+  }
+
+  const years = Math.floor(days / 365);
+
+  return `${years}y`
+};
+
   const handlePostComment = async (post) => {
     if (!commentInfo.comment.trim()) return;
 
@@ -320,6 +364,7 @@ const Profile = () => {
 
   //Handle user online
   const [online, setOnline] = useState(false)
+  const [lastSeenAt, setLastSeenAt] = useState('')
 
   useEffect(() => {
     if (!socketRef.current) return;
@@ -328,8 +373,12 @@ const Profile = () => {
       if (id === clickedUser) setOnline(true)
     })
     
-    socketRef.current.on("user-offline", (id) => {
-      if (id === clickedUser) setOnline(false)
+    socketRef.current.on("user-offline", ({userId, lastSeen}) => {
+      if (userId === clickedUser) {
+        setOnline(false)
+        console.log('last seen online', timeAgo(lastSeen))
+        setLastSeenAt(timeAgo(lastSeen))
+      }
     })
     
     return () => {
