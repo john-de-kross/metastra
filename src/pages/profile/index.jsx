@@ -322,22 +322,25 @@ const Profile = () => {
   const [online, setOnline] = useState(false)
 
   useEffect(() => {
-    if (!clickedUser) return;
-    axios
-      .get(
-        `https://metastra-server.onrender.com/api/v1/users/check-user-online/${clickedUser}`,
-        { withCredentials: true }
-      )
-      .then((res) => {
-        setOnline(res.data.isOnline)
-        console.log("checking if user is online", res.data.isOnline)
-        
-      })
-  
+    if (!socketRef.current) return;
 
-  
-      .catch((err) => console.log(err));
-  }, [clickedUser]);
+    socketRef.current.on("user-online", (id) => {
+      if (id === clickedUser) setOnline(true)
+    })
+    
+    socketRef.current.on("user-offline", (id) => {
+      if (id === clickedUser) setOnline(false)
+    })
+    
+    return () => {
+      socketRef.current.off("user-online");
+      socketRef.current.off("user-offline")
+    }
+
+
+
+
+  }, [clickedUser, socketRef]);
 
   // adding photos to Photos section
   const handleAddPhotos = async (event) => {
