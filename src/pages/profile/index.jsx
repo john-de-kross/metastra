@@ -322,6 +322,7 @@ const Profile = () => {
   const [online, setOnline] = useState(false)
 
   useEffect(() => {
+    if (!clickedUser) return;
     axios
       .get(
         `https://metastra-server.onrender.com/api/v1/users/check-user-online/${clickedUser}`,
@@ -336,7 +337,7 @@ const Profile = () => {
 
   
       .catch((err) => console.log(err));
-  }, []);
+  }, [clickedUser]);
 
   // adding photos to Photos section
   const handleAddPhotos = async (event) => {
