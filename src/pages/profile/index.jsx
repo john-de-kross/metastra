@@ -186,47 +186,47 @@ const Profile = () => {
 
   //convert timestampto readable time function
   const timeAgo = (date) => {
-  const now = new Date();
-  const seconds = Math.floor((now - date) / 1000);
+    const now = new Date();
+    const seconds = Math.floor((now - date) / 1000);
 
-  if (seconds < 60) {
-    return "1s";
-  }
+    if (seconds < 60) {
+      return "1s";
+    }
 
-  const minute = Math.floor(seconds / 60);
+    const minute = Math.floor(seconds / 60);
 
-  if (minute < 60) {
-    return `${minute}m`;
-  }
+    if (minute < 60) {
+      return `${minute}m`;
+    }
 
-  const hour = Math.floor(minute / 60);
+    const hour = Math.floor(minute / 60);
 
-  if (minute < 24) {
-    return `${hour}h`;
-  }
+    if (minute < 24) {
+      return `${hour}h`;
+    }
 
-  const days = Math.floor(hour / 24);
+    const days = Math.floor(hour / 24);
 
-  if (days < 7) {
-    return `${days}d`;
-  }
+    if (days < 7) {
+      return `${days}d`;
+    }
 
-  const week = Math.floor(days / 7);
+    const week = Math.floor(days / 7);
 
-  if (week < 4) {
-    return `${week}w`;
-  }
+    if (week < 4) {
+      return `${week}w`;
+    }
 
-  const month = Math.floor(days / 30);
+    const month = Math.floor(days / 30);
 
-  if (month < 12) {
-    return `${month}m`;
-  }
+    if (month < 12) {
+      return `${month}m`;
+    }
 
-  const years = Math.floor(days / 365);
+    const years = Math.floor(days / 365);
 
-  return `${years}y`
-};
+    return `${years}y`;
+  };
 
   const handlePostComment = async (post) => {
     if (!commentInfo.comment.trim()) return;
@@ -363,32 +363,35 @@ const Profile = () => {
   };
 
   //Handle user online
-  const [online, setOnline] = useState(false)
-  const [lastSeenAt, setLastSeenAt] = useState('')
+  const [online, setOnline] = useState(false);
+  const [lastSeenAt, setLastSeenAt] = useState(null);
 
   useEffect(() => {
     if (!socketRef.current) return;
 
-    socketRef.current.on("user-online", (id) => {
-      if (id === clickedUser) setOnline(true)
-    })
-    
-    socketRef.current.on("user-offline", ({userId, lastSeen}) => {
+    const handleUserOnline = (userId) => {
       if (userId === clickedUser) {
-        setOnline(false)
-        console.log('last seen online', timeAgo(lastSeen))
-        setLastSeenAt(timeAgo(lastSeen))
+        setOnline(true);
+        setLastSeenAt(null);
       }
-    })
-    
+    };
+
+    const handleUserOffline = ({ userId, lastSeen }) => {
+      if (userId === clickedUser) {
+        setOnline(false);
+        if (lastSeen) {
+          setLastSeenAt(timeAgo(new Date(lastSeen)));
+        }
+      }
+    };
+
+    socketRef.current.on("user-online", handleUserOnline);
+    socketRef.current.on("user-offline", handleUserOffline);
+
     return () => {
-      socketRef.current.off("user-online");
-      socketRef.current.off("user-offline")
-    }
-
-
-
-
+      socketRef.current.off("user-online", handleUserOnline);
+      socketRef.current.off("user-offline", handleUserOffline);
+    };
   }, [clickedUser, socketRef]);
 
   // adding photos to Photos section
@@ -1436,12 +1439,12 @@ const Profile = () => {
             {/* Profile Picture and Info */}
             <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
               <div className="relative">
-                {online && (
+                {online ? (
                   <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
+                ) : (
+                  <div>{lastSeenAt}</div>
                 )}
-                {lastSeenAt && (
-                  <div className="offline absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full text-gray-900 md:top-38 md:right-8 z-50 bg-gray-400">{ lastSeenAt }</div>
-                )}
+
                 <img
                   src={
                     userId === logged
