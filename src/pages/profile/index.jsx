@@ -367,6 +367,14 @@ const Profile = () => {
   const [lastSeenAt, setLastSeenAt] = useState(null);
 
   useEffect(() => {
+    axios.get(`https://metastra-server.onrender.com/api/v1/users/check-user-last-seen/${clickedUser}`, { withCredentials: true })
+      .then((res) => {
+        console.log(res)
+        setLastSeenAt(res.data.data.user)
+    }).catch(err => console.log(err))
+  }, [clickedUser])
+
+  useEffect(() => {
     if (!socketRef.current) return;
 
     //request user status when component mounts
@@ -380,8 +388,6 @@ const Profile = () => {
       }
       
     })
-  
-
     const handleUserOnline = (userId) => {
        console.log("user-online event received:", userId, clickedUser);
       if (userId === clickedUser) {
@@ -1457,7 +1463,7 @@ const Profile = () => {
                 {online ? (
                   <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
                 ) : (
-                  <div className="absolute flex justify-center items-center top-27 right-7 sm:top-36 border-2 border-white bg-gray-300 h-5 w-6 md:h-6 md:w-8 rounded-2xl text-xs md:top-35 md:text-sm  text-green-400">{lastSeenAt}</div>
+                  <div className={`absolute ${lastSeenAt ? 'flex' : 'hidden'} justify-center items-center top-27 right-7 sm:top-36 border-2 border-white bg-gray-300 h-5 w-6 md:h-6 md:w-8 rounded-2xl text-xs md:top-35 md:text-sm  text-green-400`}>{lastSeenAt}</div>
                 )}
 
                 <img
