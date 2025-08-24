@@ -369,6 +369,19 @@ const Profile = () => {
   useEffect(() => {
     if (!socketRef.current) return;
 
+    //request user status when component mounts
+    socketRef.current.emit("get-user-status", clickedUser, (status) => {
+      console.log("User status received:", status);
+      setOnline(status.isOnline);
+      if (!status.isOnline && status.lastSeen) {
+        setLastSeenAt(timeAgo(new Date(status.lastSeen)));
+      } else {
+        setLastSeenAt(null);
+      }
+      
+    })
+  
+
     const handleUserOnline = (userId) => {
        console.log("user-online event received:", userId, clickedUser);
       if (userId === clickedUser) {
@@ -1444,7 +1457,7 @@ const Profile = () => {
                 {online ? (
                   <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
                 ) : (
-                  <div>{lastSeenAt}</div>
+                  <div className="absolute top-27 right-7 text-xs text-gray-500">{lastSeenAt}</div>
                 )}
 
                 <img
