@@ -1457,7 +1457,7 @@ const Profile = () => {
                 {online ? (
                   <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
                 ) : (
-                  <div className="absolute top-27 right-7 text-xs text-gray-500">{lastSeenAt}</div>
+                  <div className="absolute flex justify-center items-center top-27 right-7 sm:top-36 border-2 border-white bg-gray-300 h-5 w-6 md:h-6 md:w-8 rounded-2xl text-xs md:top-35 md:text-sm  text-green-400">{lastSeenAt}</div>
                 )}
 
                 <img
