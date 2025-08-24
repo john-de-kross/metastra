@@ -370,7 +370,7 @@ const Profile = () => {
     axios.get(`https://metastra-server.onrender.com/api/v1/users/check-user-last-seen/${clickedUser}`, { withCredentials: true })
       .then((res) => {
         console.log(res)
-        setLastSeenAt(res.data.data.user)
+        setLastSeenAt(timeAgo(new Date(res.data.data.user)))
     }).catch(err => console.log(err))
   }, [clickedUser])
 
