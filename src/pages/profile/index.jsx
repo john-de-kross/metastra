@@ -370,6 +370,7 @@ const Profile = () => {
     if (!socketRef.current) return;
 
     const handleUserOnline = (userId) => {
+       console.log("user-online event received:", userId, clickedUser);
       if (userId === clickedUser) {
         setOnline(true);
         setLastSeenAt(null);
@@ -377,6 +378,7 @@ const Profile = () => {
     };
 
     const handleUserOffline = ({ userId, lastSeen }) => {
+       console.log("user-offline event received:", userId, clickedUser, lastSeen);
       if (userId === clickedUser) {
         setOnline(false);
         if (lastSeen) {
