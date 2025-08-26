@@ -184,7 +184,7 @@ const Profile = () => {
   //   };
   // }, []);
 
-  //convert timestampto readable time function
+  //convert timestamp to readable time function
   const timeAgo = (date) => {
     const now = new Date();
     const seconds = Math.floor((now - date) / 1000);
@@ -199,13 +199,13 @@ const Profile = () => {
       return `${minute}m`;
     }
 
-    const hour = Math.floor(minute / 60);
+    const hours = Math.floor(minute / 60);
 
-    if (minute < 24) {
-      return `${hour}h`;
+    if (hours < 24) {
+      return `${hours}h`;
     }
 
-    const days = Math.floor(hour / 24);
+    const days = Math.floor(hours / 24);
 
     if (days < 7) {
       return `${days}d`;
@@ -220,7 +220,7 @@ const Profile = () => {
     const month = Math.floor(days / 30);
 
     if (month < 12) {
-      return `${month}m`;
+      return `${month}mo`;
     }
 
     const years = Math.floor(days / 365);
@@ -362,10 +362,10 @@ const Profile = () => {
     }
   };
 
-  //Handle user online
+  
   const [online, setOnline] = useState(false);
   const [lastSeenAt, setLastSeenAt] = useState(null);
-
+  //fetch last seen on component mount
   useEffect(() => {
     axios
       .get(
@@ -374,13 +374,17 @@ const Profile = () => {
       )
       .then((res) => {
         if (res.data.data.user) {
-          console.log(res);
-          setLastSeenAt(timeAgo(new Date(res.data.data.user.lastSeen)));
+          console.log("lastSeen res", res);
+          if (res.data?.data?.user) {
+            const lastSeen = res.data.data.user.lastSeen;
+            setLastSeenAt(lastSeen ? timeAgo(new Date(lastSeen)) : null);
+            
+          } 
         }
       })
       .catch((err) => console.log(err));
   }, [clickedUser]);
-
+  //Handle user online
   useEffect(() => {
     if (!socketRef.current) return;
 
@@ -1477,7 +1481,7 @@ const Profile = () => {
                   <div
                     className={`absolute ${
                       lastSeenAt ? "flex" : "hidden"
-                    } justify-center items-center top-27 right-7 sm:top-36 border-2 border-white bg-gray-300 h-5 w-6 md:h-6 md:w-8 rounded-2xl text-xs md:top-35 md:text-sm  text-green-400`}
+                    } justify-center items-center top-27 right-7 sm:top-36 border-2 border-white bg-gray-300 h-5 w-auto md:h-6  rounded-2xl text-xs md:top-35 md:text-sm text-green-400`}
                   >
                     {lastSeenAt}
                   </div>
