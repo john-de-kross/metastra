@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useUserContext } from "../../context/userContext";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { useState } from "react";
 
 const FriendCard = ({
   id,
@@ -11,8 +12,9 @@ const FriendCard = ({
   primaryButton,
   secondaryButton,
 }) => {
-  const { clickedUser, setClickedUser } = useUserContext();
+  const { clickedUser, setClickedUser,socketRef } = useUserContext();
   const navigate = useNavigate();
+  const [sent, setSent] = useState(false)
 
   const handleProfileLink = (e) => {
     e.preventDefault();
@@ -23,18 +25,35 @@ const FriendCard = ({
   };
 
   const handleFriendRequest = async () => {
+    console.log("sending friend request to:", id);
     try {
       const response = await axios.post(
-        "https://metastra-server.onrender.com/api/v1/users/create-friend-request",
-        id,
+        `https://metastra-server.onrender.com/api/v1/users/create-friend-request/`,
+        { receiverId: id },
         { withCredentials: true }
       );
       console.log("sending friend request to:", id);
       console.log("fr response:", response.data.data);
+      setSent(true)
     } catch (err) {
       console.log(err);
     }
   };
+
+  useEffect(() => { if (socketRef?.current) {
+    const handlefriendRequest = (friendRequest) => {
+      console.log("Received friend request:", friendRequest);
+      setNotifications((prev) => [friendRequest, ...prev]);
+    };
+    
+    socketRef.current.on("friendRequest", handlefriendRequest);
+
+    return () => {
+      socketRef.current.off("friendRequest", handlefriendRequest);
+
+    };
+  }
+}, [socketRef]);
 
   return (
     <div className="bg-white shadow rounded-md p-4 w-full max-w-[220px]">
@@ -47,15 +66,23 @@ const FriendCard = ({
       <h4 className="font-semibold text-sm text-gray-900">{name}</h4>
       <p className="text-xs text-gray-500 mb-3">{mutual} mutual friends</p>
       <div className="gap-2">
-        {primaryButton && (
+       
+          {primaryButton && (
           <button
-            className="bg-blue-600 text-white text-sm px-4 py-1 mb-2 rounded-md hover:bg-blue-700 w-full"
+            className={`text-sm px-4 py-1 mb-2 rounded-md w-full ${
+              sent
+                ? "bg-gray-400 text-white cursor-not-allowed"
+                : "bg-blue-600 text-white hover:bg-blue-700"
+            }`}
             onClick={() => {
-              primaryButton.onClick(id);
-              handleFriendRequest();
+              if (!sent) {
+                primaryButton.onClick(id);
+                handleFriendRequest();
+              }
             }}
+            disabled={sent} // Disable the button if the request is sent
           >
-            {primaryButton.label}
+            {sent ? "Request Sent" : primaryButton.label}
           </button>
         )}
 

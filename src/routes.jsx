@@ -16,6 +16,8 @@ import ServerError from "./components/serverError";
 import Settings from "./pages/settings";
 import FriendsPage from "./pages/friends";
 import FriendRequest from "./components/friendRequest";
+import Notifications from "./components/notification";
+import MobileNotifications from "./components/mobileNotifications";
 // import PostDetail from "./components/postDetail";
 
 const router = createBrowserRouter([
@@ -50,8 +52,7 @@ const router = createBrowserRouter([
       { path: "/menu", element: <MobileMenu /> },
       { path: "/settings", element: <Settings /> },
       { path: "/friends", element: <FriendsPage /> },
-      // {path:"/viewPost", element:<PostDetail/>}
-
+      {path:"/notifications", element:<MobileNotifications/>}
     ],
   },
 ]);
