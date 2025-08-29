@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { FaUserPlus, FaCommentDots, FaThumbsUp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
+import axios from "axios";
 
 const Notifications = ({ open }) => {
-  const [notifications, setNotifications] = useState([]); // State for notifications
+ 
   const [activeTab, setActiveTab] = useState("all");
-  const { socketRef } = useUserContext(); // Access socketRef from context
+  const { socketRef, notifications } = useUserContext(); // Access socketRef from context
 
   // Filter notifications based on the active tab
   const filteredNotifications =
@@ -22,22 +23,13 @@ const Notifications = ({ open }) => {
     (n) => n.type !== "friendRequest"
   );
 
-  // Listen for real-time notifications
+  useEffect(() => {
+    axios.get("https://metastra-server.onrender.com/api/v1/users/get-all-requests", { withCredentials: true }).then((res) => {
+      console.log("Friend requests:", res.data.data)
+    }).catch((err) => console.log(err))
 
-  useEffect(() => { if (socketRef?.current) {
-    const handlefriendRequest = (friendRequest) => {
-      console.log("Received friend request:", friendRequest);
-      setNotifications((prev) => [friendRequest, ...prev]);
-    };
-    
-    socketRef.current.on("friendRequest", handlefriendRequest);
+  }, [])
 
-    return () => {
-      socketRef.current.off("friendRequest", handlefriendRequest);
-
-    };
-  }
-}, [socketRef]);
 
   return (
     <div

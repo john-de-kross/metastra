@@ -1,3 +1,4 @@
+import axios from "axios";
 import React from "react";
 import {
   FaUserFriends,
@@ -13,8 +14,13 @@ import {
   FaChevronRight,
 } from "react-icons/fa";
 import { Link } from "react-router-dom";
+import { useUserContext } from "../../context/userContext";
+import { useNavigate } from "react-router-dom";
 
 const Menu = ({ openMenu, setOpenMenu }) => {
+  const { setIsAuthenticated, setUser } = useUserContext();
+  const navigate = useNavigate();
+
   const menuItems = [
     {
       section: "Shortcuts",
@@ -42,6 +48,19 @@ const Menu = ({ openMenu, setOpenMenu }) => {
     },
   ];
 
+  const handleLogOut = async () => {
+    try {
+      await axios.post("https://metastra-server.onrender.com/api/v1/users/logout", {}, { withCredentials: true })
+      console.log("Logged out successfully");
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate("/")
+    } catch (error) {
+      console.log("Logout failed:", error);
+    }
+
+  }
+
   return (
     <div
       className={`${
@@ -61,6 +80,12 @@ const Menu = ({ openMenu, setOpenMenu }) => {
               <Link
                 to={item.to}
                 key={i}
+                onClick={() => {
+                  if (item.label === 'Log Out') {
+                    handleLogOut()
+                  }
+                }}
+
                 className="flex items-center justify-between hover:bg-gray-100 rounded-lg px-4 py-3 transition"
               >
                 <div className="flex items-center space-x-3">

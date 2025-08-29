@@ -7,6 +7,7 @@ import React, {
 } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
+import toastAlert from "../../components/ALERT";
 
 // Create the context
 const UserContext = createContext({});
@@ -51,6 +52,7 @@ export const UserProvider = ({ children }) => {
   const [coverPic, setCoverPic] = useState(
     "https://i.pinimg.com/736x/2e/13/f8/2e13f818fa7e830e9ff084b97d67aabd.jpg"
   );
+  const [notifications, setNotifications] = useState([]);
   const [bio, setBio] = useState("Living the dream! 🌟");
   const [myData, setMyData] = useState({
     bio: "",
@@ -188,6 +190,8 @@ export const UserProvider = ({ children }) => {
   //   };
   // }, [presentUser]);
 
+  // Listen for real-time notifications
+
   useEffect(() => {
     if (!presentUser) return;
 
@@ -201,6 +205,7 @@ export const UserProvider = ({ children }) => {
       setIsOnline(true)
       
       socketRef.current.emit("register", presentUser);
+      
 
 
       // ✅ Register event listener after connection
@@ -213,9 +218,16 @@ export const UserProvider = ({ children }) => {
         if (data.commenterId === presentUser) return;
         // if (data.user._id === presentUser ) return
         if (data.authorId === presentUser) {
-          alert("💬 Someone commented on your post!");
+          toastAlert.info("Someone commented on your post!");
         }
       };
+      const handleNewRequest = (data) => {
+        toastAlert.info(`${data.sender} sent you a friend request`)
+      }
+
+      socketRef.current.on('newFriendRequest', handleNewRequest);
+
+      
 
       socketRef.current.on("newComment", handleNewComment);
 
@@ -224,11 +236,15 @@ export const UserProvider = ({ children }) => {
         // set online users to false
         setIsOnline(false)
         socketRef.current.off("newComment", handleNewComment);
+        socketRef.current.off("newFriendRequest", handleNewRequest);
       });
     });
 
+    
+
     return () => {
       socketRef.current.disconnect();
+      
     };
   }, [presentUser]);
 
@@ -302,7 +318,9 @@ export const UserProvider = ({ children }) => {
     presentUser,
     setPresentUser,
     isOnline,
-    setIsOnline
+    setIsOnline,
+    notifications,
+    setNotifications,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;

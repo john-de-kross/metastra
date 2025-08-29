@@ -1476,7 +1476,7 @@ const Profile = () => {
             <div className="relative flex flex-col sm:flex-row items-center sm:items-end px-4 sm:px-6 -mt-16 sm:-mt-20 md:-mt-14">
               <div className="relative">
                 {online ? (
-                  <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 z-50 bg-green-500"></div>
+                  <div className="online absolute w-4 h-4 top-27 right-7 sm:h-5 sm:w-5 md:w-5 md:h-5 rounded-full md:top-38 md:right-8 bg-green-500"></div>
                 ) : (
                   <div
                     className={`absolute ${
