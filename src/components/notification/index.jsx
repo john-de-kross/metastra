@@ -5,9 +5,8 @@ import { useUserContext } from "../../context/userContext";
 import axios from "axios";
 
 const Notifications = ({ open }) => {
- 
   const [activeTab, setActiveTab] = useState("all");
-  const { socketRef, notifications } = useUserContext(); // Access socketRef from context
+  const { socketRef, notifications, request, setRequest } = useUserContext(); // Access socketRef from context
 
   // Filter notifications based on the active tab
   const filteredNotifications =
@@ -24,12 +23,17 @@ const Notifications = ({ open }) => {
   );
 
   useEffect(() => {
-    axios.get("https://metastra-server.onrender.com/api/v1/users/get-all-requests", { withCredentials: true }).then((res) => {
-      console.log("Friend requests:", res.data.data)
-    }).catch((err) => console.log(err))
-
-  }, [])
-
+    axios
+      .get(
+        "https://metastra-server.onrender.com/api/v1/users/get-all-requests",
+        { withCredentials: true }
+      )
+      .then((res) => {
+        console.log("Friend requests:", res.data.data);
+        setRequest(res.data.data.requests);
+      })
+      .catch((err) => console.log(err));
+  }, [notifications]);
 
   return (
     <div
@@ -61,27 +65,32 @@ const Notifications = ({ open }) => {
       </div>
 
       {/* Friend Requests Section */}
-      {friendRequests.length > 0 && (
+      {request.length > 0 && (
         <div className="border-b">
           <h3 className="px-4 py-2 text-sm font-semibold text-gray-600">
             Friend Requests
           </h3>
           <div className="max-h-40 overflow-y-auto">
-            {friendRequests.map((n) => (
+            {request.map((n) => (
               <div
                 key={n.id}
-                className="flex items-start p-4 hover:bg-gray-100"
+                className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 bg-gray-100 rounded-lg cursor-pointer mb-2"
               >
-                <div className="mt-1 mr-3">{n.icon}</div>
-                <div className="flex-1">
-                  <p className="text-sm text-gray-800">{n.message}</p>
-                  <span className="text-xs text-gray-400">{n.time}</span>
+                <div className="flex items-center gap-3">
+                  <img
+                    src={n.sender.profilePics}
+                    alt=""
+                    className="h-10 w-10 rounded-full object-cover"
+                  />
+                  <p className="text-sm text-gray-800 capitalize">
+                    {n.sender.firstname} {n.sender.surname}
+                  </p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button className="text-sm px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                  <button className="text-xs px-2 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700">
                     Accept
                   </button>
-                  <button className="text-sm px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
+                  <button className="text-xs px-2 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300">
                     Decline
                   </button>
                 </div>

@@ -42,7 +42,7 @@ export const UserProvider = ({ children }) => {
 
   const [loggedInUser, setLoggedInUser] = useState("");
   const [clickedUser, setClickedUser] = useState("");
-  const [isOnline, setIsOnline] = useState(false)
+  const [isOnline, setIsOnline] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [mail, setMail] = useState("");
   const [user, setUser] = useState(null);
@@ -79,6 +79,7 @@ export const UserProvider = ({ children }) => {
   const [editForm, setEditForm] = useState({ userName, bio, ...about });
   const [otherProfile, setOtherProfile] = useState({});
   const postsDetails = JSON.parse(localStorage.getItem("userDetails"));
+  const [request, setRequest] = useState([]);
 
   const fetchUserAboutData = async () => {
     try {
@@ -202,11 +203,9 @@ export const UserProvider = ({ children }) => {
 
     socketRef.current.on("connect", () => {
       console.log("Socket connected:", socketRef.current.id);
-      setIsOnline(true)
-      
-      socketRef.current.emit("register", presentUser);
-      
+      setIsOnline(true);
 
+      socketRef.current.emit("register", presentUser);
 
       // ✅ Register event listener after connection
       const handleNewComment = (data) => {
@@ -222,29 +221,24 @@ export const UserProvider = ({ children }) => {
         }
       };
       const handleNewRequest = (data) => {
-        toastAlert.info(`${data.sender} sent you a friend request`)
-      }
+        toastAlert.info(`${data.sender} sent you a friend request`);
+      };
 
-      socketRef.current.on('newFriendRequest', handleNewRequest);
-
-      
+      socketRef.current.on("newFriendRequest", handleNewRequest);
 
       socketRef.current.on("newComment", handleNewComment);
 
       // Cleanup
       socketRef.current.on("disconnect", () => {
         // set online users to false
-        setIsOnline(false)
+        setIsOnline(false);
         socketRef.current.off("newComment", handleNewComment);
         socketRef.current.off("newFriendRequest", handleNewRequest);
       });
     });
 
-    
-
     return () => {
       socketRef.current.disconnect();
-      
     };
   }, [presentUser]);
 
@@ -321,6 +315,8 @@ export const UserProvider = ({ children }) => {
     setIsOnline,
     notifications,
     setNotifications,
+    request,
+    setRequest,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
