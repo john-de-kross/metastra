@@ -17,6 +17,7 @@ import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
 import Menu from "../../components/menu";
 import Notifications from "../../components/notification";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   // Mock notification counts
@@ -26,6 +27,7 @@ const Navbar = () => {
   const [openMenu, setOpenMenu] = useState(false);
   const [openNotifications, setOpenNotifications] = useState(false);
   const { profilePic } = useUserContext();
+  const navigate = useNavigate();
 
   const handleNotification = () => {
     setOpenNotifications(!openNotifications), setOpenMenu(false);
@@ -116,7 +118,12 @@ const Navbar = () => {
                 <Menu openMenu={openMenu} setOpenMenu={setOpenMenu} />
               </div>
 
-              <button className="p-2 rounded-full bg-gray-100 relative">
+              <button
+                className="p-2 rounded-full bg-gray-100 relative"
+                onClick={() => {
+                  navigate("/chat");
+                }}
+              >
                 <FaFacebookMessenger className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
                 {messages > 0 && (
                   <span className="absolute top-0 right-0 bg-red-500 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
@@ -190,7 +197,7 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <Link to="/menu" className="p-2">
+          <Link to="/chat" className="p-2">
             <FaFacebookMessenger className="w-7 h-7 text-gray-600 hover:text-[#0866FF]" />
           </Link>
         </div>

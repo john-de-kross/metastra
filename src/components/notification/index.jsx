@@ -3,11 +3,14 @@ import { FaUserPlus, FaCommentDots, FaThumbsUp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Notifications = ({ open }) => {
   const [activeTab, setActiveTab] = useState("all");
-  const { socketRef, notifications, request, setRequest } = useUserContext(); // Access socketRef from context
+  const { socketRef, notifications, request, setRequest, setClickedUser } =
+    useUserContext(); // Access socketRef from context
 
+  const navigate = useNavigate();
   // Filter notifications based on the active tab
   const filteredNotifications =
     activeTab === "unread"
@@ -34,6 +37,14 @@ const Notifications = ({ open }) => {
       })
       .catch((err) => console.log(err));
   }, [notifications]);
+
+  const handleProfileLink = (e) => {
+    e.preventDefault();
+    setClickedUser(id);
+    localStorage.setItem("userId", id);
+    navigate(`/profile`);
+    console.log(`Navigating to ${id}'s profile`);
+  };
 
   return (
     <div
@@ -74,6 +85,16 @@ const Notifications = ({ open }) => {
             {request.map((n) => (
               <div
                 key={n.id}
+                onClick={() => {
+                  setClickedUser(n.sender._id);
+                  localStorage.setItem("userId", n.sender._id);
+                  console.log(
+                    "Navigating to profile of:",
+                    n.sender._id,
+                    n.sender.firstname
+                  );
+                  navigate(`/profile`);
+                }}
                 className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 bg-gray-100 rounded-lg cursor-pointer mb-2"
               >
                 <div className="flex items-center gap-3">

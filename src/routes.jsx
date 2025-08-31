@@ -18,6 +18,7 @@ import FriendsPage from "./pages/friends";
 import FriendRequest from "./components/friendRequest";
 import Notifications from "./components/notification";
 import MobileNotifications from "./components/mobileNotifications";
+import Chat from "./pages/chat";
 // import PostDetail from "./components/postDetail";
 
 const router = createBrowserRouter([
@@ -52,7 +53,8 @@ const router = createBrowserRouter([
       { path: "/menu", element: <MobileMenu /> },
       { path: "/settings", element: <Settings /> },
       { path: "/friends", element: <FriendsPage /> },
-      {path:"/notifications", element:<MobileNotifications/>}
+      { path: "/notifications", element: <MobileNotifications /> },
+      { path: "/chat", element: <Chat /> },
     ],
   },
 ]);
