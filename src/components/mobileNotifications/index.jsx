@@ -3,11 +3,13 @@ import { Link } from "react-router-dom";
 import { useUserContext } from "../../context/userContext";
 import Navbar from "../navBar";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const MobileNotifications = () => {
   const [activeTab, setActiveTab] = useState("all");
   const [notifications, setNotifications] = useState([]);
-  const { request, setRequest } = useUserContext();
+  const { request, setRequest, setClickedUser } = useUserContext();
+  const navigate = useNavigate();
 
   const filteredNotifications =
     activeTab === "unread"
@@ -76,6 +78,16 @@ const MobileNotifications = () => {
                 <div
                   key={n.id}
                   className="flex items-center justify-between px-4 py-3 hover:bg-gray-50 bg-gray-100 rounded-lg cursor-pointer mb-2"
+                  onClick={() => {
+                    setClickedUser(n.sender._id);
+                    localStorage.setItem("userId", n.sender._id);
+                    console.log(
+                      "Navigating to profile of:",
+                      n.sender._id,
+                      n.sender.firstname
+                    );
+                    navigate(`/profile`);
+                  }}
                 >
                   <div className="flex items-center gap-3">
                     <img

@@ -28,6 +28,8 @@ const Chat = () => {
     },
   ];
 
+  
+
   return (
     <div className="h-screen flex flex-col">
       {/* Fixed Navbar */}

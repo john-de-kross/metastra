@@ -362,7 +362,6 @@ const Profile = () => {
     }
   };
 
-  
   const [online, setOnline] = useState(false);
   const [lastSeenAt, setLastSeenAt] = useState(null);
   //fetch last seen on component mount
@@ -378,8 +377,7 @@ const Profile = () => {
           if (res.data?.data?.user) {
             const lastSeen = res.data.data.user.lastSeen;
             setLastSeenAt(lastSeen ? timeAgo(new Date(lastSeen)) : null);
-            
-          } 
+          }
         }
       })
       .catch((err) => console.log(err));
@@ -474,6 +472,29 @@ const Profile = () => {
       console.log(error);
     }
   };
+
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    const handleFriendRequest = async () => {
+      const userId = localStorage.getItem("userId");
+      console.log("fetching friend status for:", userId);
+      try {
+        const resp = await axios.get(
+          `https://metastra-server.onrender.com/api/v1/users/get-friend-status/${userId}`,
+          { withCredentials: true }
+        );
+        console.log("friend status:", resp.data);
+        setStatus(resp.data.data.status);
+        console.log("Friend status fetched:", resp.data.data.status);
+      } catch (err) {
+        console.log(err);
+
+        console.log("No friend request or friendship found");
+      }
+    };
+    handleFriendRequest();
+  }, [clickedUser]);
 
   useEffect(() => {
     const handleOtherUserProfile = async () => {
@@ -1519,7 +1540,8 @@ const Profile = () => {
                 )}
               </div>
               <div className="mt-4 sm:mt-0 sm:ml-6 text-center sm:text-left">
-                {logged === userId ? (
+                {/* Changes added temporarily */}
+                {/* {logged === userId ? (
                   <div>
                     <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
                       {userName}
@@ -1569,9 +1591,89 @@ const Profile = () => {
                   </div>
                 ) : (
                   <div>
-                    {/* <h1 className="text-2xl font-bold text-gray-400">
+                    <h1 className="text-2xl font-bold text-gray-400">
                     <Loader />
-                  </h1> */}
+                  </h1>
+                  </div>
+                )} */}
+
+                {logged !== userId ? (
+                  <div>
+                    <div>
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                        {`${otherProfile.profile.firstname} ${otherProfile.profile.surname}`}
+                      </h1>
+                      <p className="text-gray-600">
+                        {otherProfile.about?.bio || ""}
+                      </p>
+                    </div>
+                    <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                      {status === "respond_request" ? (
+                        <div className="flex gap-2">
+                          <button
+                            className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
+                            // onClick={handleAcceptRequest}
+                          >
+                            Accept
+                          </button>
+                          <button
+                            className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                            // onClick={handleDeclineRequest}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      ) : status === "Cancel Request" ? (
+                        <button
+                          className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                          // onClick={handleCancelRequest}
+                        >
+                          Cancel Request
+                        </button>
+                      ) : (
+                        <button
+                          className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
+                          // onClick={handleSendRequest}
+                        >
+                          Add Friend
+                        </button>
+                      )}
+                      {status === "friends" && (
+                        <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
+                          Message
+                        </button>
+                      )}
+                      <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                        ...
+                      </button>
+                    </div>{" "}
+                  </div>
+                ) : (
+                  <div>
+                    <div>
+                      <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
+                        {userName}
+                      </h1>
+                      <p className="text-gray-600">{myData.bio}</p>
+                      <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                        <button
+                          className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base"
+                          aria-label="Add to story"
+                        >
+                          <AiOutlinePlus />
+                          <p>Add to Story</p>
+                        </button>
+                        <button
+                          className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
+                          onClick={handleEditOpen}
+                        >
+                          Edit Profile
+                        </button>
+                        <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
+                          ...
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
