@@ -474,6 +474,7 @@ const Profile = () => {
   };
 
   const [status, setStatus] = useState("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     const handleFriendRequest = async () => {
@@ -530,6 +531,22 @@ const Profile = () => {
 
   const handleLike = () => {
     setLiked(!liked);
+  };
+
+  const handleFriendRequest = async () => {
+    console.log("sending friend request to:", userId);
+    try {
+      const response = await axios.post(
+        `https://metastra-server.onrender.com/api/v1/users/create-friend-request/`,
+        { receiverId: userId },
+        { withCredentials: true }
+      );
+      console.log("sending friend request to:", userId);
+      console.log("fr response:", response.data.data);
+      setSent(true);
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   const handleDeletePost = async (id) => {
@@ -1607,7 +1624,7 @@ const Profile = () => {
                         {otherProfile?.about?.bio || ""}
                       </p>
                     </div>
-                    <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
+                    <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg justify-center">
                       {status === "respond_request" ? (
                         <div className="flex gap-2">
                           <button
@@ -1633,9 +1650,10 @@ const Profile = () => {
                       ) : (
                         <button
                           className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
-                          // onClick={handleSendRequest}
+                          onClick={handleFriendRequest}
+                          disabled={sent}
                         >
-                          Add Friend
+                          {sent ? "Request Sent" : "Add friend"}
                         </button>
                       )}
                       {status === "friends" && (
