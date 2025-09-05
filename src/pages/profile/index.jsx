@@ -1601,10 +1601,10 @@ const Profile = () => {
                   <div>
                     <div>
                       <h1 className="text-2xl sm:text-3xl md:text-4xl capitalize font-bold text-gray-800">
-                        {`${otherProfile.profile.firstname} ${otherProfile.profile.surname}`}
+                        {`${otherProfile?.profile?.firstname} ${otherProfile?.profile?.surname}`}
                       </h1>
                       <p className="text-gray-600">
-                        {otherProfile.about?.bio || ""}
+                        {otherProfile?.about?.bio || ""}
                       </p>
                     </div>
                     <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg">
