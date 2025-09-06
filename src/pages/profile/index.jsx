@@ -549,6 +549,23 @@ const Profile = () => {
     }
   };
 
+  const [statusUpdate, setStatusUpdate] = useState("");
+  const handleRequest = async () => {
+    try {
+      const resp = await axios.post(
+        `https://metastra-server.onrender.com/api/v1/users/accept-reject-request`,
+        { userId: userId, status: statusUpdate },
+        { withCredentials: true }
+      );
+
+      console.log("id", userId);
+      console.log("status update: ", statusUpdate);
+      console.log(resp);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   const handleDeletePost = async (id) => {
     console.log("Deleting post with ID:", id);
     try {
@@ -1625,46 +1642,66 @@ const Profile = () => {
                       </p>
                     </div>
                     <div className="mt-2 flex flex-row sm:flex-row gap-2 text-lg justify-center">
-                      {status === "respond_request" ? (
+                      {status === "respond_request" && (
                         <div className="flex gap-2">
                           <button
                             className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
-                            // onClick={handleAcceptRequest}
+                            onClick={() => {
+                              setStatusUpdate("Accepted");
+                              handleRequest();
+                            }}
                           >
                             Accept
                           </button>
                           <button
                             className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
-                            // onClick={handleDeclineRequest}
+                            onClick={() => {
+                              setStatusUpdate("Declined");
+                              handleRequest();
+                            }}
                           >
                             Delete
                           </button>
                         </div>
-                      ) : status === "Cancel Request" ? (
+                      )}
+                      {status === "Cancel Request" && (
                         <button
                           className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base"
-                          // onClick={handleCancelRequest}
+                          onClick={() => {
+                            setStatusUpdate("Declined");
+                            console.log(statusUpdate);
+                            handleRequest();
+                          }}
                         >
                           Cancel Request
                         </button>
-                      ) : (
-                        <button
-                          className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
-                          onClick={handleFriendRequest}
-                          disabled={sent}
-                        >
-                          {sent ? "Request Sent" : "Add friend"}
-                        </button>
                       )}
-                      {status === "friends" && (
-                        <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
-                          Message
-                        </button>
+                      {status === "Friends" && (
+                        <div className="flex gap-2">
+                          <button className="bg-fb-blue text-white px-5 py-2 rounded-md hover:bg-gray-300 bg-blue-700 font-semibold text-base">
+                            friends
+                          </button>
+                          <button className="bg-fb-blue flex items-center text-white px-5 py-2 rounded-md bg-blue-700 font-semibold text-base">
+                            Message
+                          </button>
+                        </div>
                       )}
+                      {/* Show Add Friend only if not sent, not pending, not friends, not respond_request */}
+                      {status !== "respond_request" &&
+                        status !== "Cancel Request" &&
+                        status !== "Friends" && (
+                          <button
+                            className="bg-blue-500 text-white px-5 py-2 rounded-md hover:bg-blue-600 font-semibold text-base"
+                            onClick={handleFriendRequest}
+                            disabled={sent}
+                          >
+                            {sent ? "Request Sent" : "Add friend"}
+                          </button>
+                        )}
                       <button className="bg-gray-200 text-gray-800 px-5 py-2 rounded-md hover:bg-gray-300 font-semibold text-base">
                         ...
                       </button>
-                    </div>{" "}
+                    </div>
                   </div>
                 ) : (
                   <div>
