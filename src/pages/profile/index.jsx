@@ -134,13 +134,13 @@ const Profile = () => {
     imageUrl: "",
   });
 
-  // Placeholder data
-  const friends = [
-    { id: 1, name: "Jane Smith", pic: dp },
-    { id: 2, name: "Mike Johnson", pic: dp },
-    { id: 3, name: "Sarah Lee", pic: dp },
-    { id: 4, name: "Tom Brown", pic: dp },
-  ];
+  // // Placeholder data
+  // const friends = [
+  //   { id: 1, name: "Jane Smith", pic: dp },
+  //   { id: 2, name: "Mike Johnson", pic: dp },
+  //   { id: 3, name: "Sarah Lee", pic: dp },
+  //   { id: 4, name: "Tom Brown", pic: dp },
+  // ];
   const lifeEvents = [
     { year: 2023, event: "Started working at Tech Corp" },
     { year: 2020, event: "Graduated from XYZ University" },
@@ -519,6 +519,28 @@ const Profile = () => {
     handleOtherUserProfile();
   }, [clickedUser]);
 
+  useEffect(() => {
+    const fetchFriends = async () => {
+      try {
+        const resp = await axios.get(
+          "https://metastra-server.onrender.com/api/v1/users/get-all-friends",
+          { withCredentials: true }
+        );
+        console.log("friends:", resp.data.data.friendList);
+
+        localStorage.setItem(
+          "friends",
+          JSON.stringify(resp.data.data.friendList)
+        );
+
+        console.log("ls friends", friends);
+      } catch (err) {}
+    };
+    fetchFriends();
+  }, []);
+
+  const friends = JSON.parse(localStorage.getItem("friends")) || [];
+
   const handleEditCancel = () => setIsEditing(false);
   const [openOptions, setOpenOptions] = useState(null);
 
@@ -566,6 +588,26 @@ const Profile = () => {
     }
   };
 
+  const handleProfileLink = (id) => {
+    // Don't navigate if clicking on the same profile
+    if (id === loggedInUser || id === clickedUser) return;
+
+    try {
+      // Update state and localStorage
+      setClickedUser(id);
+      localStorage.setItem("userId", id);
+
+      // Navigate to profile page
+      navigate(`/profile`);
+
+      // Optionally log for debugging
+      console.log(`Navigating to profile: ${id}`);
+    } catch (error) {
+      console.error("Error navigating to profile:", error);
+      toastAlert.error("Could not load profile");
+    }
+  };
+
   const handleDeletePost = async (id) => {
     console.log("Deleting post with ID:", id);
     try {
@@ -588,6 +630,7 @@ const Profile = () => {
     }
   };
   // Render tab content
+  //owner profile
   const renderContent = () => {
     switch (activeTab) {
       case "Timeline":
@@ -932,16 +975,31 @@ const Profile = () => {
               Friends ({friends.length})
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {friends.map((friend) => (
-                <div key={friend.id} className="text-center">
-                  <img
-                    src={friend.pic}
-                    alt={friend.name}
-                    className="w-full h-32 rounded-md object-cover"
-                  />
-                  <p className="mt-2 font-semibold">{friend.name}</p>
-                </div>
-              ))}
+              {friends && friends.length > 0 ? (
+                friends.map((friend) => (
+                  <div
+                    onClick={() => {
+                      handleProfileLink(friend._id);
+                    }}
+                    key={friend._id}
+                    className="text-center bg-gray-100 p-2 rounded-lg"
+                  >
+                    <div className="flex items-center justify-center">
+                      <img
+                        src={friend.profilePics}
+                        alt={friend.name}
+                        className="w-20 h-20 rounded-full object-cover "
+                      />
+                    </div>
+
+                    <p className="mt-2 capitalize font-bold">{`${friend.firstname} ${friend.surname} `}</p>
+                  </div>
+                ))
+              ) : (
+                <p className="col-span-3 text-center text-gray-400">
+                  No friends to show.
+                </p>
+              )}
             </div>
           </div>
         );
@@ -983,6 +1041,7 @@ const Profile = () => {
     }
   };
 
+  //friend profile
   const renderContentt = () => {
     switch (activeTabb) {
       case "Posts":
@@ -1000,7 +1059,7 @@ const Profile = () => {
                       className="text-center flex flex-col justify-center items-center"
                     >
                       <img
-                        src={friend.pic}
+                        src={friend.profilePics}
                         alt={friend.name}
                         className="w-20 h-20 rounded-md object-cover"
                       />
@@ -1273,15 +1332,24 @@ const Profile = () => {
               Friends ({userDetails?.friends?.length || 0})
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-              {userDetails?.friends && userDetails.friends.length > 0 ? (
-                userDetails.friends.map((friend) => (
-                  <div key={friend.id} className="text-center">
-                    <img
-                      src={friend.pic}
-                      alt={friend.name}
-                      className="w-full h-32 rounded-md object-cover"
-                    />
-                    <p className="mt-2 font-semibold">{friend.name}</p>
+              {friends && friends.length > 0 ? (
+                friends.map((friend) => (
+                  <div
+                    onClick={() => {
+                      handleProfileLink(friend._id);
+                    }}
+                    key={friend._id}
+                    className="text-center bg-gray-100 p-2 rounded-lg"
+                  >
+                    <div className="flex items-center justify-center">
+                      <img
+                        src={friend.profilePics}
+                        alt={friend.name}
+                        className="w-20 h-20 rounded-full object-cover "
+                      />
+                    </div>
+
+                    <p className="mt-2 capitalize font-bold">{`${friend.firstname} ${friend.surname} `}</p>
                   </div>
                 ))
               ) : (
