@@ -519,23 +519,29 @@ const Profile = () => {
     handleOtherUserProfile();
   }, [clickedUser]);
 
+  const fetchFriends = async () => {
+    try {
+      const userId = localStorage.getItem("userId");
+      console.log(`getting friends for`, userId);
+      const resp = await axios.get(
+        `https://metastra-server.onrender.com/api/v1/users/get-all-friends/${userId}`,
+        { withCredentials: true }
+      );
+
+      localStorage.setItem(
+        "friends",
+        JSON.stringify(resp.data.data.friendList)
+      );
+      console.log({
+        rawFromAPI: resp.data.data.friendList,
+        fromStorage: JSON.parse(localStorage.getItem("friends")),
+      });
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const resp = await axios.get(
-          "https://metastra-server.onrender.com/api/v1/users/get-all-friends",
-          { withCredentials: true }
-        );
-        console.log("friends:", resp.data.data.friendList);
-
-        localStorage.setItem(
-          "friends",
-          JSON.stringify(resp.data.data.friendList)
-        );
-
-        console.log("ls friends", friends);
-      } catch (err) {}
-    };
     fetchFriends();
   }, []);
 
@@ -572,23 +578,40 @@ const Profile = () => {
   };
 
   const [statusUpdate, setStatusUpdate] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const handleRequest = async () => {
+    if (!statusUpdate || !userId) return;
+    setIsProcessing(true);
     try {
+      console.log("status and userId:", statusUpdate, userId);
       const resp = await axios.post(
         `https://metastra-server.onrender.com/api/v1/users/accept-reject-request`,
         { userId: userId, status: statusUpdate },
         { withCredentials: true }
       );
 
-      console.log("id", userId);
-      console.log("status update: ", statusUpdate);
-      console.log(resp);
+      if (resp.data.success) {
+        // Update local status based on response
+        if (statusUpdate === "Accepted") {
+          setStatus("Friends");
+          toastAlert.success("Friend request accepted!");
+        } else if (statusUpdate === "Declined") {
+          setStatus("");
+          toastAlert.info("Friend request declined");
+        }
+
+        await fetchFriends();
+        console.log("id", userId);
+        console.log("status update: ", statusUpdate);
+        console.log(resp);
+      }
     } catch (err) {
       console.log(err);
     }
   };
 
-  const handleProfileLink = (id) => {
+  const handleProfileLink = async (id) => {
     // Don't navigate if clicking on the same profile
     if (id === loggedInUser || id === clickedUser) return;
 
@@ -597,6 +620,14 @@ const Profile = () => {
       setClickedUser(id);
       localStorage.setItem("userId", id);
 
+      const resp = await axios.get(
+        `https://metastra-server.onrender.com/api/v1/users/get-all-friends/${id}`,
+        { withCredentials: true }
+      );
+      localStorage.setItem(
+        "friends",
+        JSON.stringify(resp.data.data.friendList)
+      );
       // Navigate to profile page
       navigate(`/profile`);
 
@@ -1329,7 +1360,7 @@ const Profile = () => {
         return (
           <div className="bg-white p-4 shadow rounded-lg ">
             <h2 className="text-xl font-semibold mb-4 ">
-              Friends ({userDetails?.friends?.length || 0})
+              Friends ({friends?.length || 0})
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
               {friends && friends.length > 0 ? (
