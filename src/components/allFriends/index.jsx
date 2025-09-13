@@ -1,33 +1,43 @@
 import React from "react";
-
-const friends = JSON.parse(localStorage.getItem("friends")) || [];
-
-const handleProfileLink = async (id) => {
-  // Don't navigate if clicking on the same profile
-  if (id === loggedInUser || id === clickedUser) return;
-
-  try {
-    // Update state and localStorage
-    setClickedUser(id);
-    localStorage.setItem("userId", id);
-
-    const resp = await axios.get(
-      `https://metastra-server.onrender.com/api/v1/users/get-all-friends/${id}`,
-      { withCredentials: true }
-    );
-    localStorage.setItem("friends", JSON.stringify(resp.data.data.friendList));
-    // Navigate to profile page
-    navigate(`/profile`);
-
-    // Optionally log for debugging
-    console.log(`Navigating to profile: ${id}`);
-  } catch (error) {
-    console.error("Error navigating to profile:", error);
-    toastAlert.error("Could not load profile");
-  }
-};
+import { useUserContext } from "../../context/userContext";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const AllFriends = () => {
+  const friends = JSON.parse(localStorage.getItem("friends")) || [];
+
+  const { loggedInUser, clickedUser, setClickedUser } = useUserContext();
+
+  const navigate = useNavigate();
+  const handleProfileLink = async (id) => {
+    // Don't navigate if clicking on the same profile
+    console.log("Clicked user ID:", id);
+    console.log("Logged in user ID:", loggedInUser);
+    if (id === loggedInUser || id === clickedUser) return;
+
+    try {
+      // Update state and localStorage
+      setClickedUser(id);
+      localStorage.setItem("userId", id);
+
+      const resp = await axios.get(
+        `https://metastra-server.onrender.com/api/v1/users/get-all-friends/${id}`,
+        { withCredentials: true }
+      );
+      localStorage.setItem(
+        "friends",
+        JSON.stringify(resp.data.data.friendList)
+      );
+      // Navigate to profile page
+      navigate(`/profile`);
+
+      // Optionally log for debugging
+      console.log(`Navigating to profile: ${id}`);
+    } catch (error) {
+      console.error("Error navigating to profile:", error);
+      toastAlert.error("Could not load profile");
+    }
+  };
   return (
     <div className="">
       <h2 className="text-xl font-semibold mb-4">
