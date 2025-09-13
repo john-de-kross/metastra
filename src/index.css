@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 body {
-  font-family: "Roboto", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-family: "Roboto Condensed", sans-serif;
 }
 
 /* Facebook-style scrollbar */
@@ -32,4 +32,3 @@ body {
 .scrollbar-fb:hover::-webkit-scrollbar-thumb:hover {
   background-color: rgba(0, 0, 0, 0.4);
 }
-

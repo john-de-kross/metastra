@@ -1,75 +1,64 @@
 import React from "react";
 
-// Mock friend data
-const friends = [
-  {
-    name: "Sarah James",
-    mutual: 12,
-    image: "https://randomuser.me/api/portraits/women/11.jpg",
-  },
-  {
-    name: "Mark Vane",
-    mutual: 8,
-    image: "https://randomuser.me/api/portraits/men/12.jpg",
-  },
-  {
-    name: "Emily Chen",
-    mutual: 5,
-    image: "https://randomuser.me/api/portraits/women/13.jpg",
-  },
-  {
-    name: "Fiona Bell",
-    mutual: 10,
-    image: "https://randomuser.me/api/portraits/women/14.jpg",
-  },
-  {
-    name: "Daniel Stone",
-    mutual: 6,
-    image: "https://randomuser.me/api/portraits/men/15.jpg",
-  },
-  {
-    name: "Lina Park",
-    mutual: 3,
-    image: "https://randomuser.me/api/portraits/women/16.jpg",
-  },
-  {
-    name: "George Smith",
-    mutual: 7,
-    image: "https://randomuser.me/api/portraits/men/17.jpg",
-  },
-  {
-    name: "Maria Gomez",
-    mutual: 9,
-    image: "https://randomuser.me/api/portraits/women/18.jpg",
-  },
-];
+const friends = JSON.parse(localStorage.getItem("friends")) || [];
+
+const handleProfileLink = async (id) => {
+  // Don't navigate if clicking on the same profile
+  if (id === loggedInUser || id === clickedUser) return;
+
+  try {
+    // Update state and localStorage
+    setClickedUser(id);
+    localStorage.setItem("userId", id);
+
+    const resp = await axios.get(
+      `https://metastra-server.onrender.com/api/v1/users/get-all-friends/${id}`,
+      { withCredentials: true }
+    );
+    localStorage.setItem("friends", JSON.stringify(resp.data.data.friendList));
+    // Navigate to profile page
+    navigate(`/profile`);
+
+    // Optionally log for debugging
+    console.log(`Navigating to profile: ${id}`);
+  } catch (error) {
+    console.error("Error navigating to profile:", error);
+    toastAlert.error("Could not load profile");
+  }
+};
 
 const AllFriends = () => {
   return (
     <div className="">
-      <h2 className="text-xl font-semibold mb-4">All Friends</h2>
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {friends.map((friend, index) => (
-          <div
-            key={index}
-            className="bg-white rounded-lg shadow p-4 text-center hover:shadow-md transition"
-          >
-            <img
-              src={friend.image}
-              alt={friend.name}
-              className="w-full h-40 object-cover rounded-md mb-3"
-            />
-            <h3 className="text-sm font-semibold text-gray-800 mb-1">
-              {friend.name}
-            </h3>
-            <p className="text-xs text-gray-500 mb-2">
-              {friend.mutual} mutual friends
-            </p>
-            <button className="text-sm text-blue-600 hover:underline">
-              View Profile
-            </button>
-          </div>
-        ))}
+      <h2 className="text-xl font-semibold mb-4">
+        Friends{` (${friends.length})`}
+      </h2>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+        {friends && friends.length > 0 ? (
+          friends.map((friend) => (
+            <div
+              onClick={() => {
+                handleProfileLink(friend._id);
+              }}
+              key={friend._id}
+              className="text-center bg-white py-4 px-0 rounded-lg"
+            >
+              <div className="flex items-center justify-center">
+                <img
+                  src={friend.profilePics}
+                  alt={friend.name}
+                  className="w-20 h-20 rounded-full object-cover "
+                />
+              </div>
+
+              <p className="mt-2 capitalize font-bold">{`${friend.firstname} ${friend.surname} `}</p>
+            </div>
+          ))
+        ) : (
+          <p className="col-span-3 text-center text-gray-400">
+            No friends to show.
+          </p>
+        )}
       </div>
     </div>
   );

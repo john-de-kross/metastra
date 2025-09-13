@@ -102,7 +102,23 @@ const MobileMenu = () => {
   ];
   const logged = localStorage.getItem("loggedInUser");
   const userId = localStorage.getItem("userId");
-  const { userName } = useUserContext();
+  const { userName, setUser } = useUserContext();
+
+  const handleLogOut = async () => {
+    try {
+      await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/logout",
+        {},
+        { withCredentials: true }
+      );
+      console.log("Logged out successfully");
+      setUser(null);
+      setIsAuthenticated(false);
+      navigate("/");
+    } catch (error) {
+      console.log("Logout failed:", error);
+    }
+  };
 
   return (
     <div className="lg:hidden">
@@ -139,6 +155,11 @@ const MobileMenu = () => {
                   key={i}
                   className="flex items-center justify-between hover:bg-gray-100 rounded-lg px-4 py-3 transition"
                   aria-label={item.ariaLabel}
+                  onClick={() => {
+                    if (item.label === "Log Out") {
+                      handleLogOut();
+                    }
+                  }}
                 >
                   <div className="flex items-center space-x-3">
                     <div className="text-[#0866FF] text-xl">{item.icon}</div>
