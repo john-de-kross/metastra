@@ -11,7 +11,7 @@ import MobileMenu from "./pages/mobileMenu";
 import EmailedPassword from "./components/enterPasswordEmail";
 import PasswordOtp from "./components/passwordOtp";
 import RedirctRouteAuth from "./components/REDIRECTROUTEAUTH";
-import NetworkError from "./components/ERRORPAGE/network";
+// import NetworkError from "./components/ERRORPAGE/network";
 import ServerError from "./components/serverError";
 import Settings from "./pages/settings";
 import FriendsPage from "./pages/friends";
@@ -19,43 +19,41 @@ import FriendRequest from "./components/friendRequest";
 import Notifications from "./components/notification";
 import MobileNotifications from "./components/mobileNotifications";
 import Chat from "./pages/chat";
+import ErrorPage from "./pages/errorPage";
 // import PostDetail from "./components/postDetail";
 
 const router = createBrowserRouter([
   {
-    path: "/",
-    element: (
-      <RedirctRouteAuth>
-        <Login />
-      </RedirctRouteAuth>
-    ),
-  },
-
-  { path: "/signup", element: <SignUp /> },
-
-  { path: "/network-error", element: <NetworkError /> },
-
-  { path: "/error", element: <ServerError /> },
-
-  { path: "/verify", element: <OTPPage /> },
-
-  { path: "/enteremail", element: <EmailedPassword /> },
-
-  { path: "/changepassword", element: <ChangePassword /> },
-
-  { path: "/passwordverify", element: <PasswordOtp /> },
-
-  {
-    element: <ProtectedRoutes />,
+    errorElement: <ErrorPage />,
     children: [
-      { path: "/home", element: <Home /> },
-      { path: "/profile", element: <Profile /> },
-      { path: "/menu", element: <MobileMenu /> },
-      { path: "/settings", element: <Settings /> },
-      { path: "/friends", element: <FriendsPage /> },
-      { path: "/notifications", element: <MobileNotifications /> },
-      { path: "/chat", element: <Chat /> },
+      {
+        path: "/",
+        element: (
+          <RedirctRouteAuth>
+            <Login />
+          </RedirctRouteAuth>
+        ),
+      },
+      { path: "/signup", element: <SignUp /> },
+      { path: "/error", element: <ServerError /> },
+      { path: "/verify", element: <OTPPage /> },
+      { path: "/enteremail", element: <EmailedPassword /> },
+      { path: "/changepassword", element: <ChangePassword /> },
+      { path: "/passwordverify", element: <PasswordOtp /> },
+      {
+        element: <ProtectedRoutes />,
+        children: [
+          { path: "/home", element: <Home /> },
+          { path: "/profile", element: <Profile /> },
+          { path: "/menu", element: <MobileMenu /> },
+          { path: "/settings", element: <Settings /> },
+          { path: "/friends", element: <FriendsPage /> },
+          { path: "/notifications", element: <MobileNotifications /> },
+          { path: "/chat", element: <Chat /> },
+        ],
+      },
     ],
   },
 ]);
+
 export default router;
