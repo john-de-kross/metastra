@@ -81,6 +81,8 @@ export const UserProvider = ({ children }) => {
   const postsDetails = JSON.parse(localStorage.getItem("userDetails"));
   const [request, setRequest] = useState([]);
 
+  const [chatActive, setChatActive] = useState(false);
+
   const fetchUserAboutData = async () => {
     try {
       const response = await axios.get(
@@ -317,6 +319,8 @@ export const UserProvider = ({ children }) => {
     setNotifications,
     request,
     setRequest,
+    chatActive,
+    setChatActive,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
