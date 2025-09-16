@@ -133,7 +133,7 @@ const Navbar = () => {
                     </span>
                   )}
                 </button>
-                <Chat/>
+                <Chat />
               </div>
 
               <div>
