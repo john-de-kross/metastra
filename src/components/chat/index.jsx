@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import ChatWindow from "../ChatWindow";
+import ChatWindow from "../chatWindow";
 import { useUserContext } from "../../context/userContext";
 
 const Chat = () => {
