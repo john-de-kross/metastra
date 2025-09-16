@@ -36,7 +36,9 @@ const Menu = ({ openMenu, setOpenMenu }) => {
     },
     {
       section: "Help & Support",
-      items: [{ icon: <FaQuestionCircle />, label: "Help Center", to: "/help" }],
+      items: [
+        { icon: <FaQuestionCircle />, label: "Help Center", to: "/help" },
+      ],
     },
     {
       section: "Settings & Privacy",
@@ -44,22 +46,25 @@ const Menu = ({ openMenu, setOpenMenu }) => {
     },
     {
       section: "Account",
-      items: [{ icon: <FaSignOutAlt />, label: "Log Out", to: "/logout" }],
+      items: [{ icon: <FaSignOutAlt />, label: "Log Out", to: "/" }],
     },
   ];
 
   const handleLogOut = async () => {
     try {
-      await axios.post("https://metastra-server.onrender.com/api/v1/users/logout", {}, { withCredentials: true })
+      await axios.post(
+        "https://metastra-server.onrender.com/api/v1/users/logout",
+        {},
+        { withCredentials: true }
+      );
       console.log("Logged out successfully");
       setUser(null);
       setIsAuthenticated(false);
-      navigate("/")
+      navigate("/");
     } catch (error) {
       console.log("Logout failed:", error);
     }
-
-  }
+  };
 
   return (
     <div
@@ -81,11 +86,10 @@ const Menu = ({ openMenu, setOpenMenu }) => {
                 to={item.to}
                 key={i}
                 onClick={() => {
-                  if (item.label === 'Log Out') {
-                    handleLogOut()
+                  if (item.label === "Log Out") {
+                    handleLogOut();
                   }
                 }}
-
                 className="flex items-center justify-between hover:bg-gray-100 rounded-lg px-4 py-3 transition"
               >
                 <div className="flex items-center space-x-3">
