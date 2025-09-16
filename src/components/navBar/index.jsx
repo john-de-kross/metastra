@@ -102,7 +102,7 @@ const Navbar = () => {
               </div>
             </div>
 
-            {/* Right - Menu, Messenger, Notifications, Profile */}
+            {/* Right - Menu, Messenger, Notifications, Profile sj*/}
             <div className="flex items-center relative z-50 space-x-2">
               <div className="relative">
                 <button
