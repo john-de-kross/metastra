@@ -6,27 +6,8 @@ const Chat = () => {
   const { chatActive } = useUserContext();
   const [openChats, setOpenChats] = useState([]);
 
-  // const conversations = [
-  //   {
-  //     id: 1,
-  //     name: "John Doe",
-  //     profile: "https://via.placeholder.com/40",
-  //     lastMessage: "Hey, how are you?",
-  //     isOnline: true,
-  //   },
-  //   {
-  //     id: 2,
-  //     name: "Jane Smith",
-  //     profile: "https://via.placeholder.com/40",
-  //     lastMessage: "See you tomorrow!",
-  //     isOnline: false,
-  //   },
-  //   // add more users as needed
-  // ];
-
   const friends = JSON.parse(localStorage.getItem("friends")) || [];
 
-  // Open chat (if exists bring to front and expand; otherwise add)
   const openChat = (user) => {
     const normalizedUser = {
       ...user,
@@ -60,49 +41,72 @@ const Chat = () => {
     <>
       {chatActive && (
         <div
-          className={`absolute p-4 top-12 right-0 z-[100] w-[380px] h-[calc(100vh-48px)] bg-white shadow-lg rounded-xl`}
+          className="absolute top-12 right-4 z-[100] w-[400px] h-[calc(100vh-60px)]
+          bg-gradient-to-b from-[#f0f7ff] via-white to-[#f9fbff] shadow-2xl 
+          rounded-2xl border border-gray-200 flex flex-col overflow-hidden"
         >
-          <div className="w-full flex justify-between items-center font-bold text-lg">
-            <div>Chats</div>
-            <div>...</div>
+          {/* Header */}
+          <div
+            className="flex justify-between items-center px-5 py-3 
+          bg-gradient-to-r from-[#0866FF] to-[#0aa4f6] text-white"
+          >
+            <h2 className="font-semibold text-lg">💬 Chats</h2>
+            <button className="hover:scale-110 transition">⋮</button>
           </div>
 
-          <div>
+          {/* Search */}
+          <div className="px-4 py-3 bg-gray-50 border-b">
             <input
               type="text"
               placeholder="Search messages"
-              className="rounded-full p-4 w-full mt-2 outline-none bg-gray-100 focus:bg-white focus:ring-1 focus:ring-[#0866FF]"
+              className="rounded-full px-4 py-2 w-full text-sm bg-white 
+              border border-gray-200 focus:border-[#0866FF] focus:ring-1 
+              focus:ring-[#0866FF] transition outline-none shadow-sm"
             />
           </div>
 
+          {/* Friends list */}
           <div
-            className="divide-y mt-4 overflow-auto"
-            style={{ maxHeight: "calc(100vh - 220px)" }}
+            className="flex-1 overflow-y-auto px-2 pb-3 space-y-2"
+            style={{ maxHeight: "calc(100vh - 200px)" }}
           >
-            {friends.map((chat) => (
+            {friends.map((chat, index) => (
               <div
                 key={chat._id}
                 onClick={() => {
                   openChat(chat);
-                  console.log(chat._id);
-                  localStorage.setItem('userId', chat._id)
+                  localStorage.setItem("userId", chat._id);
                 }}
-                className="flex items-center gap-3 p-4 bg-gray-100 cursor-pointer mb-2 "
+                className={`flex items-center gap-3 p-3 rounded-2xl cursor-pointer
+                hover:scale-[1.02] transition transform
+                ${
+                  index % 2 === 0
+                    ? "bg-gradient-to-r from-[#e0f2ff] to-[#f0faff]"
+                    : "bg-gradient-to-r from-[#fef6e4] to-[#fff8f0]"
+                }`}
               >
+                {/* Profile */}
                 <div className="relative">
                   <img
                     src={chat?.profilePics}
                     alt={chat?.name}
-                    className="w-10 h-10 rounded-full"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-white shadow-md"
                   />
                   {chat?.isOnline && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
+                    <span
+                      className="absolute bottom-0 right-0 w-3.5 h-3.5 
+                    bg-green-500 border-2 border-white rounded-full shadow-sm"
+                    />
                   )}
                 </div>
-                <div className="flex-1">
-                  <div className="font-semibold">{`${chat?.firstname} ${chat?.surname} `}</div>
-                  <div className="text-sm text-gray-500">
-                    {chat?.lastMessage || "no chat"}
+
+                {/* Text */}
+                <div className="flex-1 min-w-0">
+                  <div className="font-medium text-gray-800 truncate">
+                    {`${chat?.firstname} ${chat?.surname}`}
+                  </div>
+                  <div className="text-sm text-gray-600 truncate italic">
+                    {chat?.lastMessage || "No chat yet"}
                   </div>
                 </div>
               </div>
@@ -111,13 +115,13 @@ const Chat = () => {
         </div>
       )}
 
-      {/* Chat dock: hidden on small screens, visible md+ */}
+      {/* Chat dock */}
       <div className="hidden md:block fixed bottom-4 right-4 z-[200]">
-        {/* horizontal scrolling container so many windows don't overflow off-screen */}
         <div className="flex items-end gap-3 max-w-[calc(100vw-96px)] overflow-x-auto pr-2">
           {openChats.map((chat) => (
             <ChatWindow
               key={chat.id}
+              id={chat.id}
               chat={chat}
               onClose={closeChat}
               onToggleMinimize={toggleMinimize}
