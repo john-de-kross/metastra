@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { FaCheck } from "react-icons/fa"; // ✅ add this at top
 import {
   FaMinus,
   FaTimes,
@@ -160,19 +161,26 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
                 >
                   <div>{msg.message}</div>
 
-                  {/* ✅ timestamp neatly below the message */}
+                  {/* ✅ timestamp + gray check mark */}
                   {msg.timestamp && (
                     <div
-                      className={`text-[10px] mt-1 ${
+                      className={`flex items-center gap-1 text-[10px] mt-1 ${
                         msg.senderId === loggedInUser
-                          ? "text-gray-200 text-right"
-                          : "text-gray-500 text-left"
+                          ? "justify-end text-gray-200"
+                          : "justify-start text-gray-500"
                       }`}
                     >
-                      {new Date(msg.timestamp).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                      <span>
+                        {new Date(msg.timestamp).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}
+                      </span>
+
+                      {/* Only show check for own messages */}
+                      {msg.senderId === loggedInUser && (
+                        <FaCheck size={10} className="text-gray-300" />
+                      )}
                     </div>
                   )}
                 </div>
