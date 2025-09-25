@@ -1,5 +1,198 @@
+// import React, { useEffect, useState } from "react";
+// import {
+//   FaMinus,
+//   FaTimes,
+//   FaPhoneAlt,
+//   FaVideo,
+//   FaInfoCircle,
+//   FaPaperPlane,
+//   FaSmile,
+// } from "react-icons/fa";
+// import { useUserContext } from "../../context/userContext";
+// import axios from "axios";
+// import toastAlert from "../ALERT";
+
+// const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
+//   const { socketRef } = useUserContext();
+//   const [text, setText] = useState("");
+//   const [messages, setMessages] = useState([]);
+//   const userId = localStorage.getItem("userId");
+//   const loggedInUser = localStorage.getItem("loggedInUser");
+
+//   useEffect(() => {
+//     socketRef.current.on("receive_message", (message) => {
+//       console.log("📩 Message received via socket:", message);
+//       toastAlert.success("new message:", message.message);
+//       setMessages((prev) => [...prev, message]);
+//     });
+
+//     return () => {
+//       socketRef.current.off("receive_message");
+//     };
+//   }, [socketRef]);
+
+//   const sendMessage = async () => {
+//     if (!text.trim()) return;
+
+//     const messageData = {
+//       userId,
+//       message: text,
+//       senderId: loggedInUser,
+//     };
+
+//     try {
+//       const response = await axios.post(
+//         "https://metastra-server.onrender.com/api/v1/users/message",
+//         messageData,
+//         { withCredentials: true }
+//       );
+
+//       if (response.data.status === "success") {
+//         toastAlert.success("Message sent");
+//       }
+
+//       socketRef.current.emit("send_message", messageData);
+
+//       setMessages((prev) => [...prev, messageData]);
+//       setText("");
+//     } catch (error) {
+//       console.error("Error sending message:", error);
+//     }
+//   };
+
+//   return (
+//     <div
+//       className="relative w-80 bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col  max-h-[350px] overflow-y-scroll"
+//       style={{ minWidth: 320 }}
+//       onClick={() => {
+//         localStorage.setItem("userId", id);
+//         console.log("newId", id);
+//       }}
+//     >
+//       {/* Header */}
+//       <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 py-2 bg-gray-100 border-b z-10">
+//         {/* Left: Profile + name */}
+//         <div
+//           className="flex items-center gap-2 cursor-pointer"
+//           onClick={() => onToggleMinimize(chat.id)}
+//         >
+//           <img
+//             src={chat.profilePics}
+//             alt={chat.name}
+//             className="w-9 h-9 rounded-full object-cover border"
+//           />
+//           <div className="flex flex-col leading-tight">
+//             <span className="font-medium text-sm text-gray-800 truncate">
+//               {`${chat.firstname} ${chat.surname}`}
+//             </span>
+//             <span className="text-xs text-gray-500">Active now</span>
+//           </div>
+//         </div>
+
+//         {/* Center/Right: 3 main action icons */}
+//         <div className="flex items-center gap-3 ml-auto ">
+//           <button
+//             className="p-1 rounded-full hover:bg-gray-200"
+//             title="Voice Call"
+//           >
+//             <FaPhoneAlt size={18} />
+//           </button>
+//           <button
+//             className="p-1 rounded-full hover:bg-gray-200"
+//             title="Video Call"
+//           >
+//             <FaVideo size={18} />
+//           </button>
+//           <button className="p-1 rounded-full hover:bg-gray-200" title="Info">
+//             <FaInfoCircle size={18} />
+//           </button>
+//         </div>
+//       </div>
+//       {/* Far Right: Minimize & Close (like window controls) */}
+//       <div className="absolute right-2 top-[-2] flex gap-1 z-50">
+//         <button
+//           onClick={() => onToggleMinimize(chat.id)}
+//           className="p-1 rounded hover:bg-gray-200 bg-gray-400"
+//           title={chat.minimized ? "Expand" : "Minimize"}
+//         >
+//           <FaMinus size={13} />
+//         </button>
+//         <button
+//           onClick={() => onClose(chat.id)}
+//           className="p-1 rounded hover:bg-red-100 text-white bg-red-400"
+//           title="Close"
+//         >
+//           <FaTimes size={13} />
+//         </button>
+//       </div>
+
+//       {/* Body */}
+//       <div className="flex-1 flex flex-col bg-white pt-[60px] pb-[60px] overflow-y-auto">
+//         {!chat.minimized && (
+//           <div className="flex-1 p-3 text-sm overflow-y-auto">
+//             {messages.map((msg, idx) => (
+//               <div
+//                 key={idx}
+//                 className={`mb-2 flex ${
+//                   msg.senderId === loggedInUser
+//                     ? "justify-end"
+//                     : "justify-start"
+//                 }`}
+//               >
+//                 <div
+//                   className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
+//                     msg.senderId === loggedInUser
+//                       ? "bg-blue-500 text-white rounded-br-none"
+//                       : "bg-gray-200 text-gray-800 rounded-bl-none"
+//                   }`}
+//                 >
+//                   {msg.message}
+//                 </div>
+//               </div>
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Input */}
+//       <div className="absolute bottom-0 left-0 right-0 p-2 border-t bg-gray-50 flex items-center gap-2 z-10">
+//         <button className="text-gray-500 hover:text-blue-500">
+//           <FaSmile size={18} />
+//         </button>
+//         <input
+//           type="text"
+//           value={text}
+//           placeholder="Type a message..."
+//           className="flex-1 border rounded-full px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+//           onChange={(e) => setText(e.target.value)}
+//           onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+//         />
+//         <button
+//           className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+//           onClick={sendMessage}
+//           title="Send"
+//         >
+//           <FaPaperPlane size={16} />
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default ChatWindow;
+
+
+
 import React, { useEffect, useState } from "react";
-import { FaMinus, FaTimes } from "react-icons/fa";
+import {
+  FaMinus,
+  FaTimes,
+  FaPhoneAlt,
+  FaVideo,
+  FaInfoCircle,
+  FaPaperPlane,
+  FaSmile,
+} from "react-icons/fa";
 import { useUserContext } from "../../context/userContext";
 import axios from "axios";
 import toastAlert from "../ALERT";
@@ -8,25 +201,37 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
   const { socketRef } = useUserContext();
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+
   const userId = localStorage.getItem("userId");
   const loggedInUser = localStorage.getItem("loggedInUser");
 
   useEffect(() => {
     socketRef.current.on("receive_message", (message) => {
       console.log("📩 Message received via socket:", message);
-      setMessages((prev) => [...prev, message]); // ✅ add received message
+      toastAlert.success("new message:", message.message);
+      setMessages((prev) => [...prev, message]);
+    });
+
+    socketRef.current.on("typing", (data) => {
+      if (data.senderId === userId) {
+        setIsTyping(true);
+        // clear typing after 2s
+        setTimeout(() => setIsTyping(false), 2000);
+      }
     });
 
     return () => {
       socketRef.current.off("receive_message");
+      socketRef.current.off("typing");
     };
-  }, [socketRef]);
+  }, [socketRef, userId]);
 
   const sendMessage = async () => {
     if (!text.trim()) return;
 
     const messageData = {
-      userId: userId,
+      userId,
       message: text,
       senderId: loggedInUser,
     };
@@ -44,8 +249,8 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
 
       socketRef.current.emit("send_message", messageData);
 
-      setMessages((prev) => [...prev, messageData]); // ✅ show sent message immediately
-      setText(""); // clear input
+      setMessages((prev) => [...prev, messageData]);
+      setText("");
     } catch (error) {
       console.error("Error sending message:", error);
     }
@@ -53,7 +258,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
 
   return (
     <div
-      className="w-80 bg-white shadow-lg rounded-t-lg border flex flex-col"
+      className="relative w-80 bg-white shadow-lg rounded-lg border border-gray-200 flex flex-col  max-h-[350px] overflow-y-scroll"
       style={{ minWidth: 320 }}
       onClick={() => {
         localStorage.setItem("userId", id);
@@ -61,87 +266,124 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
       }}
     >
       {/* Header */}
-      <div
-        onClick={() => onToggleMinimize(chat.id)}
-        className="flex justify-between items-center p-2 bg-slate-800 text-slate-100 rounded-t-lg cursor-pointer select-none"
-      >
-        <div className="flex items-center gap-2">
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-3 py-2 bg-gray-100 border-b z-10">
+        {/* Left: Profile + name */}
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => onToggleMinimize(chat.id)}
+        >
           <img
             src={chat.profilePics}
             alt={chat.name}
-            className="w-8 h-8 rounded-full"
+            className="w-9 h-9 rounded-full object-cover border"
           />
-          <span className="font-semibold text-sm truncate">
-            {`${chat.firstname} ${chat.surname}`}
-          </span>
+          <div className="flex flex-col leading-tight">
+            <span className="font-medium text-sm text-gray-800 truncate">
+              {`${chat.firstname} ${chat.surname}`}
+            </span>
+            <span className="text-xs text-gray-500">Active now</span>
+          </div>
         </div>
 
-        <div className="flex gap-2">
+        {/* Center/Right: 3 main action icons */}
+        <div className="flex items-center gap-3 ml-auto ">
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onToggleMinimize(chat.id);
-            }}
-            className="p-1 rounded hover:bg-slate-700/40"
-            title={chat.minimized ? "Expand" : "Minimize"}
+            className="p-1 rounded-full hover:bg-gray-200"
+            title="Voice Call"
           >
-            <FaMinus size={14} />
+            <FaPhoneAlt size={18} />
           </button>
           <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onClose(chat.id);
-            }}
-            className="p-1 rounded hover:bg-red-600/70"
-            title="Close"
+            className="p-1 rounded-full hover:bg-gray-200"
+            title="Video Call"
           >
-            <FaTimes size={14} />
+            <FaVideo size={18} />
+          </button>
+          <button className="p-1 rounded-full hover:bg-gray-200" title="Info">
+            <FaInfoCircle size={18} />
           </button>
         </div>
       </div>
+      {/* Far Right: Minimize & Close (like window controls) */}
+      <div className="absolute right-2 top-[-2] flex gap-1 z-50">
+        <button
+          onClick={() => onToggleMinimize(chat.id)}
+          className="p-1 rounded hover:bg-gray-200 bg-gray-400"
+          title={chat.minimized ? "Expand" : "Minimize"}
+        >
+          <FaMinus size={13} />
+        </button>
+        <button
+          onClick={() => onClose(chat.id)}
+          className="p-1 rounded hover:bg-red-100 text-white bg-red-400"
+          title="Close"
+        >
+          <FaTimes size={13} />
+        </button>
+      </div>
 
       {/* Body */}
-      {!chat.minimized && (
-        <div className="flex-1 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-3 text-sm text-gray-700">
+      <div className="flex-1 flex flex-col bg-white pt-[60px] pb-[60px] overflow-y-auto">
+        {!chat.minimized && (
+          <div className="flex-1 p-3 text-sm overflow-y-auto">
             {messages.map((msg, idx) => (
               <div
                 key={idx}
-                className={`mb-3 ${
-                  msg.senderId === loggedInUser ? "text-right" : "text-left"
+                className={`mb-2 flex ${
+                  msg.senderId === loggedInUser
+                    ? "justify-end"
+                    : "justify-start"
                 }`}
               >
                 <div
-                  className={`inline-block px-3 py-1 rounded-lg ${
+                  className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
                     msg.senderId === loggedInUser
-                      ? "bg-blue-500 text-white"
-                      : "bg-gray-200"
+                      ? "bg-blue-500 text-white rounded-br-none"
+                      : "bg-gray-200 text-gray-800 rounded-bl-none"
                   }`}
                 >
                   {msg.message}
                 </div>
               </div>
             ))}
-          </div>
 
-          <div className="p-2 border-t relative">
-            <input
-              type="text"
-              value={text}
-              placeholder="Type a message..."
-              className="w-full border rounded-full px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-[#0866FF]"
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-            />
-            <button
-              className="absolute top-0 right-0 p-2 rounded-full bg-slate-800 text-slate-100 hover:bg-slate-700/40"
-              onClick={sendMessage}
-            >
-              send
-            </button>
+            {/* Typing indicator */}
+            {isTyping && (
+              <div className="text-xs italic text-gray-500 px-3 py-1">
+                {`${chat.firstname} is typing...`}
+              </div>
+            )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="absolute bottom-0 left-0 right-0 p-2 border-t bg-gray-50 flex items-center gap-2 z-10">
+        <button className="text-gray-500 hover:text-blue-500">
+          <FaSmile size={18} />
+        </button>
+        <input
+          type="text"
+          value={text}
+          placeholder="Type a message..."
+          className="flex-1 border rounded-full px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          onChange={(e) => {
+            setText(e.target.value);
+            socketRef.current.emit("typing", {
+              senderId: loggedInUser,
+              receiverId: userId,
+            });
+          }}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+        />
+        <button
+          className="p-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
+          onClick={sendMessage}
+          title="Send"
+        >
+          <FaPaperPlane size={16} />
+        </button>
+      </div>
     </div>
   );
 };
