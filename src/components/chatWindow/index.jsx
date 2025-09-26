@@ -59,6 +59,11 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
         }
         console.log("Fetched messages:", response.data.data.chatHistory);
         console.log("messages:", messages);
+
+        socketRef.current.emit("markAsSeen", {
+          chatId: id,
+          userId: loggedInUser,
+        });
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -75,6 +80,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
       message: text,
       senderId: loggedInUser,
       timestamp: new Date().toISOString(),
+      seen: false,
     };
 
     try {
@@ -171,6 +177,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
               const sender = msg.sender || msg.senderId;
               const text = msg.content || msg.message;
               const time = msg.timestamp || msg.sentAt || msg.createdAt;
+              const seen = msg.seen || false;
 
               return (
                 <div
@@ -205,7 +212,23 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
 
                         {/* ✅ checkmark only for own messages */}
                         {sender === loggedInUser && (
-                          <FaCheck size={10} className="text-gray-300" />
+                          <div className="ml-1 flex">
+                            {/* Sent (default) */}
+                            {!seen && (
+                              <FaCheck size={10} className="text-gray-300" />
+                            )}
+
+                            {/* Seen (blue double checks) */}
+                            {seen && (
+                              <>
+                                <FaCheck size={10} className="text-blue-500" />
+                                <FaCheck
+                                  size={10}
+                                  className="text-blue-500 -ml-1"
+                                />
+                              </>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
