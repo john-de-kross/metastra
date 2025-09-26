@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FaCheck } from "react-icons/fa"; // ✅ add this at top
 import {
   FaMinus,
@@ -18,6 +18,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
   const [text, setText] = useState("");
   const [messages, setMessages] = useState([]);
   const [isTyping, setIsTyping] = useState(false);
+  const readReceiptRef = useRef(null)
 
   const userId = localStorage.getItem("userId");
   const loggedInUser = localStorage.getItem("loggedInUser");
@@ -36,6 +37,15 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
         setTimeout(() => setIsTyping(false), 5000);
       }
     });
+
+    socketRef.current.on("messageSeen", ({ messageId, userId }) => {
+      console.log("Message seen:", messageId, userId);
+      setMessages((prevMessages) => (
+        prevMessages.map((msg) => (
+          msg.id === messageId ? {...msg, seen: true} : msg
+        ))
+      ) )
+    })
 
     return () => {
       socketRef.current.off("receive_message");
@@ -59,11 +69,6 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
         }
         console.log("Fetched messages:", response.data.data.chatHistory);
         console.log("messages:", messages);
-
-        socketRef.current.emit("markAsSeen", {
-          chatId: id,
-          userId: loggedInUser,
-        });
       } catch (error) {
         console.error("Error fetching messages:", error);
       }
@@ -71,6 +76,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
 
     fetchMessages();
   }, [id]);
+
 
   const sendMessage = async () => {
     if (!text.trim()) return;
@@ -102,6 +108,36 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
       console.error("Error sending message:", error);
     }
   };
+
+  useEffect(() => {
+    if (!messages.length) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        if (entry.isIntersecting) {
+          console.log("Message seen:", messages[messages.length - 1])
+          const lastMsg = messages[messages.length - 1];
+          if (lastMsg.senderId === loggedInUser) return;
+
+          socketRef.current.emit("marAsSeen", {
+            messageId: lastMsg.id,
+            chatId: id,
+            userId: loggedInUser
+          })
+        }
+      },
+      { threshold: 0.5 }
+    );
+    if (readReceiptRef.current) {
+      observer.observe(readReceiptRef.current)
+    }
+    return () => {
+      if (readReceiptRef.current) {
+        observer.unobserve(readReceiptRef.current);
+      }
+      observer.disconnect();
+    }
+  }, [messages]);
 
   return (
     <div
@@ -182,6 +218,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
               return (
                 <div
                   key={idx}
+                  ref={idx === messages.length - 1 ? readReceiptRef : null}
                   className={`mb-2 flex ${
                     sender === loggedInUser ? "justify-end" : "justify-start"
                   }`}
