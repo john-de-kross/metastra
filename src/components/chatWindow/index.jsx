@@ -43,6 +43,30 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
     };
   }, [socketRef, userId]);
 
+  useEffect(() => {
+    if (!id) return;
+
+    const fetchMessages = async () => {
+      try {
+        console.log("fetching messages for id:", id);
+        const response = await axios.get(
+          `https://metastra-server.onrender.com/api/v1/users/chats/${id}`,
+          { withCredentials: true }
+        );
+
+        if (response.data?.success === true) {
+          setMessages(response.data.data.chatHistory || []);
+        }
+        console.log("Fetched messages:", response.data.data.chatHistory);
+        console.log("messages:", messages);
+      } catch (error) {
+        console.error("Error fetching messages:", error);
+      }
+    };
+
+    fetchMessages();
+  }, [id]);
+
   const sendMessage = async () => {
     if (!text.trim()) return;
 
@@ -121,7 +145,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
           </button>
         </div>
       </div>
-      {/* Far Right: Minimize & Close (like window controls) */}
+      {/*  Right: Minimize & Close  */}
       <div className="absolute right-2 top-[-2] flex gap-1 z-50">
         <button
           onClick={() => onToggleMinimize(chat.id)}
@@ -159,9 +183,8 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
                       : "bg-gray-200 text-gray-800 rounded-bl-none"
                   }`}
                 >
-                  <div>{msg.message}</div>
+                  <div>{msg.content}</div>
 
-                  {/* ✅ timestamp + gray check mark */}
                   {msg.timestamp && (
                     <div
                       className={`flex items-center gap-1 text-[10px] mt-1 ${
