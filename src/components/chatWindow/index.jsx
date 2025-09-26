@@ -119,7 +119,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
           const lastMsg = messages[messages.length - 1];
           if (lastMsg.senderId === loggedInUser) return;
 
-          socketRef.current.emit("marAsSeen", {
+          socketRef.current.emit("markAsSeen", {
             messageId: lastMsg.id,
             chatId: id,
             userId: loggedInUser
