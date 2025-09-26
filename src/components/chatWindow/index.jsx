@@ -167,48 +167,52 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
       <div className="flex-1 flex flex-col bg-white pt-[60px] pb-[60px] overflow-y-auto">
         {!chat.minimized && (
           <div className="flex-1 p-3 text-sm overflow-y-auto">
-            {messages.map((msg, idx) => (
-              <div
-                key={idx}
-                className={`mb-2 flex ${
-                  msg.senderId === loggedInUser
-                    ? "justify-end"
-                    : "justify-start"
-                }`}
-              >
+            {messages.map((msg, idx) => {
+              const sender = msg.sender || msg.senderId;
+              const text = msg.content || msg.message;
+              const time = msg.timestamp || msg.sentAt || msg.createdAt;
+
+              return (
                 <div
-                  className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
-                    msg.senderId === loggedInUser
-                      ? "bg-blue-500 text-white rounded-br-none"
-                      : "bg-gray-200 text-gray-800 rounded-bl-none"
+                  key={idx}
+                  className={`mb-2 flex ${
+                    sender === loggedInUser ? "justify-end" : "justify-start"
                   }`}
                 >
-                  <div>{msg.content}</div>
+                  <div
+                    className={`max-w-[70%] px-3 py-2 rounded-2xl text-sm ${
+                      sender === loggedInUser
+                        ? "bg-blue-500 text-white rounded-br-none"
+                        : "bg-gray-200 text-gray-800 rounded-bl-none"
+                    }`}
+                  >
+                    <div>{text}</div>
 
-                  {msg.timestamp && (
-                    <div
-                      className={`flex items-center gap-1 text-[10px] mt-1 ${
-                        msg.senderId === loggedInUser
-                          ? "justify-end text-gray-200"
-                          : "justify-start text-gray-500"
-                      }`}
-                    >
-                      <span>
-                        {new Date(msg.timestamp).toLocaleTimeString([], {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        })}
-                      </span>
+                    {time && (
+                      <div
+                        className={`flex items-center gap-1 text-[10px] mt-1 ${
+                          sender === loggedInUser
+                            ? "justify-end text-gray-200"
+                            : "justify-start text-gray-500"
+                        }`}
+                      >
+                        <span>
+                          {new Date(time).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
+                        </span>
 
-                      {/* Only show check for own messages */}
-                      {msg.senderId === loggedInUser && (
-                        <FaCheck size={10} className="text-gray-300" />
-                      )}
-                    </div>
-                  )}
+                        {/* ✅ checkmark only for own messages */}
+                        {sender === loggedInUser && (
+                          <FaCheck size={10} className="text-gray-300" />
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
 
             {/* Typing indicator */}
             {isTyping && (
