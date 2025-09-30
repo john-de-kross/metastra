@@ -257,10 +257,10 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
                             {/* Seen (blue double checks) */}
                             {seen && (
                               <>
-                                <FaCheck size={10} className="text-blue-500" />
+                                <FaCheck size={10} className="text-white" />
                                 <FaCheck
                                   size={10}
-                                  className="text-blue-500 -ml-1"
+                                  className="text-white -ml-1"
                                 />
                               </>
                             )}
