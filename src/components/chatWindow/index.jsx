@@ -38,8 +38,8 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
       }
     });
 
-    socketRef.current.on("messageSeen", ({ messageId, userId }) => {
-      console.log("Message seen:", messageId, userId);
+    socketRef.current.on("messageSeen", ({ messageId, userId, senderId}) => {
+      console.log("Message seen:", messageId, userId, senderId);
       setMessages((prevMessages) => (
         prevMessages.map((msg) => (
           msg.id === messageId ? {...msg, seen: true} : msg
@@ -122,6 +122,7 @@ const ChatWindow = ({ id, chat, onClose, onToggleMinimize }) => {
           socketRef.current.emit("markAsSeen", {
             messageId: lastMsg._id,
             userId: id,
+            senderId: loggedInUser
           })
         }
       },
